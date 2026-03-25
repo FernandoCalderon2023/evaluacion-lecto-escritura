@@ -1,0 +1,215 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Estudiante {
+  id              String       @id @default(cuid())
+  nombre          String
+  apellido1       String
+  apellido2       String?
+  fechaNac        DateTime
+  grado           String
+  unidadEducativa String
+  gestion         Int
+  docente         String
+  sexo            String
+  codigoRude      String?
+  domicilio       String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  evaluaciones    Evaluacion[]
+}
+
+model Evaluacion {
+  id           String     @id @default(cuid())
+  estudianteId String
+  estudiante   Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
+  fecha        DateTime   @default(now())
+  evaluador    String
+
+  // Datos ingresados por el evaluador
+  edadAlEvaluar Int?    // Edad del estudiante al momento de la evaluación
+  anioEscolar   Int?    // Año de escolaridad: 1=1ro, 2=2do, ... 6=6to
+
+  // EJERCICIO 1 - Expresividad
+  tonoVoz           String @default("medio")
+  expresionMatices  Int    @default(1)
+  respetaSignosPunt String @default("AV")
+  lecturaVacilante  String @default("AV")
+  lecturaSilabica   String @default("AV")
+  lecturaCorriente  String @default("AV")
+
+  // EJERCICIO 1 - Errores (posición I|M|F|N)
+  errorCambioLetras   String @default("N")
+  errorCambioSilabas  String @default("N")
+  errorCambioPalabras String @default("N")
+  errorOmision        String @default("N")
+  errorAdicion        String @default("N")
+  errorRepeticion     String @default("N")
+  errorRotacion       String @default("N")
+  errorInversion      String @default("N")
+
+  // EJERCICIO 1 - Comprensión (S|CS|AV|N)
+  compMemoriza     String @default("AV")
+  compIdeas        String @default("AV")
+  compValora       String @default("AV")
+  compInterpreta   String @default("AV")
+  compAsocia       String @default("AV")
+
+  // EJERCICIO 2
+  ej2Bicicleta Boolean @default(false)
+  ej2Mariposa  Boolean @default(false)
+  ej2Pez       Boolean @default(false)
+
+  // EJERCICIO 3A
+  ej3a1 Boolean @default(false)
+  ej3a2 Boolean @default(false)
+  ej3a3 Boolean @default(false)
+
+  // EJERCICIO 3B
+  ej3b1 Boolean @default(false)
+  ej3b2 Boolean @default(false)
+  ej3b3 Boolean @default(false)
+
+  // EJERCICIO 4
+  ej4a Boolean @default(false)
+  ej4b Boolean @default(false)
+
+  // EJERCICIO 5A
+  ej5aFrutas   Boolean @default(false)
+  ej5aAnimales Boolean @default(false)
+  ej5aDeportes Boolean @default(false)
+
+  // EJERCICIO 5B
+  ej5b Boolean @default(false)
+
+  // EJERCICIO 6
+  ej6a Boolean @default(false)
+  ej6b Boolean @default(false)
+  ej6c Boolean @default(false)
+
+  // EJERCICIO 7
+  ej7 Boolean @default(false)
+
+  // EJERCICIO 8
+  ej8a Boolean @default(false)
+  ej8b Boolean @default(false)
+  ej8c Boolean @default(false)
+  ej8d Boolean @default(false)
+
+  // EJERCICIO 9
+  ej9a Boolean @default(false)
+  ej9b Boolean @default(false)
+  ej9c Boolean @default(false)
+  ej9d Boolean @default(false)
+
+  // EJERCICIO 10
+  ej10a Boolean @default(false)
+  ej10b Boolean @default(false)
+  ej10c Boolean @default(false)
+
+  // EJERCICIO 11A
+  ej11a1 Boolean @default(false)
+  ej11a2 Boolean @default(false)
+  ej11a3 Boolean @default(false)
+  ej11a4 Boolean @default(false)
+
+  // EJERCICIO 11B
+  ej11b1 Boolean @default(false)
+  ej11b2 Boolean @default(false)
+  ej11b3 Boolean @default(false)
+  ej11b4 Boolean @default(false)
+
+  // EJERCICIO 12
+  ej12a Boolean @default(false)
+  ej12b Boolean @default(false)
+  ej12c Boolean @default(false)
+
+  // EJERCICIO 13
+  ej13a Boolean @default(false)
+  ej13b Boolean @default(false)
+  ej13c Boolean @default(false)
+
+  // EJERCICIO 14
+  ej14a Boolean @default(false)
+  ej14b Boolean @default(false)
+  ej14c Boolean @default(false)
+
+  // EJERCICIO 15 - Dictado expresión (S|CS|AV|N)
+  dict_invierte      String @default("N")
+  dict_confOrden     String @default("N")
+  dict_omite         String @default("N")
+  dict_agrega        String @default("N")
+  dict_dificConectar String @default("N")
+  dict_espejo        String @default("N")
+
+  // Dictado caligrafía (B|R|M)
+  dict_caligUnif  String @default("B")
+  dict_caligCoord String @default("B")
+  dict_caligLimp  String @default("B")
+
+  // Dictado coherencia (B|R|M)
+  dict_cohConcord    String @default("B")
+  dict_cohSecuencia  String @default("B")
+  dict_cohEnlace     String @default("B")
+  dict_cohTema       String @default("B")
+  dict_cohEstructura String @default("B")
+
+  // Dictado producción (B|R|M)
+  dict_prodPresent    String @default("B")
+  dict_prodExtension  String @default("B")
+  dict_prodOrden      String @default("B")
+  dict_prodIdeas      String @default("B")
+  dict_prodTitulo     String @default("B")
+  dict_prodComas      String @default("B")
+  dict_prodPuntuacion String @default("B")
+  dict_prodInterAdm   String @default("B")
+  dict_prodMayusc     String @default("B")
+
+  // EJERCICIO 16 - Composición libre (misma rúbrica)
+  comp_invierte      String @default("N")
+  comp_confOrden     String @default("N")
+  comp_omite         String @default("N")
+  comp_agrega        String @default("N")
+  comp_dificConectar String @default("N")
+  comp_espejo        String @default("N")
+
+  comp_caligUnif  String @default("B")
+  comp_caligCoord String @default("B")
+  comp_caligLimp  String @default("B")
+
+  comp_cohConcord    String @default("B")
+  comp_cohSecuencia  String @default("B")
+  comp_cohEnlace     String @default("B")
+  comp_cohTema       String @default("B")
+  comp_cohEstructura String @default("B")
+
+  comp_prodPresent    String @default("B")
+  comp_prodExtension  String @default("B")
+  comp_prodOrden      String @default("B")
+  comp_prodIdeas      String @default("B")
+  comp_prodTitulo     String @default("B")
+  comp_prodComas      String @default("B")
+  comp_prodPuntuacion String @default("B")
+  comp_prodInterAdm   String @default("B")
+  comp_prodMayusc     String @default("B")
+
+  // Scores calculados
+  scoreCognitivo    Int?
+  scoreLexical      Int?
+  scoreComprension  Int?
+
+  estadoAprendizaje String?
+
+  // Análisis IA
+  analisisIA         String?
+  analisisGeneradoEn DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
