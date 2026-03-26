@@ -1,11 +1,11 @@
 import { ScaleValue, QualityValue } from "@/types/evaluacion"
 
 export const SCALE_VALUE: Record<ScaleValue, number> = {
-  S: 3, CS: 2, AV: 1, N: 0,
+  S: 3, CS: 2, AV: 1, N: 0, "": 0,
 }
 
 export const QUALITY_VALUE: Record<QualityValue, number> = {
-  B: 2, R: 1, M: 0,
+  B: 2, R: 1, M: 0, "": 0,
 }
 
 // Umbrales oficiales del instrumento (Ministerio de Educación Bolivia, 2012)

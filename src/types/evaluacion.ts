@@ -1,7 +1,7 @@
-export type ScaleValue = "S" | "CS" | "AV" | "N"
-export type QualityValue = "B" | "R" | "M"
-export type PositionValue = "I" | "M" | "F" | "N"
-export type TonoVoz = "grave" | "agudo" | "medio"
+export type ScaleValue = "S" | "CS" | "AV" | "N" | ""
+export type QualityValue = "B" | "R" | "M" | ""
+export type PositionValue = "I" | "M" | "F" | "N" | ""
+export type TonoVoz = "grave" | "agudo" | "medio" | ""
 export type EstadoAprendizaje =
   | "sin-dificultades"
   | "dificultad-leve"
@@ -14,10 +14,10 @@ export interface EvaluacionFormData {
   fecha: string
   edadAlEvaluar: number | null
   anioEscolar: number | null
+  observaciones: string | null
 
   // Ejercicio 1
-  tonoVoz: TonoVoz
-  expresionMatices: number
+  tonoVoz: TonoVoz | string
   respetaSignosPunt: ScaleValue
   lecturaVacilante: ScaleValue
   lecturaSilabica: ScaleValue
@@ -153,11 +153,12 @@ export interface EvaluacionFormData {
 export const EVALUACION_DEFAULTS: Omit<EvaluacionFormData, "estudianteId" | "evaluador" | "fecha"> = {
   edadAlEvaluar: null,
   anioEscolar: null,
-  tonoVoz: "medio", expresionMatices: 2,
-  respetaSignosPunt: "AV", lecturaVacilante: "AV", lecturaSilabica: "AV", lecturaCorriente: "AV",
-  errorCambioLetras: "N", errorCambioSilabas: "N", errorCambioPalabras: "N",
-  errorOmision: "N", errorAdicion: "N", errorRepeticion: "N", errorRotacion: "N", errorInversion: "N",
-  compMemoriza: "AV", compIdeas: "AV", compValora: "AV", compInterpreta: "AV", compAsocia: "AV",
+  observaciones: null,
+  tonoVoz: "",
+  respetaSignosPunt: "", lecturaVacilante: "", lecturaSilabica: "", lecturaCorriente: "",
+  errorCambioLetras: "", errorCambioSilabas: "", errorCambioPalabras: "",
+  errorOmision: "", errorAdicion: "", errorRepeticion: "", errorRotacion: "", errorInversion: "",
+  compMemoriza: "", compIdeas: "", compValora: "", compInterpreta: "", compAsocia: "",
   ej2Bicicleta: false, ej2Mariposa: false, ej2Pez: false,
   ej3a1: false, ej3a2: false, ej3a3: false,
   ej3b1: false, ej3b2: false, ej3b3: false,

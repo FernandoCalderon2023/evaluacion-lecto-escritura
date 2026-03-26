@@ -2,17 +2,17 @@
 import { ScaleValue } from "@/types/evaluacion"
 import { cn } from "@/lib/utils"
 
-const OPTIONS: { value: ScaleValue; label: string }[] = [
-  { value: "S",  label: "Siempre" },
-  { value: "CS", label: "Casi Siempre" },
-  { value: "AV", label: "A Veces" },
-  { value: "N",  label: "Nunca" },
+const OPTIONS: { value: ScaleValue; label: string; short: string }[] = [
+  { value: "S",  label: "Siempre",      short: "S" },
+  { value: "CS", label: "Casi Siempre", short: "CS" },
+  { value: "AV", label: "A Veces",      short: "AV" },
+  { value: "N",  label: "Nunca",        short: "N" },
 ]
 
 interface Props {
   label: string
-  value: ScaleValue
-  onChange: (v: ScaleValue) => void
+  value: ScaleValue | "" | null | undefined
+  onChange: (v: ScaleValue | "") => void
 }
 
 export function ScaleSelector({ label, value, onChange }: Props) {
@@ -24,7 +24,7 @@ export function ScaleSelector({ label, value, onChange }: Props) {
           <button
             key={o.value}
             type="button"
-            onClick={() => onChange(o.value)}
+            onClick={() => onChange(value === o.value ? "" : o.value)}
             className={cn(
               "px-3 py-1.5 rounded-md text-xs font-medium border transition-colors",
               value === o.value
@@ -32,9 +32,19 @@ export function ScaleSelector({ label, value, onChange }: Props) {
                 : "bg-white border-slate-300 text-slate-600 hover:border-blue-400"
             )}
           >
-            {o.value} — {o.label}
+            {o.short} — {o.label}
           </button>
         ))}
+        {value && String(value) !== "" && (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="px-2 py-1.5 rounded-md text-xs text-slate-400 hover:text-red-500 transition-colors"
+            title="Dejar en blanco"
+          >
+            ✕
+          </button>
+        )}
       </div>
     </div>
   )

@@ -94,12 +94,24 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
         </div>
       </div>
 
+      <div className="space-y-1">
+        <Label>Observaciones / Notas</Label>
+        <textarea
+          value={state.observaciones ?? ""}
+          onChange={(e) => set("observaciones")(e.target.value || null)}
+          placeholder="Ej: No se evaluó lectura porque el estudiante aún no lee. Sección X dejada en blanco porque..."
+          className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] resize-y"
+          rows={3}
+        />
+        <p className="text-xs text-slate-400">Use este campo para anotar por qué se dejaron secciones en blanco u otras observaciones relevantes.</p>
+      </div>
+
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
         <p className="font-medium mb-1">Instrucciones</p>
         <p>
           Complete los datos de cada ejercicio según las respuestas del estudiante en el cuadernillo físico.
-          Use el botón &quot;Siguiente&quot; para avanzar entre ejercicios. Puede navegar entre pasos haciendo
-          clic en los números de progreso.
+          Puede dejar campos en blanco si no aplican — use el campo de observaciones para explicar por qué.
+          Use el botón &quot;Siguiente&quot; para avanzar entre ejercicios.
         </p>
       </div>
     </div>

@@ -11,8 +11,8 @@ const OPTIONS: { value: PositionValue; label: string }[] = [
 
 interface Props {
   label: string
-  value: PositionValue
-  onChange: (v: PositionValue) => void
+  value: PositionValue | "" | null | undefined
+  onChange: (v: PositionValue | "") => void
 }
 
 export function PositionSelector({ label, value, onChange }: Props) {
@@ -24,7 +24,7 @@ export function PositionSelector({ label, value, onChange }: Props) {
           <button
             key={o.value}
             type="button"
-            onClick={() => onChange(o.value)}
+            onClick={() => onChange(value === o.value ? "" : o.value)}
             className={cn(
               "px-3 py-1.5 rounded-md text-xs font-medium border transition-colors",
               value === o.value && o.value !== "N"
@@ -37,6 +37,16 @@ export function PositionSelector({ label, value, onChange }: Props) {
             {o.label}
           </button>
         ))}
+        {value && String(value) !== "" && value !== "N" && (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="px-2 py-1.5 rounded-md text-xs text-slate-400 hover:text-red-500 transition-colors"
+            title="Dejar en blanco"
+          >
+            ✕
+          </button>
+        )}
       </div>
     </div>
   )

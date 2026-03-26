@@ -33,12 +33,12 @@ model Evaluacion {
   evaluador    String
 
   // Datos ingresados por el evaluador
-  edadAlEvaluar Int?    // Edad del estudiante al momento de la evaluación
-  anioEscolar   Int?    // Año de escolaridad: 1=1ro, 2=2do, ... 6=6to
+  edadAlEvaluar  Int?    // Edad del estudiante al momento de la evaluación
+  anioEscolar    Int?    // Año de escolaridad: 1=1ro, 2=2do, ... 6=6to
+  observaciones  String?  // Notas del evaluador (campos en blanco, situaciones especiales)
 
   // EJERCICIO 1 - Expresividad
-  tonoVoz           String @default("medio")
-  expresionMatices  Int    @default(1)
+  tonoVoz           String? @default("medio")
   respetaSignosPunt String @default("AV")
   lecturaVacilante  String @default("AV")
   lecturaSilabica   String @default("AV")

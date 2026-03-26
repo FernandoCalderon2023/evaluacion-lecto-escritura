@@ -1,5 +1,5 @@
 "use client"
-import { EvaluacionFormData, ScaleValue, PositionValue, TonoVoz } from "@/types/evaluacion"
+import { EvaluacionFormData, TonoVoz } from "@/types/evaluacion"
 import { ScaleSelector } from "@/components/shared/ScaleSelector"
 import { PositionSelector } from "@/components/shared/PositionSelector"
 import { cn } from "@/lib/utils"
@@ -32,7 +32,7 @@ export function Step01Lectura({ state, set }: Props) {
               <button
                 key={t.value}
                 type="button"
-                onClick={() => set("tonoVoz")(t.value)}
+                onClick={() => set("tonoVoz")(state.tonoVoz === t.value ? "" : t.value)}
                 className={cn(
                   "px-4 py-2 rounded-lg text-sm border font-medium transition-colors",
                   state.tonoVoz === t.value
@@ -46,33 +46,15 @@ export function Step01Lectura({ state, set }: Props) {
           </div>
         </div>
 
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-700">
-            Expresión de matices emocionales (1 = ninguno, 4 = muy expresivo)
-          </label>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4].map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => set("expresionMatices")(n)}
-                className={cn(
-                  "w-10 h-10 rounded-lg border font-bold text-sm transition-colors",
-                  state.expresionMatices === n
-                    ? "bg-blue-600 border-blue-600 text-white"
-                    : "bg-white border-slate-300 text-slate-600 hover:border-blue-400"
-                )}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <p className="text-xs font-semibold text-blue-700 mb-1">Expresión de matices emocionales</p>
+          <p className="text-xs text-blue-600">Se evalúa a través de los 4 indicadores siguientes. Puede dejar en blanco si no aplica.</p>
         </div>
 
-        <ScaleSelector label="Respeta los signos de puntuación" value={state.respetaSignosPunt ?? "AV"} onChange={(v) => set("respetaSignosPunt")(v)} />
-        <ScaleSelector label="Lectura vacilante" value={state.lecturaVacilante ?? "AV"} onChange={(v) => set("lecturaVacilante")(v)} />
-        <ScaleSelector label="Lectura silábica" value={state.lecturaSilabica ?? "AV"} onChange={(v) => set("lecturaSilabica")(v)} />
-        <ScaleSelector label="Lectura corriente (fluida)" value={state.lecturaCorriente ?? "AV"} onChange={(v) => set("lecturaCorriente")(v)} />
+        <ScaleSelector label="Respeta los signos de puntuación" value={state.respetaSignosPunt} onChange={(v) => set("respetaSignosPunt")(v)} />
+        <ScaleSelector label="Lectura vacilante" value={state.lecturaVacilante} onChange={(v) => set("lecturaVacilante")(v)} />
+        <ScaleSelector label="Lectura silábica" value={state.lecturaSilabica} onChange={(v) => set("lecturaSilabica")(v)} />
+        <ScaleSelector label="Lectura corriente (fluida)" value={state.lecturaCorriente} onChange={(v) => set("lecturaCorriente")(v)} />
       </div>
 
       {/* Errores */}
@@ -80,14 +62,15 @@ export function Step01Lectura({ state, set }: Props) {
         <h3 className="font-medium text-slate-700 text-sm uppercase tracking-wide">
           Errores en la lectura — posición donde ocurre
         </h3>
-        <PositionSelector label="Cambios de letras (ej: b→d)" value={state.errorCambioLetras ?? "N"} onChange={(v) => set("errorCambioLetras")(v)} />
-        <PositionSelector label="Cambios de sílabas" value={state.errorCambioSilabas ?? "N"} onChange={(v) => set("errorCambioSilabas")(v)} />
-        <PositionSelector label="Cambios de palabras" value={state.errorCambioPalabras ?? "N"} onChange={(v) => set("errorCambioPalabras")(v)} />
-        <PositionSelector label="Omisión de sonidos" value={state.errorOmision ?? "N"} onChange={(v) => set("errorOmision")(v)} />
-        <PositionSelector label="Adición de sonidos" value={state.errorAdicion ?? "N"} onChange={(v) => set("errorAdicion")(v)} />
-        <PositionSelector label="Repeticiones" value={state.errorRepeticion ?? "N"} onChange={(v) => set("errorRepeticion")(v)} />
-        <PositionSelector label="Rotaciones (b↔d, p↔q, u↔n)" value={state.errorRotacion ?? "N"} onChange={(v) => set("errorRotacion")(v)} />
-        <PositionSelector label="Inversiones (el↔le, sol↔los)" value={state.errorInversion ?? "N"} onChange={(v) => set("errorInversion")(v)} />
+        <p className="text-xs text-slate-500">Haga clic de nuevo para desmarcar. Puede dejar en blanco si no aplica.</p>
+        <PositionSelector label="Cambios de letras (ej: b→d)" value={state.errorCambioLetras} onChange={(v) => set("errorCambioLetras")(v)} />
+        <PositionSelector label="Cambios de sílabas" value={state.errorCambioSilabas} onChange={(v) => set("errorCambioSilabas")(v)} />
+        <PositionSelector label="Cambios de palabras" value={state.errorCambioPalabras} onChange={(v) => set("errorCambioPalabras")(v)} />
+        <PositionSelector label="Omisión de sonidos" value={state.errorOmision} onChange={(v) => set("errorOmision")(v)} />
+        <PositionSelector label="Adición de sonidos" value={state.errorAdicion} onChange={(v) => set("errorAdicion")(v)} />
+        <PositionSelector label="Repeticiones" value={state.errorRepeticion} onChange={(v) => set("errorRepeticion")(v)} />
+        <PositionSelector label="Rotaciones (b↔d, p↔q, u↔n)" value={state.errorRotacion} onChange={(v) => set("errorRotacion")(v)} />
+        <PositionSelector label="Inversiones (el↔le, sol↔los)" value={state.errorInversion} onChange={(v) => set("errorInversion")(v)} />
       </div>
 
       {/* Comprensión */}
@@ -95,11 +78,11 @@ export function Step01Lectura({ state, set }: Props) {
         <h3 className="font-medium text-slate-700 text-sm uppercase tracking-wide">
           Comprensión lectora — 6 preguntas del texto
         </h3>
-        <ScaleSelector label="Memoriza aspectos significativos del texto" value={state.compMemoriza ?? "AV"} onChange={(v) => set("compMemoriza")(v)} />
-        <ScaleSelector label="Establece ideas centrales y secundarias" value={state.compIdeas ?? "AV"} onChange={(v) => set("compIdeas")(v)} />
-        <ScaleSelector label="Valora el contenido del texto" value={state.compValora ?? "AV"} onChange={(v) => set("compValora")(v)} />
-        <ScaleSelector label="Interpreta el texto" value={state.compInterpreta ?? "AV"} onChange={(v) => set("compInterpreta")(v)} />
-        <ScaleSelector label="Asocia con otros contextos y situaciones" value={state.compAsocia ?? "AV"} onChange={(v) => set("compAsocia")(v)} />
+        <ScaleSelector label="Memoriza aspectos significativos del texto" value={state.compMemoriza} onChange={(v) => set("compMemoriza")(v)} />
+        <ScaleSelector label="Establece ideas centrales y secundarias" value={state.compIdeas} onChange={(v) => set("compIdeas")(v)} />
+        <ScaleSelector label="Valora el contenido del texto" value={state.compValora} onChange={(v) => set("compValora")(v)} />
+        <ScaleSelector label="Interpreta el texto" value={state.compInterpreta} onChange={(v) => set("compInterpreta")(v)} />
+        <ScaleSelector label="Asocia con otros contextos y situaciones" value={state.compAsocia} onChange={(v) => set("compAsocia")(v)} />
       </div>
     </div>
   )
