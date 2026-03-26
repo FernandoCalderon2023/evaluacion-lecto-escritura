@@ -148,8 +148,8 @@ ${expectativas}
 ## RESULTADOS DEL INSTRUMENTO DE LECTO-ESCRITURA (MINEDU 2012)
 
 ### 1. LECTURA EN VOZ ALTA
-- Tono de voz: ${ev.tonoVoz}
-- Expresión emocional: ${ev.expresionMatices}/4
+- Tono de voz: ${ev.tonoVoz || "no registrado"}
+- Expresividad — Signos de puntuación: ${scaleName(ev.respetaSignosPunt)} | Vacilante: ${scaleName(ev.lecturaVacilante)} | Silábica: ${scaleName(ev.lecturaSilabica)} | Corriente: ${scaleName(ev.lecturaCorriente)}
 - Tipo de lectura: ${scores.lectura.tipoLectura}
 - Errores (${scores.lectura.erroresCount}/8): ${scores.lectura.erroresPresentes.join(", ") || "Ninguno"}
 - Comprensión lectora: ${pct(scores.lectura.comprensionTotal, 15)}

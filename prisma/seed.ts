@@ -43,7 +43,7 @@ async function main() {
       estudianteId: est1.id,
       evaluador: "Prof. Ana Flores",
       tonoVoz: "medio",
-      expresionMatices: 2,
+
       respetaSignosPunt: "AV",
       lecturaVacilante: "CS",
       lecturaSilabica: "AV",
@@ -90,7 +90,7 @@ async function main() {
       estudianteId: est2.id,
       evaluador: "Prof. Ana Flores",
       tonoVoz: "medio",
-      expresionMatices: 3,
+
       respetaSignosPunt: "S",
       lecturaVacilante: "N",
       lecturaSilabica: "N",
