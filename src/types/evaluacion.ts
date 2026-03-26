@@ -79,6 +79,75 @@ export interface EvaluacionFormData {
   comp_prodOrden: QualityValue; comp_prodIdeas: QualityValue; comp_prodTitulo: QualityValue
   comp_prodComas: QualityValue; comp_prodPuntuacion: QualityValue
   comp_prodInterAdm: QualityValue; comp_prodMayusc: QualityValue
+
+  // ========== BPM - Batería Psicomotora ==========
+  // Control Respiratorio (1-4)
+  bpm_inspiracion: number | null
+  bpm_espiracion: number | null
+  bpm_apnea: number | null
+
+  // Tonicidad (1-4)
+  bpm_fatigabilidad: number | null
+  bpm_extensibilidadMI: number | null
+  bpm_extensibilidadMS: number | null
+  bpm_pasividad: number | null
+  bpm_paratoniaMI: number | null
+  bpm_paratoniaMS: number | null
+  bpm_diadocMD: number | null
+  bpm_diadocMI: number | null
+  bpm_sincinBucales: number | null
+  bpm_sincinContralat: number | null
+
+  // Equilibrio (1-4)
+  bpm_inamovilidad: number | null
+  bpm_eqApoyoRect: number | null
+  bpm_eqPuntaPies: number | null
+  bpm_eqApoyoUnPie: number | null
+  bpm_eqMarchaControl: number | null
+  bpm_eqBancoAdelante: number | null
+  bpm_eqBancoAtras: number | null
+  bpm_eqBancoDerecho: number | null
+  bpm_eqBancoIzquierdo: number | null
+  bpm_eqPieCojoIzq: number | null
+  bpm_eqPieCojoDer: number | null
+  bpm_eqPiesJuntosAdel: number | null
+  bpm_eqPiesJuntosAtras: number | null
+  bpm_eqPiesJuntosOjosCerr: number | null
+
+  // Lateralidad (I/D)
+  bpm_latOcular: string | null
+  bpm_latAuditiva: string | null
+  bpm_latManual: string | null
+  bpm_latPedal: string | null
+  bpm_latInnata: string | null
+  bpm_latAdquirida: string | null
+
+  // Noción del Cuerpo (1-4)
+  bpm_sentidoKinest: number | null
+  bpm_reconocimientoID: number | null
+  bpm_autoimagenCara: number | null
+  bpm_imitacionGestos: number | null
+  bpm_dibujoCuerpo: number | null
+
+  // Estructuración Espacio-Temporal (1-4)
+  bpm_etOrganizacion: number | null
+  bpm_etEstructDinamica: number | null
+  bpm_etRepTopografica: number | null
+  bpm_etEstructRitmica: number | null
+
+  // Praxia Global (1-4)
+  bpm_pgCoordOculoManual: number | null
+  bpm_pgCoordOculoPodal: number | null
+  bpm_pgDismetria: number | null
+  bpm_pgDisociacion: number | null
+  bpm_pgMS: number | null
+  bpm_pgMI: number | null
+  bpm_pgAgilidades: number | null
+
+  // Praxia Fina (1-4)
+  bpm_pfCoordDinamManual: number | null
+  bpm_pfTamborilear: number | null
+  bpm_pfVelocidadPrecision: number | null
 }
 
 export const EVALUACION_DEFAULTS: Omit<EvaluacionFormData, "estudianteId" | "evaluador" | "fecha"> = {
@@ -116,4 +185,22 @@ export const EVALUACION_DEFAULTS: Omit<EvaluacionFormData, "estudianteId" | "eva
   comp_cohConcord: "B", comp_cohSecuencia: "B", comp_cohEnlace: "B", comp_cohTema: "B", comp_cohEstructura: "B",
   comp_prodPresent: "B", comp_prodExtension: "B", comp_prodOrden: "B", comp_prodIdeas: "B",
   comp_prodTitulo: "B", comp_prodComas: "B", comp_prodPuntuacion: "B", comp_prodInterAdm: "B", comp_prodMayusc: "B",
+  // BPM defaults
+  bpm_inspiracion: null, bpm_espiracion: null, bpm_apnea: null,
+  bpm_fatigabilidad: null, bpm_extensibilidadMI: null, bpm_extensibilidadMS: null,
+  bpm_pasividad: null, bpm_paratoniaMI: null, bpm_paratoniaMS: null,
+  bpm_diadocMD: null, bpm_diadocMI: null, bpm_sincinBucales: null, bpm_sincinContralat: null,
+  bpm_inamovilidad: null, bpm_eqApoyoRect: null, bpm_eqPuntaPies: null, bpm_eqApoyoUnPie: null,
+  bpm_eqMarchaControl: null, bpm_eqBancoAdelante: null, bpm_eqBancoAtras: null,
+  bpm_eqBancoDerecho: null, bpm_eqBancoIzquierdo: null, bpm_eqPieCojoIzq: null,
+  bpm_eqPieCojoDer: null, bpm_eqPiesJuntosAdel: null, bpm_eqPiesJuntosAtras: null,
+  bpm_eqPiesJuntosOjosCerr: null,
+  bpm_latOcular: null, bpm_latAuditiva: null, bpm_latManual: null,
+  bpm_latPedal: null, bpm_latInnata: null, bpm_latAdquirida: null,
+  bpm_sentidoKinest: null, bpm_reconocimientoID: null, bpm_autoimagenCara: null,
+  bpm_imitacionGestos: null, bpm_dibujoCuerpo: null,
+  bpm_etOrganizacion: null, bpm_etEstructDinamica: null, bpm_etRepTopografica: null, bpm_etEstructRitmica: null,
+  bpm_pgCoordOculoManual: null, bpm_pgCoordOculoPodal: null, bpm_pgDismetria: null,
+  bpm_pgDisociacion: null, bpm_pgMS: null, bpm_pgMI: null, bpm_pgAgilidades: null,
+  bpm_pfCoordDinamManual: null, bpm_pfTamborilear: null, bpm_pfVelocidadPrecision: null,
 }

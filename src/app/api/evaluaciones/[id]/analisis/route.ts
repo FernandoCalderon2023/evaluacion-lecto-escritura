@@ -38,7 +38,7 @@ export async function POST(_: NextRequest, { params }: { params: { id: string } 
       data: {
         analisisIA: JSON.stringify(analisis),
         analisisGeneradoEn: new Date().toISOString(),
-        estadoAprendizaje: analisis.diagnostico.nivelDificultad,
+        estadoAprendizaje: analisis.perfilDAE.nivelDificultad,
       },
     })
 

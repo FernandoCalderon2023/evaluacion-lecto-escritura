@@ -27,6 +27,18 @@ export async function POST(req: NextRequest) {
   // Calcular scores del servidor
   const scores = calcularScores(body)
 
+  // Preparar datos BPM calculados
+  const bpmScores = scores.bpm.applied ? {
+    bpmScoreTonicidad: scores.bpm.tonicidad.score,
+    bpmScoreEquilibrio: scores.bpm.equilibrio.score,
+    bpmScoreLateralidad: scores.bpm.lateralidad.score,
+    bpmScoreNocionCuerpo: scores.bpm.nocionCuerpo.score,
+    bpmScoreEstructuracionET: scores.bpm.estructuracionET.score,
+    bpmScorePraxiaGlobal: scores.bpm.praxiaGlobal.score,
+    bpmScorePraxiaFina: scores.bpm.praxiaFina.score,
+    bpmPerfilGeneral: scores.bpm.perfilGeneral,
+  } : {}
+
   const evaluacion = await prisma.evaluacion.create({
     data: {
       ...body,
@@ -35,6 +47,7 @@ export async function POST(req: NextRequest) {
       scoreLexical: scores.lexical.totalCorrect,
       scoreComprension: scores.lectura.comprensionTotal,
       estadoAprendizaje: scores.estadoGeneral,
+      ...bpmScores,
     },
   })
   return NextResponse.json(evaluacion, { status: 201 })

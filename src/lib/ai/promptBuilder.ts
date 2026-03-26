@@ -2,66 +2,33 @@ import { Estudiante, Evaluacion } from "@prisma/client"
 import { AllScores } from "@/types/scoring"
 
 function pct(val: number, max: number) {
-  return `${val}/${max} (${Math.round((val / max) * 100)}%)`
+  return max > 0 ? `${val}/${max} (${Math.round((val / max) * 100)}%)` : `${val}/${max}`
 }
 
 function scaleName(v: string) {
   return { S: "Siempre", CS: "Casi Siempre", AV: "A veces", N: "Nunca" }[v] ?? v
 }
 
-/**
- * Expectativas curriculares por año de escolaridad.
- * Fuente: Planes y Programas EPCV, R.M. 1040/2022 – Ministerio de Educación Bolivia.
- */
+function perfilLabel(p: string) {
+  return {
+    "apráxico": "Débil (apráxico)",
+    "dispráxico": "Satisfactorio (dispráxico)",
+    "eupráxico": "Bueno (eupráxico)",
+    "hiperpráxico": "Excelente (hiperpráxico)",
+  }[p] ?? p
+}
+
 function getExpectativasCurriculares(anio: number): string {
   if (anio === 0) return "Año de escolaridad no identificado."
-
-  const edadEsperada = 5 + anio // 1ro=6, 2do=7, etc.
-
+  const edadEsperada = 5 + anio
   const expectativas: Record<number, string> = {
-    1: `PRIMER AÑO DE ESCOLARIDAD (edad esperada: ~${edadEsperada} años)
-Comunicación oral: Expresa experiencias y emociones de manera coherente usando normas de cortesía, recursos no verbales y paraverbales en LC/LO/LE.
-Lectura comprensiva: Comprende textos literarios y no literarios relacionándolos con sus propias experiencias; extrae información explícita e implícita sobre aspectos del texto.
-Escritura creativa: Escribe textos usando el código alfabético, considerando destinatario y propósito comunicativo.
-Procesos cognitivos esperados: Nombra y describe objetos del entorno; sigue instrucciones simples; clasifica objetos por categorías; reconoce orientación espacial básica; establece secuencias temporales sencillas.
-Procesos léxicos esperados: Identifica sonidos iniciales de palabras; produce rimas simples; reconoce patrones sonoros básicos.`,
-
-    2: `SEGUNDO AÑO DE ESCOLARIDAD (edad esperada: ~${edadEsperada} años)
-Comunicación oral: Interactúa en situaciones comunicativas expresando sus ideas, demostrando interés y respetando la opinión del otro y los turnos de participación.
-Lectura comprensiva: Lee en voz alta textos en cantidad de 60 a 84 palabras por minuto, con precisión y expresividad adecuada. Lee y comprende textos literarios y no literarios con oraciones simples detectando ideas centrales e información explícita e implícita.
-Escritura creativa: Escribe creativamente textos literarios y no literarios de manera organizada y consecuente considerando el contenido, propósito comunicativo y destinatario.
-Procesos cognitivos esperados: Nombra objetos y explica su uso; sigue instrucciones de dos pasos; clasifica imágenes en categorías; realiza asociaciones verbo-objeto; reconoce secuencias temporales.
-Procesos léxicos esperados: Produce y reconoce rimas; sustituye fonemas simples; identifica omisiones de sonidos.`,
-
-    3: `TERCER AÑO DE ESCOLARIDAD (edad esperada: ~${edadEsperada} años)
-Comunicación oral: Expresa oralmente ideas y emociones de manera coherente y articulada de acuerdo con el propósito comunicativo, el contexto y características del texto, utilizando recursos no verbales y paraverbales.
-Lectura comprensiva: Lee en voz alta con fluidez. Interpreta textos literarios y no literarios determinando las consecuencias de hechos o acciones, comparando personajes, reconociendo el problema y la solución en una narración, fundamentando su opinión con información del texto y su experiencia.
-Escritura creativa: Escribe creativamente textos literarios y no literarios considerando el destinatario, propósito, tomando en cuenta la secuencia lógica, estructura, uso de conectores adecuados, incluyendo descripciones y diálogo para desarrollar la trama.
-Procesos cognitivos esperados: Opera con análisis y síntesis en situaciones concretas; realiza inferencias básicas; comprende relaciones de causa-consecuencia; usa vocabulario para explicar conceptos.
-Procesos léxicos esperados: Produce rimas con fluidez; sustituye y omite fonemas con precisión; realiza inversiones silábicas simples.`,
-
-    4: `CUARTO AÑO DE ESCOLARIDAD (edad esperada: ~${edadEsperada} años)
-Comunicación oral: Expresa oralmente ideas y emociones de manera coherente y articulada, interactúa para compartir ideas demostrando respeto y fundamentando sus ideas.
-Lectura comprensiva: Interpreta textos literarios y no literarios haciendo inferencias a partir de la información del texto y de sus experiencias y conocimiento, identificando las acciones principales del relato, describiendo el ambiente y las costumbres, relacionando la intención del autor, información de tablas, mapas o diagramas, comparando información entre dos textos sobre el mismo tema, llegando a conclusiones.
-Escritura creativa: Escribe creativamente textos literarios y no literarios con secuencia lógica de eventos (inicio, desarrollo y desenlace), conectores adecuados, descripción y diálogo para desarrollar la trama, vocabulario pertinente.
-Procesos cognitivos esperados: Abstracción y generalización; comprende y usa el lenguaje figurado en contextos; razonamiento lógico en situaciones cotidianas; inferencias complejas.
-Procesos léxicos esperados: Maneja conciencia fonológica avanzada: sustitución, omisión e inversión de fonemas y sílabas con precisión.`,
-
-    5: `QUINTO AÑO DE ESCOLARIDAD (edad esperada: ~${edadEsperada} años)
-Comunicación oral: Expresa oralmente ideas y emociones de manera coherente, interactúa en situaciones comunicativas demostrando empatía, fundamenta sus ideas desde actitudes de escucha activa.
-Lectura comprensiva: Interpreta textos literarios y no literarios haciendo inferencias a partir de la información del texto y sus experiencias, identificando la idea central, interpretando el lenguaje figurado, deduciendo las características de los personajes, relacionando información de imágenes, gráficos, comparando información entre dos textos, llegando a conclusiones sustentadas en la información del texto.
-Escritura creativa: Escribe creativamente textos literarios y no literarios considerando el destinatario, propósito, organizando el contenido en una estructura con idea central por cada párrafo, incorporando vocabulario pertinente.
-Procesos cognitivos esperados: Pensamiento abstracto consolidado; razonamiento hipotético; análisis crítico de información; uso estratégico del lenguaje.
-Procesos léxicos esperados: Conciencia fonológica y morfológica consolidada; manejo de vocabulario amplio y preciso.`,
-
-    6: `SEXTO AÑO DE ESCOLARIDAD (edad esperada: ~${edadEsperada} años)
-Comunicación oral: Interactúa en situaciones comunicativas expresando sus ideas demostrando respeto, fundamentando sus ideas, regulando su participación desde la escucha activa en la creación de consensos.
-Lectura comprensiva: Interpreta textos literarios y no literarios, haciendo inferencias a partir de la información del texto y de sus experiencias y conocimiento, identificando la idea central, interpretando el lenguaje figurado, deduciendo las características de los personajes, relacionando la información de imágenes, gráficos, comparando información entre dos textos sobre el mismo tema, llegando a conclusiones sustentadas en la información del texto.
-Escritura creativa: Escribe creativamente textos literarios y no literarios, considerando el destinatario, propósito, organizando el contenido en una estructura, desarrollando una idea central por cada párrafo, incorporando un vocabulario pertinente, a partir de sus conocimientos e investigación.
-Procesos cognitivos esperados: Pensamiento crítico complejo; argumentación con evidencia; producción de conocimiento propio con estructura; metacognición.
-Procesos léxicos esperados: Dominio fonológico completo; amplio vocabulario activo y pasivo; comprensión de estructuras morfológicas complejas.`,
+    1: `PRIMER AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Expresa experiencias y emociones usando normas de cortesía.\nLectura: Comprende textos literarios y no literarios relacionándolos con experiencias propias.\nEscritura: Escribe textos usando código alfabético considerando destinatario y propósito.\nCognitivo esperado: Nombra y describe objetos, sigue instrucciones simples, clasifica por categorías, orientación espacial básica, secuencias temporales.\nLéxico esperado: Identifica sonidos iniciales, produce rimas simples, reconoce patrones sonoros.`,
+    2: `SEGUNDO AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Interactúa expresando ideas, respetando turnos.\nLectura: Lee 60-84 palabras/min con precisión y expresividad. Comprende textos con oraciones simples.\nEscritura: Escribe textos literarios y no literarios de manera organizada.\nCognitivo esperado: Nombra y explica uso de objetos, instrucciones de dos pasos, clasifica imágenes, asociaciones verbo-objeto, secuencias temporales.\nLéxico esperado: Produce y reconoce rimas, sustituye fonemas simples, identifica omisiones.`,
+    3: `TERCER AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Expresa ideas de manera coherente y articulada según propósito y contexto.\nLectura: Lee con fluidez. Interpreta textos determinando consecuencias, comparando personajes, reconociendo problema/solución.\nEscritura: Escribe con secuencia lógica, estructura, conectores, descripciones y diálogo.\nCognitivo esperado: Análisis y síntesis concretos, inferencias básicas, causa-consecuencia.\nLéxico esperado: Rimas con fluidez, sustitución y omisión de fonemas con precisión, inversiones silábicas.`,
+    4: `CUARTO AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Interactúa fundamentando ideas con respeto.\nLectura: Hace inferencias, identifica acciones principales, describe ambiente, relaciona intención del autor, compara textos.\nEscritura: Secuencia lógica (inicio-desarrollo-desenlace), conectores, vocabulario pertinente.\nCognitivo esperado: Abstracción y generalización, lenguaje figurado, razonamiento lógico, inferencias complejas.\nLéxico esperado: Conciencia fonológica avanzada: sustitución, omisión e inversión con precisión.`,
+    5: `QUINTO AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Fundamenta ideas desde escucha activa y empatía.\nLectura: Identifica idea central, interpreta lenguaje figurado, deduce características de personajes, compara textos.\nEscritura: Estructura con idea central por párrafo, vocabulario pertinente.\nCognitivo esperado: Pensamiento abstracto consolidado, razonamiento hipotético, análisis crítico.\nLéxico esperado: Conciencia fonológica y morfológica consolidada, vocabulario amplio.`,
+    6: `SEXTO AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Fundamenta ideas, regula participación, crea consensos.\nLectura: Inferencias complejas, idea central, lenguaje figurado, conclusiones sustentadas.\nEscritura: Idea central por párrafo, vocabulario pertinente, investigación propia.\nCognitivo esperado: Pensamiento crítico complejo, argumentación con evidencia, metacognición.\nLéxico esperado: Dominio fonológico completo, vocabulario activo y pasivo amplio.`,
   }
-
   return expectativas[anio] ?? "Año de escolaridad fuera del rango primario (1-6)."
 }
 
@@ -70,130 +37,187 @@ export function buildAnalysisPrompt(
   ev: Evaluacion,
   scores: AllScores
 ): string {
-  // Datos ingresados explícitamente por el evaluador
+  const esFemenino = estudiante.sexo === "Femenino"
+  const elLa = esFemenino ? "la" : "el"
+  const estudianteLabel = esFemenino ? "la estudiante" : "el estudiante"
+
   const edad = (ev as Evaluacion & { edadAlEvaluar?: number | null }).edadAlEvaluar
   const anioEscolar = (ev as Evaluacion & { anioEscolar?: number | null }).anioEscolar ?? 0
-
-  const edadEsperadaParaGrado = anioEscolar > 0 ? 5 + anioEscolar : null
-  const diferenciaEdad = (edad != null && edadEsperadaParaGrado != null)
-    ? edad - edadEsperadaParaGrado
-    : null
+  const edadEsperada = anioEscolar > 0 ? 5 + anioEscolar : null
+  const diferenciaEdad = (edad != null && edadEsperada != null) ? edad - edadEsperada : null
 
   const notaEdad = edad == null
-    ? "edad no registrada"
+    ? "no registrada"
     : diferenciaEdad === null
-      ? `${edad} años (año escolar no registrado)`
+      ? `${edad} años`
       : diferenciaEdad === 0
         ? `${edad} años (acorde al grado)`
         : diferenciaEdad > 0
-          ? `${edad} años — ${diferenciaEdad} año(s) mayor de lo esperado para su grado (posible repitencia o ingreso tardío)`
-          : `${edad} años — ${Math.abs(diferenciaEdad)} año(s) menor de lo esperado para su grado (ingreso temprano)`
+          ? `${edad} años — ${diferenciaEdad} año(s) mayor de lo esperado (posible repitencia o ingreso tardío)`
+          : `${edad} años — ${Math.abs(diferenciaEdad)} año(s) menor de lo esperado (ingreso temprano)`
 
   const expectativas = getExpectativasCurriculares(anioEscolar)
 
-  return `Eres un psicopedagogo especialista en dificultades de aprendizaje de lectura y escritura en Bolivia.
-Analiza los resultados de la siguiente evaluación aplicada con el "Instrumento para la Detección y Evaluación de las Dificultades en el Aprendizaje de Lecto-Escritura" del Ministerio de Educación del Estado Plurinacional de Bolivia (2012).
+  // BPM section (only if applied)
+  let bpmSection = ""
+  if (scores.bpm.applied) {
+    const b = scores.bpm
+    bpmSection = `
+
+## RESULTADOS DE LA BATERÍA PSICOMOTORA (BPM — Da Fonseca)
+
+### 1ª UNIDAD FUNCIONAL
+- **Tonicidad**: ${b.tonicidad.score.toFixed(1)}/4 — Perfil ${perfilLabel(b.tonicidad.perfil)}
+  Inspiración: ${b.tonicidad.items.inspiracion ?? "—"}, Espiración: ${b.tonicidad.items.espiracion ?? "—"}, Apnea: ${b.tonicidad.items.apnea ?? "—"}
+  Fatigabilidad: ${b.tonicidad.items.fatigabilidad ?? "—"}, Extensibilidad MI: ${b.tonicidad.items.extensibilidadMI ?? "—"}, MS: ${b.tonicidad.items.extensibilidadMS ?? "—"}
+  Pasividad: ${b.tonicidad.items.pasividad ?? "—"}, Paratonía MI: ${b.tonicidad.items.paratoniaMI ?? "—"}, MS: ${b.tonicidad.items.paratoniaMS ?? "—"}
+  Diadococinesias MD: ${b.tonicidad.items.diadocMD ?? "—"}, MI: ${b.tonicidad.items.diadocMI ?? "—"}
+  Sincinesias bucales: ${b.tonicidad.items.sincinBucales ?? "—"}, contralaterales: ${b.tonicidad.items.sincinContralat ?? "—"}
+
+- **Equilibrio**: ${b.equilibrio.score.toFixed(1)}/4 — Perfil ${perfilLabel(b.equilibrio.perfil)}
+  Inamovilidad: ${b.equilibrio.items.inamovilidad ?? "—"}
+  Estático — Apoyo rectilíneo: ${b.equilibrio.items.apoyoRect ?? "—"}, Punta pies: ${b.equilibrio.items.puntaPies ?? "—"}, Un pie: ${b.equilibrio.items.apoyoUnPie ?? "—"}
+  Dinámico — Marcha: ${b.equilibrio.items.marchaControl ?? "—"}, Banco adelante: ${b.equilibrio.items.bancoAdelante ?? "—"}, atrás: ${b.equilibrio.items.bancoAtras ?? "—"}, derecho: ${b.equilibrio.items.bancoDerecho ?? "—"}, izquierdo: ${b.equilibrio.items.bancoIzquierdo ?? "—"}
+  Saltos — Pie cojo izq: ${b.equilibrio.items.pieCojoIzq ?? "—"}, der: ${b.equilibrio.items.piecojoDer ?? "—"}, Pies juntos adel: ${b.equilibrio.items.piesJuntosAdel ?? "—"}, atrás: ${b.equilibrio.items.piesJuntosAtras ?? "—"}, ojos cerrados: ${b.equilibrio.items.piesJuntosOjosCerr ?? "—"}
+
+### 2ª UNIDAD FUNCIONAL
+- **Lateralidad**: ${b.lateralidad.tipo} (${b.lateralidad.definida ? "definida" : "no definida"})
+  Ocular: ${b.lateralidad.ocular ?? "—"}, Auditiva: ${b.lateralidad.auditiva ?? "—"}, Manual: ${b.lateralidad.manual ?? "—"}, Pedal: ${b.lateralidad.pedal ?? "—"}
+  Innata: ${b.lateralidad.innata ?? "—"}, Adquirida: ${b.lateralidad.adquirida ?? "—"}
+
+- **Noción del Cuerpo**: ${b.nocionCuerpo.score.toFixed(1)}/4 — Perfil ${perfilLabel(b.nocionCuerpo.perfil)}
+  Sentido kinestésico: ${b.nocionCuerpo.items.sentidoKinest ?? "—"}, Reconocimiento I/D: ${b.nocionCuerpo.items.reconocimientoID ?? "—"}
+  Autoimagen (cara): ${b.nocionCuerpo.items.autoimagenCara ?? "—"}, Imitación gestos: ${b.nocionCuerpo.items.imitacionGestos ?? "—"}, Dibujo cuerpo: ${b.nocionCuerpo.items.dibujoCuerpo ?? "—"}
+
+- **Estructuración Espacio-Temporal**: ${b.estructuracionET.score.toFixed(1)}/4 — Perfil ${perfilLabel(b.estructuracionET.perfil)}
+  Organización: ${b.estructuracionET.items.organizacion ?? "—"}, Estr. dinámica: ${b.estructuracionET.items.estructDinamica ?? "—"}
+  Rep. topográfica: ${b.estructuracionET.items.repTopografica ?? "—"}, Estr. rítmica: ${b.estructuracionET.items.estructRitmica ?? "—"}
+
+### 3ª UNIDAD FUNCIONAL
+- **Praxia Global**: ${b.praxiaGlobal.score.toFixed(1)}/4 — Perfil ${perfilLabel(b.praxiaGlobal.perfil)}
+  Coord. óculo-manual: ${b.praxiaGlobal.items.coordOculoManual ?? "—"}, óculo-podal: ${b.praxiaGlobal.items.coordOculoPodal ?? "—"}
+  Dismetría: ${b.praxiaGlobal.items.dismetria ?? "—"}, Disociación: ${b.praxiaGlobal.items.disociacion ?? "—"}
+  MS: ${b.praxiaGlobal.items.ms ?? "—"}, MI: ${b.praxiaGlobal.items.mi ?? "—"}, Agilidades: ${b.praxiaGlobal.items.agilidades ?? "—"}
+
+- **Praxia Fina**: ${b.praxiaFina.score.toFixed(1)}/4 — Perfil ${perfilLabel(b.praxiaFina.perfil)}
+  Coord. dinámica manual: ${b.praxiaFina.items.coordDinamManual ?? "—"}, Tamborilear: ${b.praxiaFina.items.tamborilear ?? "—"}, Velocidad-precisión: ${b.praxiaFina.items.velocidadPrecision ?? "—"}
+
+### PERFIL GENERAL BPM: ${b.promedioGeneral.toFixed(1)}/4 — ${perfilLabel(b.perfilGeneral)}`
+  }
+
+  const bpmJsonInstructions = scores.bpm.applied ? `
+  "perfilPsicomotor": {
+    "resumen": "Síntesis descriptiva del perfil psicomotor global (3-5 oraciones). NO es un diagnóstico, es una descripción profesional del perfil observado.",
+    "tonoControlPostural": "Descripción del tono muscular, control postural, seguridad gravitatoria",
+    "lateralidad": "Descripción de la lateralidad: si está definida o no, tipo, implicaciones para tareas bilaterales y orientación",
+    "esquemaCorporal": "Noción del cuerpo, somatognosia, componente kinestésico, imitación, dibujo del cuerpo",
+    "estructuracionEspacioTemporal": "Ritmo, sucesión, relaciones espaciales, impacto en juegos secuenciales y nociones topológicas",
+    "praxiaGlobal": "Dismetría, dispraxia, planificación motora, cálculo de distancias y trayectorias",
+    "praxiaFina": "Micromotricidad, pinza, disociación digital, trazo, velocidad y fatiga en actividades de detalle",
+    "perfilGeneral": "Clasificación general: apráxico/dispráxico/eupráxico/hiperpráxico"
+  },
+  "perfilIntegrado": {
+    "resumen": "Síntesis integradora de 4-6 oraciones que conecte ambos perfiles. Explica cómo ${elLa} estudiante 'entiende el qué pero le falla el cómo en el tiempo y el espacio' (si aplica). Describe bajo qué condiciones gana o pierde eficacia.",
+    "relacionPMconDAE": "Cómo el perfil psicomotor se encadena con las dificultades de lecto-escritura. Ejemplo: la estructuración espacio-temporal débil impacta secuencias fonológicas.",
+    "tiempoYOrden": "Sin 'pulso temporal' interno, armar la cadena grafema-fonema es más costoso. Secuencias motoras inestables → errores de orden al copiar.",
+    "espacioYOrientacion": "Dismetría + lateralidad no definida → problemas de orientación izq-der, márgenes, linealidad.",
+    "praxiaYEscritura": "Micromotricidad inmadura → trazo lento, irregular, que compite con la idea que quiere plasmar.",
+    "atencionMemoria": "Necesita varios intentos para aprender gestos → misma lentitud en automatizar reglas ortográficas y correspondencias letra-sonido."
+  },` : `
+  "perfilPsicomotor": null,
+  "perfilIntegrado": null,`
+
+  return `Eres un/a psicopedagogo/a especialista en dificultades de aprendizaje y desarrollo integral en el contexto educativo boliviano.
+Analiza los resultados de ${estudianteLabel} evaluado/a con:
+1. El "Instrumento para la Detección y Evaluación de las Dificultades en el Aprendizaje de Lecto-Escritura" del Ministerio de Educación del Estado Plurinacional de Bolivia (2012)
+${scores.bpm.applied ? '2. La Batería Psicomotora (BPM) de Víctor da Fonseca (1975)' : ''}
 Cruza los resultados con las expectativas del currículo oficial boliviano (Planes y Programas EPCV, R.M. 1040/2022).
 
 ## DATOS DEL ESTUDIANTE
 - Nombre: ${estudiante.nombre} ${estudiante.apellido1} ${estudiante.apellido2 ?? ""}
+- Sexo: ${estudiante.sexo}
 - Edad al momento de la evaluación: ${notaEdad}
-- Año de escolaridad: ${anioEscolar > 0 ? `${anioEscolar}° año (${estudiante.grado})` : `no registrado (${estudiante.grado})`}
-- Año de gestión: ${estudiante.gestion}
+- Año de escolaridad: ${anioEscolar > 0 ? `${anioEscolar}° año` : "no registrado"} (${estudiante.grado})
+- U.E.: ${estudiante.unidadEducativa}
 - Fecha de evaluación: ${new Date(ev.fecha).toLocaleDateString("es-BO")}
 - Evaluador: ${ev.evaluador}
 
-## EXPECTATIVAS CURRICULARES SEGÚN GRADO (R.M. 1040/2022)
+## EXPECTATIVAS CURRICULARES (R.M. 1040/2022)
 ${expectativas}
 
-## RESULTADOS DE LA EVALUACIÓN (Instrumento de Detección 2012)
+## RESULTADOS DEL INSTRUMENTO DE LECTO-ESCRITURA (MINEDU 2012)
 
 ### 1. LECTURA EN VOZ ALTA
 - Tono de voz: ${ev.tonoVoz}
-- Expresión emocional (1-4): ${ev.expresionMatices}/4
+- Expresión emocional: ${ev.expresionMatices}/4
 - Tipo de lectura: ${scores.lectura.tipoLectura}
-- Errores presentes (${scores.lectura.erroresCount}/8): ${scores.lectura.erroresPresentes.join(", ") || "Ninguno"}
+- Errores (${scores.lectura.erroresCount}/8): ${scores.lectura.erroresPresentes.join(", ") || "Ninguno"}
 - Comprensión lectora: ${pct(scores.lectura.comprensionTotal, 15)}
-  • Memoriza aspectos significativos: ${scaleName(ev.compMemoriza)}
-  • Ideas centrales y secundarias: ${scaleName(ev.compIdeas)}
-  • Valora el texto: ${scaleName(ev.compValora)}
-  • Interpreta: ${scaleName(ev.compInterpreta)}
-  • Asocia con contextos: ${scaleName(ev.compAsocia)}
-- RESULTADO: ${scores.lectura.hasDifficulty ? "⚠️ PRESENTA DIFICULTADES" : "✅ Sin dificultades significativas"}
+  Memoriza: ${scaleName(ev.compMemoriza)} | Ideas: ${scaleName(ev.compIdeas)} | Valora: ${scaleName(ev.compValora)} | Interpreta: ${scaleName(ev.compInterpreta)} | Asocia: ${scaleName(ev.compAsocia)}
+- RESULTADO: ${scores.lectura.hasDifficulty ? "PRESENTA DIFICULTADES" : "Sin dificultades significativas"}
 
-### 2. PROCESOS COGNITIVOS (Ítems 3-10) — ${pct(scores.cognitivo.totalCorrect, 27)}
-- Nombrar objetos (3A): ${pct(scores.cognitivo.byItem.item3a, 3)}
-- Explicar uso de objetos (3B): ${pct(scores.cognitivo.byItem.item3b, 3)}
-- Seguir instrucciones (4): ${pct(scores.cognitivo.byItem.item4, 2)}
-- Clasificar imágenes (5A): ${pct(scores.cognitivo.byItem.item5a, 3)}
-- Instrucción día/noche (5B): ${pct(scores.cognitivo.byItem.item5b, 1)}
-- Orientación espacial (6): ${pct(scores.cognitivo.byItem.item6, 3)}
-- Secuencia temporal (7): ${pct(scores.cognitivo.byItem.item7, 1)}
-- Asociación verbo-objeto (8): ${pct(scores.cognitivo.byItem.item8, 4)}
-- Anagramas/vocabulario (9): ${pct(scores.cognitivo.byItem.item9, 4)}
-- Inferencia (10): ${pct(scores.cognitivo.byItem.item10, 3)}
-- RESULTADO: ${scores.cognitivo.hasDifficulty ? "⚠️ DIFICULTADES en procesos de pensamiento (análisis, síntesis, abstracción, generalización)" : "✅ Sin dificultades cognitivas"}
+### 2. PROCESOS COGNITIVOS (Ítems 3-10) — ${pct(scores.cognitivo.totalCorrect, scores.cognitivo.totalItems)}
+- Nombrar objetos (3A): ${pct(scores.cognitivo.byItem.item3a, 3)} | Explicar uso (3B): ${pct(scores.cognitivo.byItem.item3b, 3)}
+- Instrucciones (4): ${pct(scores.cognitivo.byItem.item4, 2)} | Clasificar (5A): ${pct(scores.cognitivo.byItem.item5a, 3)} | Día/Noche (5B): ${pct(scores.cognitivo.byItem.item5b, 1)}
+- Orientación espacial (6): ${pct(scores.cognitivo.byItem.item6, 3)} | Secuencia (7): ${pct(scores.cognitivo.byItem.item7, 1)}
+- Asociación (8): ${pct(scores.cognitivo.byItem.item8, 4)} | Anagramas (9): ${pct(scores.cognitivo.byItem.item9, 4)} | Inferencia (10): ${pct(scores.cognitivo.byItem.item10, 3)}
+- RESULTADO: ${scores.cognitivo.hasDifficulty ? "DIFICULTADES en procesos de pensamiento" : "Sin dificultades cognitivas"}
 
-### 3. PROCESOS LÉXICOS (Ítems 11-14) — ${pct(scores.lexical.totalCorrect, 17)}
-- Produce rimas (11A): ${pct(scores.lexical.byItem.item11a, 4)}
-- Identifica no-rima (11B): ${pct(scores.lexical.byItem.item11b, 4)}
-- Sustitución de fonemas (12): ${pct(scores.lexical.byItem.item12, 3)}
-- Omisión de fonemas (13): ${pct(scores.lexical.byItem.item13, 3)}
-- Inversión de sílabas (14): ${pct(scores.lexical.byItem.item14, 3)}
-- RESULTADO: ${scores.lexical.hasDifficulty ? "⚠️ DIFICULTADES léxicas" : "✅ Sin dificultades léxicas"}
+### 3. PROCESOS LÉXICOS (Ítems 11-14) — ${pct(scores.lexical.totalCorrect, scores.lexical.totalItems)}
+- Rimas (11A): ${pct(scores.lexical.byItem.item11a, 4)} | No-rima (11B): ${pct(scores.lexical.byItem.item11b, 4)}
+- Sustitución (12): ${pct(scores.lexical.byItem.item12, 3)} | Omisión (13): ${pct(scores.lexical.byItem.item13, 3)} | Inversión (14): ${pct(scores.lexical.byItem.item14, 3)}
+- RESULTADO: ${scores.lexical.hasDifficulty ? "DIFICULTADES léxicas" : "Sin dificultades léxicas"}
 
-### 4. ESCRITURA — DICTADO (Ejercicio 15)
-- Errores de expresión escrita (mayor puntaje = más errores): ${scores.dictado.errorScore}/18
-- Caligrafía: ${scores.dictado.caligrafia}/6
-- Coherencia del texto: ${scores.dictado.coherencia}/10
-- Producción textual: ${scores.dictado.produccion}/18
-- RESULTADO: ${scores.dictado.hasDifficulty ? "⚠️ DIFICULTADES en escritura (dictado)" : "✅ Escritura adecuada"}
+### 4. ESCRITURA — DICTADO (Ej. 15)
+- Errores expresión escrita: ${scores.dictado.errorScore}/18 | Caligrafía: ${scores.dictado.caligrafia}/6
+- Coherencia: ${scores.dictado.coherencia}/10 | Producción: ${scores.dictado.produccion}/18
+- RESULTADO: ${scores.dictado.hasDifficulty ? "DIFICULTADES en dictado" : "Escritura adecuada"}
 
-### 5. ESCRITURA — COMPOSICIÓN LIBRE (Ejercicio 16)
-- Errores de expresión escrita: ${scores.composicion.errorScore}/18
-- Caligrafía: ${scores.composicion.caligrafia}/6
-- Coherencia del texto: ${scores.composicion.coherencia}/10
-- Producción textual: ${scores.composicion.produccion}/18
-- RESULTADO: ${scores.composicion.hasDifficulty ? "⚠️ DIFICULTADES en composición" : "✅ Composición adecuada"}
+### 5. ESCRITURA — COMPOSICIÓN (Ej. 16)
+- Errores expresión escrita: ${scores.composicion.errorScore}/18 | Caligrafía: ${scores.composicion.caligrafia}/6
+- Coherencia: ${scores.composicion.coherencia}/10 | Producción: ${scores.composicion.produccion}/18
+- RESULTADO: ${scores.composicion.hasDifficulty ? "DIFICULTADES en composición" : "Composición adecuada"}
 
-## ESTADO GENERAL DE APRENDIZAJE (Instrumento 2012)
-Estado: ${scores.estadoGeneral.toUpperCase()}
+### ESTADO GENERAL: ${scores.estadoGeneral.toUpperCase()}
 Áreas con dificultad: ${scores.areasDificultad.length > 0 ? scores.areasDificultad.join(", ") : "Ninguna"}
+${bpmSection}
 
 ---
 
-Genera un análisis psicopedagógico integral que:
-1. Evalúe los resultados del instrumento 2012 en relación a las expectativas curriculares del ${anioEscolar > 0 ? `${anioEscolar}° año de escolaridad` : "grado indicado"} (R.M. 1040/2022)
-2. Considere si el desempeño es acorde, por debajo o superior a lo esperado para su edad y año escolar
-3. Sea empático, práctico y orientado a la acción
+Genera un informe psicopedagógico integral, profesional, empático y orientado a la acción.
+Usa lenguaje inclusivo referido a ${estudianteLabel} (${estudiante.sexo === "Femenino" ? "ella" : "él"}).
+${scores.bpm.applied ? "IMPORTANTE: Integra ambos instrumentos (lecto-escritura Y BPM) en un análisis cruzado." : "Nota: No se aplicó la BPM, genera el perfil solo con el instrumento de lecto-escritura."}
 
-Responde ÚNICAMENTE con un objeto JSON válido con exactamente esta estructura (sin texto adicional antes ni después):
+Responde ÚNICAMENTE con JSON válido (sin texto antes ni después):
 
 {
-  "diagnostico": {
-    "resumen": "Párrafo de 3-4 oraciones describiendo el estado general del estudiante de forma clara y empática, mencionando explícitamente si su desempeño es acorde, inferior o superior a lo esperado para su grado según el currículo R.M. 1040/2022",
-    "nivelDificultad": "sin-dificultades",
-    "areasAfectadas": [],
-    "relacionEdadGrado": "Descripción de si la edad es acorde al grado y qué implica pedagógicamente"
+  "perfilDAE": {
+    "resumen": "Párrafo de 3-5 oraciones describiendo el perfil de DAE en lecto-escritura. Menciona si lee/escribe o no, si los procesos psíquicos y léxicos son inmaduros para su edad, y cuántos años de desfase respecto al currículo de su grado.",
+    "nivelDificultad": "sin-dificultades | dificultad-leve | dificultad-moderada | dificultad-severa",
+    "areasAfectadas": ["array de áreas"],
+    "relacionEdadGrado": "Relación entre la edad y el grado, si hay desfase y qué implica",
+    "desfaseAnios": null
   },
+${bpmJsonInstructions}
   "fortalezas": [
-    "Fortaleza 1 observada en los resultados en relación a las expectativas del grado",
+    "Fortaleza 1 observada en relación a las expectativas del grado",
     "Fortaleza 2"
   ],
   "areasDeMejora": [
     {
       "area": "Nombre del área",
-      "descripcion": "Descripción específica del problema, comparando con lo esperado para el grado según R.M. 1040/2022",
-      "brechaConCurriculo": "Descripción concreta de qué habilidades del currículo no están siendo logradas",
-      "prioridad": "alta"
+      "descripcion": "Descripción específica comparando con lo esperado para el grado",
+      "brechaConCurriculo": "Qué habilidades del currículo R.M. 1040/2022 no se están logrando",
+      "prioridad": "alta | media | baja"
     }
   ],
   "recomendaciones": {
-    "paraElDocente": [
+    "paraElAula": [
       {
-        "titulo": "Título de la estrategia pedagógica",
-        "descripcion": "Descripción detallada y práctica de cómo implementarla en el aula, alineada al currículo EPCV",
-        "frecuencia": "Ejemplo: 3 veces por semana, 15 minutos"
+        "categoria": "Ejemplo: Entrada y anticipación | Organización espacial | Ritmo y tiempo | Praxia global | Imitación y gestos | Praxia fina/escritura | Lateralidad | Clima emocional | Lectura | Conciencia fonológica",
+        "titulo": "Título de la estrategia",
+        "descripcion": "Descripción detallada y práctica, en ráfagas breves de 5-10 min, 2-3 veces al día",
+        "frecuencia": "Ejemplo: 5-10 min, 2-3 veces/día"
       }
     ],
     "paraLaFamilia": [
@@ -203,21 +227,20 @@ Responde ÚNICAMENTE con un objeto JSON válido con exactamente esta estructura 
       }
     ],
     "derivacion": {
-      "necesaria": false,
-      "especialista": null,
-      "justificacion": null
+      "necesaria": true,
+      "especialista": "psicopedagogo | fonoaudiólogo | psicólogo | terapeuta ocupacional",
+      "justificacion": "Justificación profesional de la derivación"
     }
   },
   "planSeguimiento": {
     "periodoRevaluacion": "Ejemplo: 3 meses",
     "indicadoresProgreso": [
-      "Indicador medible y observable 1, alineado a las expectativas del grado",
-      "Indicador medible y observable 2"
+      "Indicador medible alineado a expectativas del grado"
     ]
   }
 }
 
-Para nivelDificultad usa exactamente uno de: "sin-dificultades", "dificultad-leve", "dificultad-moderada", "dificultad-severa".
-Para prioridad usa exactamente uno de: "alta", "media", "baja".
-Para especialista usa uno de: "psicopedagogo", "fonoaudiólogo", "psicólogo", o null.`
+Para nivelDificultad usa exactamente: "sin-dificultades", "dificultad-leve", "dificultad-moderada", "dificultad-severa".
+Para prioridad usa: "alta", "media", "baja".
+Para especialista usa: "psicopedagogo", "fonoaudiólogo", "psicólogo", "terapeuta ocupacional", o null.`
 }

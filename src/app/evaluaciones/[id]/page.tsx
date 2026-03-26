@@ -190,6 +190,52 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
         </Card>
       )}
 
+      {/* BPM Results */}
+      {scores.bpm.applied && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Perfil Psicomotor (BPM — Da Fonseca)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+              {[
+                { label: "Tonicidad", score: scores.bpm.tonicidad.score, perfil: scores.bpm.tonicidad.perfil },
+                { label: "Equilibrio", score: scores.bpm.equilibrio.score, perfil: scores.bpm.equilibrio.perfil },
+                { label: "Lateralidad", score: scores.bpm.lateralidad.score, perfil: scores.bpm.lateralidad.perfil },
+                { label: "Noción Cuerpo", score: scores.bpm.nocionCuerpo.score, perfil: scores.bpm.nocionCuerpo.perfil },
+                { label: "Estr. E-T", score: scores.bpm.estructuracionET.score, perfil: scores.bpm.estructuracionET.perfil },
+                { label: "Praxia Global", score: scores.bpm.praxiaGlobal.score, perfil: scores.bpm.praxiaGlobal.perfil },
+                { label: "Praxia Fina", score: scores.bpm.praxiaFina.score, perfil: scores.bpm.praxiaFina.perfil },
+              ].map(({ label, score, perfil }) => {
+                const color = score <= 1.5 ? "bg-red-50 border-red-200" : score <= 2.5 ? "bg-yellow-50 border-yellow-200" : score <= 3.5 ? "bg-blue-50 border-blue-200" : "bg-green-50 border-green-200"
+                return (
+                  <div key={label} className={`rounded-lg p-3 border ${color}`}>
+                    <p className="text-xs text-slate-500">{label}</p>
+                    <p className="font-bold text-lg">{score > 0 ? score.toFixed(1) : "—"}<span className="text-xs font-normal text-slate-400">/4</span></p>
+                    <p className="text-xs text-slate-500 capitalize">{perfil}</p>
+                  </div>
+                )
+              })}
+              <div className={`rounded-lg p-3 border ${scores.bpm.promedioGeneral <= 1.5 ? "bg-red-100 border-red-300" : scores.bpm.promedioGeneral <= 2.5 ? "bg-yellow-100 border-yellow-300" : scores.bpm.promedioGeneral <= 3.5 ? "bg-blue-100 border-blue-300" : "bg-green-100 border-green-300"}`}>
+                <p className="text-xs text-slate-500 font-semibold">GENERAL</p>
+                <p className="font-bold text-xl">{scores.bpm.promedioGeneral.toFixed(1)}<span className="text-xs font-normal text-slate-400">/4</span></p>
+                <p className="text-xs font-semibold capitalize">{scores.bpm.perfilGeneral}</p>
+              </div>
+            </div>
+            {/* Laterality detail */}
+            <div className="mt-3 bg-slate-50 rounded-lg p-3 text-xs text-slate-600">
+              <span className="font-semibold">Lateralidad: </span>
+              {scores.bpm.lateralidad.tipo} ({scores.bpm.lateralidad.definida ? "definida" : "no definida"})
+              {" — "}
+              Ocular: {scores.bpm.lateralidad.ocular ?? "—"},
+              Manual: {scores.bpm.lateralidad.manual ?? "—"},
+              Pedal: {scores.bpm.lateralidad.pedal ?? "—"},
+              Auditiva: {scores.bpm.lateralidad.auditiva ?? "—"}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Informe IA */}
       <Card>
         <CardHeader>

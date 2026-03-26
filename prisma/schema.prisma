@@ -199,6 +199,85 @@ model Evaluacion {
   comp_prodInterAdm   String @default("B")
   comp_prodMayusc     String @default("B")
 
+  // ========== BPM - Batería Psicomotora (Victor da Fonseca) ==========
+  // Control Respiratorio
+  bpm_inspiracion     Int?
+  bpm_espiracion      Int?
+  bpm_apnea           Int?
+
+  // Tonicidad
+  bpm_fatigabilidad       Int?
+  bpm_extensibilidadMI    Int?
+  bpm_extensibilidadMS    Int?
+  bpm_pasividad           Int?
+  bpm_paratoniaMI         Int?
+  bpm_paratoniaMS         Int?
+  bpm_diadocMD            Int?
+  bpm_diadocMI            Int?
+  bpm_sincinBucales       Int?
+  bpm_sincinContralat     Int?
+
+  // Equilibrio
+  bpm_inamovilidad            Int?
+  bpm_eqApoyoRect             Int?
+  bpm_eqPuntaPies             Int?
+  bpm_eqApoyoUnPie            Int?
+  bpm_eqMarchaControl         Int?
+  bpm_eqBancoAdelante         Int?
+  bpm_eqBancoAtras            Int?
+  bpm_eqBancoDerecho          Int?
+  bpm_eqBancoIzquierdo        Int?
+  bpm_eqPieCojoIzq            Int?
+  bpm_eqPieCojoDer            Int?
+  bpm_eqPiesJuntosAdel        Int?
+  bpm_eqPiesJuntosAtras       Int?
+  bpm_eqPiesJuntosOjosCerr    Int?
+
+  // Lateralidad
+  bpm_latOcular     String?
+  bpm_latAuditiva   String?
+  bpm_latManual     String?
+  bpm_latPedal      String?
+  bpm_latInnata     String?
+  bpm_latAdquirida  String?
+
+  // Noción del Cuerpo
+  bpm_sentidoKinest      Int?
+  bpm_reconocimientoID   Int?
+  bpm_autoimagenCara     Int?
+  bpm_imitacionGestos    Int?
+  bpm_dibujoCuerpo       Int?
+
+  // Estructuración Espacio-Temporal
+  bpm_etOrganizacion       Int?
+  bpm_etEstructDinamica    Int?
+  bpm_etRepTopografica     Int?
+  bpm_etEstructRitmica     Int?
+
+  // Praxia Global
+  bpm_pgCoordOculoManual   Int?
+  bpm_pgCoordOculoPodal    Int?
+  bpm_pgDismetria          Int?
+  bpm_pgDisociacion        Int?
+  bpm_pgMS                 Int?
+  bpm_pgMI                 Int?
+  bpm_pgAgilidades         Int?
+
+  // Praxia Fina
+  bpm_pfCoordDinamManual     Int?
+  bpm_pfTamborilear          Int?
+  bpm_pfVelocidadPrecision   Int?
+
+  // BPM - Scores resumen (calculados)
+  bpmScoreTonicidad        Float?
+  bpmScoreEquilibrio       Float?
+  bpmScoreLateralidad      Float?
+  bpmScoreNocionCuerpo     Float?
+  bpmScoreEstructuracionET Float?
+  bpmScorePraxiaGlobal     Float?
+  bpmScorePraxiaFina       Float?
+  bpmPerfilGeneral         String?
+
   // Scores calculados
   scoreCognitivo    Int?
   scoreLexical      Int?

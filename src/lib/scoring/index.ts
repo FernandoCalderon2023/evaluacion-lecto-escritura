@@ -4,6 +4,7 @@ import { scoreLectura } from "./lecturaScoring"
 import { scoreCognitive } from "./cognitiveScoring"
 import { scoreLexical } from "./lexicalScoring"
 import { scoreWriting } from "./writingScoring"
+import { scoreBpm } from "./bpmScoring"
 
 export function calcularScores(ev: Partial<EvaluacionFormData>): AllScores {
   const lectura    = scoreLectura(ev)
@@ -11,6 +12,7 @@ export function calcularScores(ev: Partial<EvaluacionFormData>): AllScores {
   const lexical    = scoreLexical(ev)
   const dictado    = scoreWriting(ev, "dict")
   const composicion = scoreWriting(ev, "comp")
+  const bpm        = scoreBpm(ev)
 
   const areasDificultad: string[] = []
   if (lectura.hasDifficulty)    areasDificultad.push("Lectura y Comprensión")
@@ -26,7 +28,7 @@ export function calcularScores(ev: Partial<EvaluacionFormData>): AllScores {
   else if (count <= 3)  estadoGeneral = "dificultad-moderada"
   else                  estadoGeneral = "dificultad-severa"
 
-  return { lectura, cognitivo, lexical, dictado, composicion, estadoGeneral, areasDificultad }
+  return { lectura, cognitivo, lexical, dictado, composicion, bpm, estadoGeneral, areasDificultad }
 }
 
-export { scoreLectura, scoreCognitive, scoreLexical, scoreWriting }
+export { scoreLectura, scoreCognitive, scoreLexical, scoreWriting, scoreBpm }
