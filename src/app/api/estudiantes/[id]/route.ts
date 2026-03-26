@@ -22,6 +22,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
-  await prisma.estudiante.delete({ where: { id: params.id } })
-  return NextResponse.json({ ok: true })
+  try {
+    // Borrar evaluaciones primero, luego el estudiante
+    await prisma.evaluacion.deleteMany({ where: { estudianteId: params.id } })
+    await prisma.estudiante.delete({ where: { id: params.id } })
+    return NextResponse.json({ ok: true })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error("[estudiantes/DELETE]", msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }
