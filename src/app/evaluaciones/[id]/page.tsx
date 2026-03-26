@@ -10,6 +10,7 @@ import { InformeIA } from "@/components/resultados/InformeIA"
 import { AnalisisIA } from "@/types/ai"
 import { EstadoAprendizaje } from "@/types/evaluacion"
 import { PrintButton } from "@/components/resultados/PrintButton"
+import { DeleteButton } from "@/components/shared/DeleteButton"
 
 const AREA_COLOR = {
   "Lectura y Comprensión": "bg-blue-500",
@@ -53,6 +54,12 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
           </div>
         </div>
         <div className="flex gap-2">
+          <DeleteButton
+            endpoint={`/api/evaluaciones/${ev.id}`}
+            redirectTo={`/estudiantes/${est.id}`}
+            label="Eliminar"
+            confirmMessage="¿Eliminar esta evaluación? No se puede deshacer."
+          />
           <PrintButton />
           <Link
             href={`/evaluaciones/nueva?estudianteId=${est.id}`}

@@ -79,9 +79,17 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
     )
   }
 
+  // Compatibilidad: si viene formato viejo (paraElDocente) lo convierte
+  const recsAula = analisis.recomendaciones?.paraElAula
+    ?? (analisis.recomendaciones as any)?.paraElDocente?.map((r: any) => ({ ...r, categoria: "General" }))
+    ?? []
+  const recsFamilia = analisis.recomendaciones?.paraLaFamilia ?? []
+  const derivacion = analisis.recomendaciones?.derivacion ?? { necesaria: false, especialista: null, justificacion: null }
+  const perfilDAE = analisis.perfilDAE ?? (analisis as any).diagnostico ?? null
+
   // Group aula recommendations by category
-  const recsAgrupadas: Record<string, typeof analisis.recomendaciones.paraElAula> = {}
-  for (const r of analisis.recomendaciones.paraElAula) {
+  const recsAgrupadas: Record<string, typeof recsAula> = {}
+  for (const r of recsAula) {
     const cat = r.categoria || "General"
     if (!recsAgrupadas[cat]) recsAgrupadas[cat] = []
     recsAgrupadas[cat].push(r)
@@ -107,26 +115,28 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
       </div>
 
       {/* PERFIL DAE */}
-      <Card className="border-blue-200">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center gap-2 text-blue-700">
-            <BookOpen className="h-4 w-4" /> Perfil de DAE en Lecto-Escritura
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-sm text-slate-800 leading-relaxed">{analisis.perfilDAE.resumen}</p>
-          {analisis.perfilDAE.relacionEdadGrado && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 text-xs text-blue-800">
-              <strong>Relación edad-grado:</strong> {analisis.perfilDAE.relacionEdadGrado}
-            </div>
-          )}
-          {analisis.perfilDAE.desfaseAnios != null && analisis.perfilDAE.desfaseAnios > 0 && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-2.5 text-xs text-orange-800">
-              <strong>Desfase estimado:</strong> {analisis.perfilDAE.desfaseAnios} año(s) respecto al perfil de salida de su grado
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {perfilDAE && (
+        <Card className="border-blue-200">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2 text-blue-700">
+              <BookOpen className="h-4 w-4" /> Perfil de DAE en Lecto-Escritura
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-slate-800 leading-relaxed">{perfilDAE.resumen}</p>
+            {perfilDAE.relacionEdadGrado && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 text-xs text-blue-800">
+                <strong>Relación edad-grado:</strong> {perfilDAE.relacionEdadGrado}
+              </div>
+            )}
+            {perfilDAE.desfaseAnios != null && perfilDAE.desfaseAnios > 0 && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-2.5 text-xs text-orange-800">
+                <strong>Desfase estimado:</strong> {perfilDAE.desfaseAnios} año(s) respecto al perfil de salida de su grado
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* PERFIL PSICOMOTOR */}
       {analisis.perfilPsicomotor && (
@@ -274,7 +284,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {analisis.recomendaciones.paraLaFamilia.map((r, i) => (
+            {recsFamilia.map((r, i) => (
               <div key={i} className="border-l-2 border-purple-300 pl-3">
                 <p className="text-sm font-medium text-slate-800">{r.titulo}</p>
                 <p className="text-xs text-slate-600">{r.descripcion}</p>
@@ -285,7 +295,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
       </Card>
 
       {/* DERIVACIÓN */}
-      {analisis.recomendaciones.derivacion.necesaria && (
+      {derivacion.necesaria && (
         <Card className="border-red-200 bg-red-50">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-red-700 flex items-center gap-2">
@@ -294,10 +304,10 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
           </CardHeader>
           <CardContent>
             <p className="text-sm text-red-800 font-medium">
-              Especialista: {analisis.recomendaciones.derivacion.especialista}
+              Especialista: {derivacion.especialista}
             </p>
             <p className="text-xs text-red-700 mt-1">
-              {analisis.recomendaciones.derivacion.justificacion}
+              {derivacion.justificacion}
             </p>
           </CardContent>
         </Card>

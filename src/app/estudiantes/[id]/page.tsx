@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Plus, ArrowLeft } from "lucide-react"
+import { DeleteButton } from "@/components/shared/DeleteButton"
 
 const ESTADO_CONFIG = {
   "sin-dificultades":    { label: "Sin Dificultades",    color: "bg-green-100 text-green-800" },
@@ -25,16 +26,24 @@ export default async function EstudiantePerfilPage({ params }: { params: { id: s
 
   return (
     <div className="p-8 space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/estudiantes" className="text-slate-500 hover:text-slate-700">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            {est.apellido1} {est.apellido2} {est.nombre}
-          </h1>
-          <p className="text-slate-500 text-sm">{est.grado} · {est.unidadEducativa}</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/estudiantes" className="text-slate-500 hover:text-slate-700">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">
+              {est.apellido1} {est.apellido2} {est.nombre}
+            </h1>
+            <p className="text-slate-500 text-sm">{est.grado} · {est.unidadEducativa}</p>
+          </div>
         </div>
+        <DeleteButton
+          endpoint={`/api/estudiantes/${est.id}`}
+          redirectTo="/estudiantes"
+          label="Eliminar estudiante"
+          confirmMessage={`¿Eliminar a ${est.nombre} ${est.apellido1} y todas sus evaluaciones?`}
+        />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
