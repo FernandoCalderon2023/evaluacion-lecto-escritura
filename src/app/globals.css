@@ -32,4 +32,13 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* Ocultar bottom nav y top bar en print */
+@media print {
+  nav[class*="fixed bottom"] { display: none !important; }
+  div[class*="fixed top"] { display: none !important; }
 }

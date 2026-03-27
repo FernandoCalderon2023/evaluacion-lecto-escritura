@@ -27,7 +27,7 @@ export default async function EstudiantePerfilPage({ params }: { params: { id: s
   )
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/estudiantes" className="text-slate-500 hover:text-slate-700">

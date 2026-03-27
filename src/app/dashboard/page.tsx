@@ -29,7 +29,7 @@ export default async function DashboardPage() {
   for (const r of porEstado) estadoMap[r.estadoAprendizaje ?? "sin-evaluar"] = r._count._all
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 lg:p-8 space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Panel Principal</h1>
         <p className="text-slate-500 text-sm mt-1">

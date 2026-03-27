@@ -39,9 +39,9 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
   )
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl">
+    <div className="p-4 lg:p-6 space-y-6 max-w-5xl">
       {/* Header */}
-      <div className="flex items-center justify-between print:hidden">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
         <div className="flex items-center gap-3">
           <Link href="/evaluaciones" className="text-slate-500 hover:text-slate-700">
             <ArrowLeft className="h-5 w-5" />
