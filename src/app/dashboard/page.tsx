@@ -33,7 +33,7 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Panel Principal</h1>
         <p className="text-slate-500 text-sm mt-1">
-          Instrumento de Evaluación de Dificultades en Lecto-Escritura — Ministerio de Educación Bolivia
+          SPMA-DAEL-E — Sistema Psicopedagógico Multidimensional Asistido para la Detección y Análisis Estratégico de Lecto-Escritura
         </p>
       </div>
 

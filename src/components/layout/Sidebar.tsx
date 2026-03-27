@@ -18,8 +18,8 @@ export function Sidebar() {
         <div className="flex items-center gap-2">
           <BookOpen className="h-6 w-6 text-blue-400" />
           <div>
-            <p className="font-bold text-sm leading-tight">Lecto-Escritura</p>
-            <p className="text-xs text-slate-400">Evaluación Bolivia</p>
+            <p className="font-bold text-sm leading-tight">SPMA-DAEL-E</p>
+            <p className="text-xs text-slate-400">Sistema Psicopedagógico</p>
           </div>
         </div>
       </div>

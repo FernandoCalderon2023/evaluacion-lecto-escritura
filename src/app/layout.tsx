@@ -6,8 +6,8 @@ import { MainLayout } from "@/components/layout/MainLayout"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Evaluación Lecto-Escritura",
-  description: "Instrumento de Detección y Evaluación de Dificultades en el Aprendizaje — Ministerio de Educación Bolivia",
+  title: "SPMA-DAEL-E",
+  description: "Sistema Psicopedagógico Multidimensional Asistido para la Detección y Análisis Estratégico de Lecto-Escritura",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
