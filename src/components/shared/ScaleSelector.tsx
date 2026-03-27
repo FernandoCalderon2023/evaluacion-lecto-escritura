@@ -17,19 +17,19 @@ interface Props {
 
 export function ScaleSelector({ label, value, onChange }: Props) {
   return (
-    <div className="space-y-1">
-      <label className="text-sm font-medium text-slate-700">{label}</label>
-      <div className="flex gap-1 flex-wrap">
+    <div className="space-y-1.5">
+      <label className="text-sm font-semibold text-slate-800">{label}</label>
+      <div className="flex gap-1.5 flex-wrap">
         {OPTIONS.map((o) => (
           <button
             key={o.value}
             type="button"
             onClick={() => onChange(value === o.value ? "" : o.value)}
             className={cn(
-              "px-3 py-1.5 rounded-md text-xs font-medium border transition-colors",
+              "px-3 py-2 rounded-lg text-xs font-bold border-2 transition-all",
               value === o.value
-                ? "bg-blue-600 border-blue-600 text-white"
-                : "bg-white border-slate-300 text-slate-600 hover:border-blue-400"
+                ? "bg-blue-600 border-blue-600 text-white shadow-md"
+                : "bg-white border-slate-300 text-slate-700 hover:border-blue-400 hover:bg-blue-50"
             )}
           >
             {o.short} — {o.label}
@@ -39,7 +39,7 @@ export function ScaleSelector({ label, value, onChange }: Props) {
           <button
             type="button"
             onClick={() => onChange("")}
-            className="px-2 py-1.5 rounded-md text-xs text-slate-400 hover:text-red-500 transition-colors"
+            className="px-2 py-2 rounded-lg text-xs text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
             title="Dejar en blanco"
           >
             ✕

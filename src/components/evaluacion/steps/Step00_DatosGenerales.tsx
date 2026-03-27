@@ -19,7 +19,7 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
         <select
           value={state.estudianteId ?? ""}
           onChange={(e) => set("estudianteId")(e.target.value)}
-          className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full border border-slate-300 bg-white text-slate-900 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         >
           <option value="">— Seleccionar estudiante —</option>
@@ -80,7 +80,7 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
               onChange={(e) =>
                 set("anioEscolar")(e.target.value ? Number(e.target.value) : null)
               }
-              className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-slate-300 bg-white text-slate-900 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">— Seleccionar —</option>
               <option value={1}>1° año (1ro Primaria)</option>

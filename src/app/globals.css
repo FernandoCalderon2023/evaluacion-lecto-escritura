@@ -10,21 +10,22 @@
   @page { margin: 1.5cm; }
 }
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #1e293b;
+    --muted-foreground: #64748b;
+    --border: #cbd5e1;
+    --input: #cbd5e1;
+    --ring: #3b82f6;
+    --card: #ffffff;
+    --card-foreground: #1e293b;
   }
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: #f8fafc;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -37,7 +38,6 @@ body {
   }
 }
 
-/* Ocultar bottom nav y top bar en print */
 @media print {
   nav[class*="fixed bottom"] { display: none !important; }
   div[class*="fixed top"] { display: none !important; }

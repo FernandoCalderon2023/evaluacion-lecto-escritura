@@ -15,10 +15,10 @@ export function CheckItem({ label, checked, onChange, description }: Props) {
       type="button"
       onClick={() => onChange(!checked)}
       className={cn(
-        "flex items-start gap-3 w-full text-left p-3 rounded-lg border transition-colors",
+        "flex items-start gap-3 w-full text-left p-3 rounded-lg border-2 transition-all",
         checked
-          ? "bg-green-50 border-green-400 text-green-800"
-          : "bg-white border-slate-200 text-slate-700 hover:border-slate-300"
+          ? "bg-green-50 border-green-500 text-green-900 shadow-sm"
+          : "bg-white border-slate-200 text-slate-800 hover:border-slate-400 hover:bg-slate-50"
       )}
     >
       {checked ? (
@@ -27,7 +27,7 @@ export function CheckItem({ label, checked, onChange, description }: Props) {
         <Circle className="h-5 w-5 text-slate-400 mt-0.5 shrink-0" />
       )}
       <div>
-        <p className="text-sm font-medium">{label}</p>
+        <p className="text-sm font-semibold">{label}</p>
         {description && <p className="text-xs text-slate-500 mt-0.5">{description}</p>}
       </div>
     </button>
