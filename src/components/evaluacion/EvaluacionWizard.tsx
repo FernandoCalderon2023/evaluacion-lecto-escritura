@@ -61,14 +61,16 @@ function reducer(state: Partial<EvaluacionFormData>, action: Action): Partial<Ev
 interface Props {
   estudianteId?: string
   estudiantes: Array<{ id: string; nombre: string; apellido1: string; grado: string }>
+  editMode?: string  // evaluacion ID if editing
+  initialData?: Partial<EvaluacionFormData>
 }
 
-export function EvaluacionWizard({ estudianteId, estudiantes }: Props) {
+export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialData }: Props) {
   const router = useRouter()
   const { toast } = useToast()
   const [step, setStep] = useState(0)
   const [saving, setSaving] = useState(false)
-  const [state, dispatch] = useReducer(reducer, {
+  const [state, dispatch] = useReducer(reducer, initialData ?? {
     ...EVALUACION_DEFAULTS,
     estudianteId: estudianteId ?? "",
     evaluador: "",
@@ -81,14 +83,16 @@ export function EvaluacionWizard({ estudianteId, estudiantes }: Props) {
   async function handleSubmit() {
     setSaving(true)
     try {
-      const res = await fetch("/api/evaluaciones", {
-        method: "POST",
+      const url = editMode ? `/api/evaluaciones/${editMode}` : "/api/evaluaciones"
+      const method = editMode ? "PUT" : "POST"
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(state),
       })
       if (!res.ok) throw new Error()
       const ev = await res.json()
-      toast({ title: "Evaluación guardada correctamente" })
+      toast({ title: editMode ? "Evaluación actualizada" : "Evaluación guardada correctamente" })
       router.push(`/evaluaciones/${ev.id}`)
     } catch {
       toast({ title: "Error al guardar la evaluación", variant: "destructive" })
@@ -184,7 +188,7 @@ export function EvaluacionWizard({ estudianteId, estudiantes }: Props) {
             className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50"
           >
             <Save className="h-4 w-4" />
-            {saving ? "Guardando..." : "Guardar evaluación"}
+            {saving ? "Guardando..." : editMode ? "Actualizar evaluación" : "Guardar evaluación"}
           </button>
         ) : (
           <button

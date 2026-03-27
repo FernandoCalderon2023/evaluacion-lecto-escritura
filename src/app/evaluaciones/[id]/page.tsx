@@ -62,6 +62,12 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
             label="Eliminar"
             confirmMessage="¿Eliminar esta evaluación? No se puede deshacer."
           />
+          <Link
+            href={`/evaluaciones/${ev.id}/editar`}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50"
+          >
+            Editar
+          </Link>
           <PrintButton />
           <Link
             href={`/evaluaciones/nueva?estudianteId=${est.id}`}

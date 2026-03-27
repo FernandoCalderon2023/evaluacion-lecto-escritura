@@ -12,23 +12,42 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 }
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const body = await req.json()
-  const scores = calcularScores(body)
+  try {
+    const body = await req.json()
+    const fecha = body.fecha ? new Date(body.fecha).toISOString() : new Date().toISOString()
+    const scores = calcularScores(body)
 
-  const ev = await prisma.evaluacion.update({
-    where: { id: params.id },
-    data: {
-      ...body,
-      scoreCognitivo: scores.cognitivo.totalCorrect,
-      scoreLexical: scores.lexical.totalCorrect,
-      scoreComprension: scores.lectura.comprensionTotal,
-      estadoAprendizaje: scores.estadoGeneral,
-      // Limpiar análisis anterior si se edita
-      analisisIA: null,
-      analisisGeneradoEn: null,
-    },
-  })
-  return NextResponse.json(ev)
+    const bpmScores = scores.bpm.applied ? {
+      bpmScoreTonicidad: scores.bpm.tonicidad.score,
+      bpmScoreEquilibrio: scores.bpm.equilibrio.score,
+      bpmScoreLateralidad: scores.bpm.lateralidad.score,
+      bpmScoreNocionCuerpo: scores.bpm.nocionCuerpo.score,
+      bpmScoreEstructuracionET: scores.bpm.estructuracionET.score,
+      bpmScorePraxiaGlobal: scores.bpm.praxiaGlobal.score,
+      bpmScorePraxiaFina: scores.bpm.praxiaFina.score,
+      bpmPerfilGeneral: scores.bpm.perfilGeneral,
+    } : {}
+
+    const ev = await prisma.evaluacion.update({
+      where: { id: params.id },
+      data: {
+        ...body,
+        fecha,
+        scoreCognitivo: scores.cognitivo.totalCorrect,
+        scoreLexical: scores.lexical.totalCorrect,
+        scoreComprension: scores.lectura.comprensionTotal,
+        estadoAprendizaje: scores.estadoGeneral,
+        ...bpmScores,
+        analisisIA: null,
+        analisisGeneradoEn: null,
+      },
+    })
+    return NextResponse.json(ev)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error("[evaluaciones/PUT]", msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
