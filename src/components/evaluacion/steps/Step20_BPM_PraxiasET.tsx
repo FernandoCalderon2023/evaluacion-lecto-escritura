@@ -44,6 +44,40 @@ export function Step20BpmPraxiasET({ state, set }: Props) {
         <BpmScoreInput label="Coordinación dinámica manual" value={state.bpm_pfCoordDinamManual as number | null} onChange={set("bpm_pfCoordDinamManual")} />
         <BpmScoreInput label="Tamborilear" value={state.bpm_pfTamborilear as number | null} onChange={set("bpm_pfTamborilear")} />
         <BpmScoreInput label="Velocidad-precisión" value={state.bpm_pfVelocidadPrecision as number | null} onChange={set("bpm_pfVelocidadPrecision")} />
+          <div className="space-y-1.5 pt-2 border-t border-slate-100">
+            <label className="text-sm font-semibold text-slate-800">Tiempo de coordinación dinámica manual</label>
+            <input
+              type="text"
+              placeholder="Ej: 2 min 30 seg"
+              value={state.bpm_pfCoordTiempo ?? ""}
+              onChange={(e) => set("bpm_pfCoordTiempo")(e.target.value || null)}
+              className="w-full max-w-xs border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-slate-800">Número de puntos</label>
+              <input
+                type="number"
+                min={0}
+                placeholder="Ej: 12"
+                value={state.bpm_pfNumeroPuntos ?? ""}
+                onChange={(e) => set("bpm_pfNumeroPuntos")(e.target.value ? Number(e.target.value) : null)}
+                className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-slate-800">Número de cruces</label>
+              <input
+                type="number"
+                min={0}
+                placeholder="Ej: 8"
+                value={state.bpm_pfNumeroCruces ?? ""}
+                onChange={(e) => set("bpm_pfNumeroCruces")(e.target.value ? Number(e.target.value) : null)}
+                className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
       </div>
     </div>
   )

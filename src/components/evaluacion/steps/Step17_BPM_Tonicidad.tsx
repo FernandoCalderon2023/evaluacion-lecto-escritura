@@ -20,17 +20,84 @@ export function Step17BpmTonicidad({ state, set }: Props) {
         </div>
       </div>
 
+        {/* Aspecto Somático */}
+        <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-slate-600 mb-2">Aspecto Somático</h3>
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-slate-800">Tipo somático</label>
+            <div className="flex gap-2">
+              {["ECTO", "MESO", "ENDO"].map((tipo) => (
+                <button
+                  key={tipo}
+                  type="button"
+                  onClick={() => set("bpm_tipoSomatico")(state.bpm_tipoSomatico === tipo ? null : tipo)}
+                  className={`px-4 py-2 rounded-lg border-2 text-sm font-bold transition-all ${
+                    state.bpm_tipoSomatico === tipo
+                      ? "bg-blue-600 border-blue-600 text-white shadow-md"
+                      : "bg-white border-slate-300 text-slate-700 hover:border-blue-400"
+                  }`}
+                >
+                  {tipo}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-slate-800">Desviaciones posturales</label>
+            <input
+              type="text"
+              placeholder="Describir desviaciones observadas..."
+              value={state.bpm_desviacionesPosturales ?? ""}
+              onChange={(e) => set("bpm_desviacionesPosturales")(e.target.value || null)}
+              className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
       <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
         <h3 className="text-sm font-semibold text-slate-600 mb-2">Control Respiratorio</h3>
         <BpmScoreInput label="Inspiración" value={state.bpm_inspiracion as number | null} onChange={set("bpm_inspiracion")} />
         <BpmScoreInput label="Espiración" value={state.bpm_espiracion as number | null} onChange={set("bpm_espiracion")} />
         <BpmScoreInput label="Apnea" value={state.bpm_apnea as number | null} onChange={set("bpm_apnea")} />
+          <div className="space-y-1.5 pt-2">
+            <label className="text-sm font-semibold text-slate-800">Duración de la apnea</label>
+            <input
+              type="text"
+              placeholder="Ej: 15 segundos"
+              value={state.bpm_apneaDuracion ?? ""}
+              onChange={(e) => set("bpm_apneaDuracion")(e.target.value || null)}
+              className="w-full max-w-xs border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
       </div>
 
       <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
         <h3 className="text-sm font-semibold text-slate-600 mb-2">Fatigabilidad</h3>
         <BpmScoreInput label="Fatigabilidad" value={state.bpm_fatigabilidad as number | null} onChange={set("bpm_fatigabilidad")} />
       </div>
+
+        <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-slate-600 mb-2">Tonicidad — Tipo</h3>
+          <div className="flex gap-2">
+            {[
+              { val: "HIPO", label: "Hipotonicidad" },
+              { val: "HIPER", label: "Hipertonicidad" },
+            ].map((t) => (
+              <button
+                key={t.val}
+                type="button"
+                onClick={() => set("bpm_tonicidadTipo")(state.bpm_tonicidadTipo === t.val ? null : t.val)}
+                className={`px-4 py-2 rounded-lg border-2 text-sm font-bold transition-all ${
+                  state.bpm_tonicidadTipo === t.val
+                    ? "bg-purple-600 border-purple-600 text-white shadow-md"
+                    : "bg-white border-slate-300 text-slate-700 hover:border-purple-400"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
       <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
         <h3 className="text-sm font-semibold text-slate-600 mb-2">Extensibilidad</h3>

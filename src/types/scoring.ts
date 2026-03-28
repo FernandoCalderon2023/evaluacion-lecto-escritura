@@ -54,7 +54,7 @@ export interface BpmResult {
     ocular: string | null
     auditiva: string | null
     manual: string | null
-    pedal: string | null
+    podal: string | null
     innata: string | null
     adquirida: string | null
     definida: boolean

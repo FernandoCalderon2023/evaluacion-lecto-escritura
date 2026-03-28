@@ -71,7 +71,7 @@ export function scoreBpm(ev: Partial<EvaluacionFormData>): BpmResult {
     ocular: ev.bpm_latOcular ?? null,
     auditiva: ev.bpm_latAuditiva ?? null,
     manual: ev.bpm_latManual ?? null,
-    pedal: ev.bpm_latPedal ?? null,
+    podal: ev.bpm_latPodal ?? null,
     innata: ev.bpm_latInnata ?? null,
     adquirida: ev.bpm_latAdquirida ?? null,
   }

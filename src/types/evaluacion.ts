@@ -15,6 +15,7 @@ export interface EvaluacionFormData {
   edadAlEvaluar: number | null
   anioEscolar: number | null
   observaciones: string | null
+  palabrasLeidas: number | null
 
   // Ejercicio 1
   tonoVoz: TonoVoz | string
@@ -37,9 +38,9 @@ export interface EvaluacionFormData {
   compAsocia: ScaleValue
 
   // Ejercicios 2-14
-  ej2Bicicleta: boolean
-  ej2Mariposa: boolean
-  ej2Pez: boolean
+  ej2Bicicleta: number
+  ej2Mariposa: number
+  ej2Pez: number
   ej3a1: boolean; ej3a2: boolean; ej3a3: boolean
   ej3b1: boolean; ej3b2: boolean; ej3b3: boolean
   ej4a: boolean; ej4b: boolean
@@ -81,10 +82,18 @@ export interface EvaluacionFormData {
   comp_prodInterAdm: QualityValue; comp_prodMayusc: QualityValue
 
   // ========== BPM - Batería Psicomotora ==========
+  // Aspecto Somático y Postural
+  bpm_tipoSomatico: string | null
+  bpm_desviacionesPosturales: string | null
+
+  // Tonicidad tipo
+  bpm_tonicidadTipo: string | null
+
   // Control Respiratorio (1-4)
   bpm_inspiracion: number | null
   bpm_espiracion: number | null
   bpm_apnea: number | null
+  bpm_apneaDuracion: string | null
 
   // Tonicidad (1-4)
   bpm_fatigabilidad: number | null
@@ -118,9 +127,10 @@ export interface EvaluacionFormData {
   bpm_latOcular: string | null
   bpm_latAuditiva: string | null
   bpm_latManual: string | null
-  bpm_latPedal: string | null
+  bpm_latPodal: string | null
   bpm_latInnata: string | null
   bpm_latAdquirida: string | null
+  bpm_latScore: number | null
 
   // Noción del Cuerpo (1-4)
   bpm_sentidoKinest: number | null
@@ -148,18 +158,22 @@ export interface EvaluacionFormData {
   bpm_pfCoordDinamManual: number | null
   bpm_pfTamborilear: number | null
   bpm_pfVelocidadPrecision: number | null
+  bpm_pfCoordTiempo: string | null
+  bpm_pfNumeroPuntos: number | null
+  bpm_pfNumeroCruces: number | null
 }
 
 export const EVALUACION_DEFAULTS: Omit<EvaluacionFormData, "estudianteId" | "evaluador" | "fecha"> = {
   edadAlEvaluar: null,
   anioEscolar: null,
   observaciones: null,
+  palabrasLeidas: null,
   tonoVoz: "",
   respetaSignosPunt: "", lecturaVacilante: "", lecturaSilabica: "", lecturaCorriente: "",
   errorCambioLetras: "", errorCambioSilabas: "", errorCambioPalabras: "",
   errorOmision: "", errorAdicion: "", errorRepeticion: "", errorRotacion: "", errorInversion: "",
   compMemoriza: "", compIdeas: "", compValora: "", compInterpreta: "", compAsocia: "",
-  ej2Bicicleta: false, ej2Mariposa: false, ej2Pez: false,
+  ej2Bicicleta: 0, ej2Mariposa: 0, ej2Pez: 0,
   ej3a1: false, ej3a2: false, ej3a3: false,
   ej3b1: false, ej3b2: false, ej3b3: false,
   ej4a: false, ej4b: false,
@@ -187,7 +201,8 @@ export const EVALUACION_DEFAULTS: Omit<EvaluacionFormData, "estudianteId" | "eva
   comp_prodPresent: "B", comp_prodExtension: "B", comp_prodOrden: "B", comp_prodIdeas: "B",
   comp_prodTitulo: "B", comp_prodComas: "B", comp_prodPuntuacion: "B", comp_prodInterAdm: "B", comp_prodMayusc: "B",
   // BPM defaults
-  bpm_inspiracion: null, bpm_espiracion: null, bpm_apnea: null,
+  bpm_tipoSomatico: null, bpm_desviacionesPosturales: null, bpm_tonicidadTipo: null,
+  bpm_inspiracion: null, bpm_espiracion: null, bpm_apnea: null, bpm_apneaDuracion: null,
   bpm_fatigabilidad: null, bpm_extensibilidadMI: null, bpm_extensibilidadMS: null,
   bpm_pasividad: null, bpm_paratoniaMI: null, bpm_paratoniaMS: null,
   bpm_diadocMD: null, bpm_diadocMI: null, bpm_sincinBucales: null, bpm_sincinContralat: null,
@@ -197,11 +212,12 @@ export const EVALUACION_DEFAULTS: Omit<EvaluacionFormData, "estudianteId" | "eva
   bpm_eqPieCojoDer: null, bpm_eqPiesJuntosAdel: null, bpm_eqPiesJuntosAtras: null,
   bpm_eqPiesJuntosOjosCerr: null,
   bpm_latOcular: null, bpm_latAuditiva: null, bpm_latManual: null,
-  bpm_latPedal: null, bpm_latInnata: null, bpm_latAdquirida: null,
+  bpm_latPodal: null, bpm_latInnata: null, bpm_latAdquirida: null, bpm_latScore: null,
   bpm_sentidoKinest: null, bpm_reconocimientoID: null, bpm_autoimagenCara: null,
   bpm_imitacionGestos: null, bpm_dibujoCuerpo: null,
   bpm_etOrganizacion: null, bpm_etEstructDinamica: null, bpm_etRepTopografica: null, bpm_etEstructRitmica: null,
   bpm_pgCoordOculoManual: null, bpm_pgCoordOculoPodal: null, bpm_pgDismetria: null,
   bpm_pgDisociacion: null, bpm_pgMS: null, bpm_pgMI: null, bpm_pgAgilidades: null,
   bpm_pfCoordDinamManual: null, bpm_pfTamborilear: null, bpm_pfVelocidadPrecision: null,
+  bpm_pfCoordTiempo: null, bpm_pfNumeroPuntos: null, bpm_pfNumeroCruces: null,
 }

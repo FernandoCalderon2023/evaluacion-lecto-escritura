@@ -25,9 +25,14 @@ export function Step19BpmLateralidadCuerpo({ state, set }: Props) {
         <BpmLateralityInput label="Ocular" value={state.bpm_latOcular as string | null} onChange={set("bpm_latOcular")} />
         <BpmLateralityInput label="Auditiva" value={state.bpm_latAuditiva as string | null} onChange={set("bpm_latAuditiva")} />
         <BpmLateralityInput label="Manual" value={state.bpm_latManual as string | null} onChange={set("bpm_latManual")} />
-        <BpmLateralityInput label="Pedal" value={state.bpm_latPedal as string | null} onChange={set("bpm_latPedal")} />
+        <BpmLateralityInput label="Podal" value={state.bpm_latPodal as string | null} onChange={set("bpm_latPodal")} />
         <BpmLateralityInput label="Innata" value={state.bpm_latInnata as string | null} onChange={set("bpm_latInnata")} />
         <BpmLateralityInput label="Adquirida" value={state.bpm_latAdquirida as string | null} onChange={set("bpm_latAdquirida")} />
+          <BpmScoreInput
+            label="Puntaje general de lateralidad"
+            value={state.bpm_latScore}
+            onChange={(v) => set("bpm_latScore")(v)}
+          />
       </div>
 
       <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">

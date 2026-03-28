@@ -244,7 +244,7 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
               {" — "}
               Ocular: {scores.bpm.lateralidad.ocular ?? "—"},
               Manual: {scores.bpm.lateralidad.manual ?? "—"},
-              Pedal: {scores.bpm.lateralidad.pedal ?? "—"},
+              Podal: {scores.bpm.lateralidad.podal ?? "—"},
               Auditiva: {scores.bpm.lateralidad.auditiva ?? "—"}
             </div>
           </CardContent>

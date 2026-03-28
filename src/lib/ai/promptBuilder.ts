@@ -82,7 +82,7 @@ export function buildAnalysisPrompt(
 
 ### 2ª UNIDAD FUNCIONAL
 - **Lateralidad**: ${b.lateralidad.tipo} (${b.lateralidad.definida ? "definida" : "no definida"})
-  Ocular: ${b.lateralidad.ocular ?? "—"}, Auditiva: ${b.lateralidad.auditiva ?? "—"}, Manual: ${b.lateralidad.manual ?? "—"}, Pedal: ${b.lateralidad.pedal ?? "—"}
+  Ocular: ${b.lateralidad.ocular ?? "—"}, Auditiva: ${b.lateralidad.auditiva ?? "—"}, Manual: ${b.lateralidad.manual ?? "—"}, Podal: ${b.lateralidad.podal ?? "—"}
   Innata: ${b.lateralidad.innata ?? "—"}, Adquirida: ${b.lateralidad.adquirida ?? "—"}
 
 - **Noción del Cuerpo**: ${b.nocionCuerpo.score.toFixed(1)}/4 — Perfil ${perfilLabel(b.nocionCuerpo.perfil)}
@@ -141,6 +141,8 @@ Cruza los resultados con las expectativas del currículo oficial boliviano (Plan
 - U.E.: ${estudiante.unidadEducativa}
 - Fecha de evaluación: ${new Date(ev.fecha).toLocaleDateString("es-BO")}
 - Evaluador: ${ev.evaluador}
+${(ev as any).observaciones ? `\n**OBSERVACIONES DEL EVALUADOR (IMPORTANTE — considerar en el análisis):**\n${(ev as any).observaciones}` : ""}
+${(ev as any).palabrasLeidas != null ? `\n- Palabras leídas en 4 minutos: ${(ev as any).palabrasLeidas}` : ""}
 
 ## EXPECTATIVAS CURRICULARES (R.M. 1040/2022)
 ${expectativas}
@@ -188,7 +190,7 @@ Genera un informe psicopedagógico integral, profesional, empático y orientado 
 Usa lenguaje inclusivo referido a ${estudianteLabel} (${estudiante.sexo === "Femenino" ? "ella" : "él"}).
 ${scores.bpm.applied ? "IMPORTANTE: Integra ambos instrumentos (lecto-escritura Y BPM) en un análisis cruzado." : "Nota: No se aplicó la BPM, genera el perfil solo con el instrumento de lecto-escritura."}
 
-IMPORTANTE: Sé CONCISO. Máximo 2-3 oraciones por campo de texto. Máximo 3 fortalezas, 3 áreas de mejora, 4 recomendaciones aula, 3 familia, 3 indicadores. No repitas información.
+IMPORTANTE: El reporte debe caber en 1-2 páginas impresas. Sé CONCISO: máximo 2-3 oraciones por campo. Máximo 3 fortalezas, 3 áreas de mejora, 5 recomendaciones aula, 3 familia, 3 indicadores. No repitas información entre secciones.
 
 Responde ÚNICAMENTE con JSON válido (sin texto antes ni después):
 

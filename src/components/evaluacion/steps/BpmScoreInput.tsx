@@ -8,10 +8,10 @@ interface BpmScoreInputProps {
 }
 
 const SCORE_OPTIONS = [
-  { value: 1, label: "1", color: "bg-red-100 border-red-300 text-red-700", desc: "Débil" },
-  { value: 2, label: "2", color: "bg-yellow-100 border-yellow-300 text-yellow-700", desc: "Satisfactorio" },
-  { value: 3, label: "3", color: "bg-blue-100 border-blue-300 text-blue-700", desc: "Bueno" },
   { value: 4, label: "4", color: "bg-green-100 border-green-300 text-green-700", desc: "Excelente" },
+  { value: 3, label: "3", color: "bg-blue-100 border-blue-300 text-blue-700", desc: "Bueno" },
+  { value: 2, label: "2", color: "bg-yellow-100 border-yellow-300 text-yellow-700", desc: "Satisfactorio" },
+  { value: 1, label: "1", color: "bg-red-100 border-red-300 text-red-700", desc: "Débil" },
 ]
 
 export function BpmScoreInput({ label, description, value, onChange }: BpmScoreInputProps) {

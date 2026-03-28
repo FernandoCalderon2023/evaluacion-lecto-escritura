@@ -21,6 +21,22 @@ export function Step01Lectura({ state, set }: Props) {
       <h2 className="text-lg font-semibold text-slate-800">Ejercicio 1: Lectura en Voz Alta</h2>
       <p className="text-sm text-slate-500">Texto: &quot;El Pajarito Intoxicado&quot;</p>
 
+      {/* Palabras leídas */}
+      <div className="border border-slate-200 rounded-lg p-4 space-y-2">
+        <h3 className="font-medium text-slate-700 text-sm uppercase tracking-wide">Registro de lectura</h3>
+        <div className="space-y-1.5">
+          <label className="text-sm font-semibold text-slate-800">Número de palabras leídas en 4 minutos</label>
+          <input
+            type="number"
+            min={0}
+            placeholder="Ej: 45"
+            value={state.palabrasLeidas ?? ""}
+            onChange={(e) => set("palabrasLeidas")(e.target.value ? Number(e.target.value) : null)}
+            className="w-full max-w-xs border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-lg"
+          />
+        </div>
+      </div>
+
       {/* Expresividad */}
       <div className="border border-slate-200 rounded-lg p-4 space-y-4">
         <h3 className="font-medium text-slate-700 text-sm uppercase tracking-wide">Expresividad</h3>

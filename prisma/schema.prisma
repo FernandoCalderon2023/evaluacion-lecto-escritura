@@ -37,6 +37,9 @@ model Evaluacion {
   anioEscolar    Int?    // Año de escolaridad: 1=1ro, 2=2do, ... 6=6to
   observaciones  String?  // Notas del evaluador (campos en blanco, situaciones especiales)
 
+  // Ejercicio 1 - Lectura
+  palabrasLeidas    Int?     // Palabras leídas en 4 minutos
+
   // EJERCICIO 1 - Expresividad
   tonoVoz           String? @default("medio")
   respetaSignosPunt String @default("AV")
@@ -62,9 +65,9 @@ model Evaluacion {
   compAsocia       String @default("AV")
 
   // EJERCICIO 2
-  ej2Bicicleta Boolean @default(false)
-  ej2Mariposa  Boolean @default(false)
-  ej2Pez       Boolean @default(false)
+  ej2Bicicleta Int @default(0)  // Letras correctas (max 3: C,L,E)
+  ej2Mariposa  Int @default(0)  // Letras correctas (max 1: P)
+  ej2Pez       Int @default(0)  // Letras correctas (max 2: E,Z)
 
   // EJERCICIO 3A
   ej3a1 Boolean @default(false)
@@ -200,10 +203,18 @@ model Evaluacion {
   comp_prodMayusc     String @default("B")
 
   // ========== BPM - Batería Psicomotora (Victor da Fonseca) ==========
+  // BPM - Aspecto Somático y Postural
+  bpm_tipoSomatico          String?  // ECTO, MESO, ENDO
+  bpm_desviacionesPosturales String?  // Texto libre
+
+  // BPM - Tonicidad tipo
+  bpm_tonicidadTipo         String?  // HIPO, HIPER
+
   // Control Respiratorio
   bpm_inspiracion     Int?
   bpm_espiracion      Int?
   bpm_apnea           Int?
+  bpm_apneaDuracion         String?  // Duración en segundos/texto
 
   // Tonicidad
   bpm_fatigabilidad       Int?
@@ -237,9 +248,10 @@ model Evaluacion {
   bpm_latOcular     String?
   bpm_latAuditiva   String?
   bpm_latManual     String?
-  bpm_latPedal      String?
+  bpm_latPodal      String?
   bpm_latInnata     String?
   bpm_latAdquirida  String?
+  bpm_latScore              Int?     // Puntaje general lateralidad 1-4
 
   // Noción del Cuerpo
   bpm_sentidoKinest      Int?
@@ -267,6 +279,9 @@ model Evaluacion {
   bpm_pfCoordDinamManual     Int?
   bpm_pfTamborilear          Int?
   bpm_pfVelocidadPrecision   Int?
+  bpm_pfCoordTiempo         String?  // Tiempo coordinación dinámica manual
+  bpm_pfNumeroPuntos        Int?     // Número de puntos realizados
+  bpm_pfNumeroCruces        Int?     // Número de cruces realizados
 
   // BPM - Scores resumen (calculados)
   bpmScoreTonicidad        Float?
