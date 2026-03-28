@@ -19,17 +19,14 @@ export async function POST(_: NextRequest, { params }: { params: { id: string } 
 
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 8192,
+      max_tokens: 16000,
       messages: [{ role: "user", content: prompt }],
     })
 
     const rawText =
       message.content[0].type === "text" ? message.content[0].text : ""
     if (message.stop_reason === "max_tokens") {
-      return NextResponse.json(
-        { error: `Respuesta truncada por límite de tokens. Longitud: ${rawText.length}` },
-        { status: 500 }
-      )
+      console.warn("[analisis] Respuesta truncada, intentando parsear parcialmente...")
     }
     const analisis = parseClaudeResponse(rawText)
 

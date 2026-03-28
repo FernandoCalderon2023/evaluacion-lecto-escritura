@@ -188,6 +188,8 @@ Genera un informe psicopedagógico integral, profesional, empático y orientado 
 Usa lenguaje inclusivo referido a ${estudianteLabel} (${estudiante.sexo === "Femenino" ? "ella" : "él"}).
 ${scores.bpm.applied ? "IMPORTANTE: Integra ambos instrumentos (lecto-escritura Y BPM) en un análisis cruzado." : "Nota: No se aplicó la BPM, genera el perfil solo con el instrumento de lecto-escritura."}
 
+IMPORTANTE: Sé CONCISO. Máximo 2-3 oraciones por campo de texto. Máximo 3 fortalezas, 3 áreas de mejora, 4 recomendaciones aula, 3 familia, 3 indicadores. No repitas información.
+
 Responde ÚNICAMENTE con JSON válido (sin texto antes ni después):
 
 {
