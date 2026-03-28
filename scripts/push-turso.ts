@@ -12,58 +12,34 @@ if (!url || !authToken) {
 
 const client = createClient({ url, authToken })
 
-// Read the local dev.db schema and recreate on Turso
-// We'll extract CREATE TABLE statements from prisma db push output
-const schema = `
-CREATE TABLE IF NOT EXISTS "Estudiante" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "nombre" TEXT NOT NULL,
-    "apellido1" TEXT NOT NULL,
-    "apellido2" TEXT,
-    "fechaNac" DATETIME NOT NULL,
-    "grado" TEXT NOT NULL,
-    "unidadEducativa" TEXT NOT NULL,
-    "gestion" INTEGER NOT NULL,
-    "docente" TEXT NOT NULL,
-    "sexo" TEXT NOT NULL,
-    "codigoRude" TEXT,
-    "domicilio" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
-);
-`
-
 async function main() {
-  // Get the actual schema from local SQLite
   const dbPath = path.resolve(process.cwd(), "dev.db")
   if (!fs.existsSync(dbPath)) {
     console.error("Run 'npx prisma db push' locally first to create dev.db")
     process.exit(1)
   }
 
-  // Use better-sqlite3 to read the schema
   const Database = require("better-sqlite3")
   const db = new Database(dbPath)
+
+  // Drop existing tables first (reverse order for FK)
+  console.log("Dropping existing tables...")
+  await client.execute("DROP TABLE IF EXISTS Evaluacion")
+  await client.execute("DROP TABLE IF EXISTS Estudiante")
+
+  // Recreate from local schema
   const tables = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name != '_prisma_migrations'").all()
-  db.close()
 
-  console.log(`Pushing ${tables.length} tables to Turso...`)
-
+  console.log(`Creating ${tables.length} tables on Turso...`)
   for (const t of tables) {
     const sql = (t as any).sql as string
     if (!sql) continue
-    // Add IF NOT EXISTS
-    const safeSql = sql.replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS")
-    console.log(`  → ${safeSql.slice(0, 60)}...`)
-    await client.execute(safeSql)
+    console.log(`  → ${sql.slice(0, 60)}...`)
+    await client.execute(sql)
   }
 
-  // Also push indexes
-  const indexes = db ? [] : []
-  const db2 = new Database(dbPath)
-  const idxs = db2.prepare("SELECT sql FROM sqlite_master WHERE type='index' AND sql IS NOT NULL").all()
-  db2.close()
-
+  // Recreate indexes
+  const idxs = db.prepare("SELECT sql FROM sqlite_master WHERE type='index' AND sql IS NOT NULL").all()
   for (const idx of idxs) {
     const sql = (idx as any).sql as string
     if (!sql) continue
@@ -72,7 +48,8 @@ async function main() {
     await client.execute(safeSql)
   }
 
-  console.log("✅ Schema pushed to Turso!")
+  db.close()
+  console.log("✅ Schema pushed to Turso (tables recreated)!")
 }
 
 main().catch(console.error)
