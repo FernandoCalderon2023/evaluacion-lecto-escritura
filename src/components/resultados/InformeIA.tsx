@@ -34,22 +34,52 @@ const INTEGRADO_LABELS: Record<string, string> = {
   atencionMemoria: "Atención y memoria procedimental",
 }
 
+const LOADING_STEPS = [
+  "Conectando con Claude IA...",
+  "Analizando resultados de lecto-escritura...",
+  "Evaluando procesos cognitivos y léxicos...",
+  "Cruzando con currículo R.M. 1040/2022...",
+  "Analizando perfil psicomotor...",
+  "Generando perfil integrado...",
+  "Elaborando recomendaciones...",
+  "Finalizando informe...",
+]
+
 export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }: Props) {
   const { toast } = useToast()
   const [analisis, setAnalisis] = useState<AnalisisIA | null>(analisisInicial)
   const [generadoEn, setGeneradoEn] = useState<Date | null>(analisisGeneradoEn)
   const [loading, setLoading] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [stepMsg, setStepMsg] = useState("")
 
   async function generarAnalisis() {
     setLoading(true)
+    setProgress(0)
+    setStepMsg(LOADING_STEPS[0])
+
+    // Simular progreso mientras espera la IA
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        const next = Math.min(prev + 2, 90)
+        const stepIdx = Math.min(Math.floor(next / 12), LOADING_STEPS.length - 1)
+        setStepMsg(LOADING_STEPS[stepIdx])
+        return next
+      })
+    }, 800)
+
     try {
       const res = await fetch(`/api/evaluaciones/${evaluacionId}/analisis`, { method: "POST" })
       const data = await res.json()
+      clearInterval(interval)
       if (!res.ok) throw new Error(data.error || "Error al generar")
+      setProgress(100)
+      setStepMsg("Informe completo")
       setAnalisis(data.analisis)
       setGeneradoEn(new Date())
       toast({ title: "Análisis generado correctamente" })
     } catch (err: unknown) {
+      clearInterval(interval)
       const msg = err instanceof Error ? err.message : "Error al generar el análisis"
       toast({ title: msg, variant: "destructive" })
     } finally {
@@ -59,7 +89,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
 
   if (!analisis) {
     return (
-      <div className="text-center py-10 space-y-3 border-2 border-dashed border-slate-200 rounded-xl">
+      <div className="text-center py-10 space-y-4 border-2 border-dashed border-slate-200 rounded-xl">
         <Sparkles className="h-10 w-10 text-blue-400 mx-auto" />
         <div>
           <p className="font-semibold text-slate-700">Informe Psicopedagógico con IA</p>
@@ -67,14 +97,27 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
             Claude generará un informe integrado: Perfil DAE + Perfil Psicomotor + Perfil Integrado + Recomendaciones
           </p>
         </div>
-        <button
-          onClick={generarAnalisis}
-          disabled={loading}
-          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 mx-auto"
-        >
-          <Sparkles className="h-4 w-4" />
-          {loading ? "Generando informe..." : "Generar Informe IA"}
-        </button>
+
+        {loading ? (
+          <div className="max-w-sm mx-auto space-y-2 px-4">
+            <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-blue-600 rounded-full transition-all duration-700 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-xs text-blue-600 font-medium animate-pulse">{stepMsg}</p>
+            <p className="text-xs text-slate-400">{progress}% — esto puede tomar 20-40 segundos</p>
+          </div>
+        ) : (
+          <button
+            onClick={generarAnalisis}
+            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-2 mx-auto"
+          >
+            <Sparkles className="h-4 w-4" />
+            Generar Informe IA
+          </button>
+        )}
       </div>
     )
   }

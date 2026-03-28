@@ -5,6 +5,9 @@ import { calcularScores } from "@/lib/scoring"
 import { buildAnalysisPrompt } from "@/lib/ai/promptBuilder"
 import { parseClaudeResponse } from "@/lib/ai/analysisParser"
 
+// Vercel: permitir hasta 60 segundos
+export const maxDuration = 60
+
 export async function POST(_: NextRequest, { params }: { params: { id: string } }) {
   try {
     const ev = await prisma.evaluacion.findUnique({
@@ -13,15 +16,17 @@ export async function POST(_: NextRequest, { params }: { params: { id: string } 
     })
     if (!ev) return NextResponse.json({ error: "Evaluación no encontrada" }, { status: 404 })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const scores = calcularScores(ev as any)
     const prompt = buildAnalysisPrompt(ev.estudiante, ev, scores)
 
-    const message = await anthropic.messages.create({
+    // Usar streaming para evitar timeout de Anthropic SDK
+    const stream = anthropic.messages.stream({
       model: "claude-sonnet-4-6",
-      max_tokens: 32000,
+      max_tokens: 16000,
       messages: [{ role: "user", content: prompt }],
     })
+
+    const message = await stream.finalMessage()
 
     const rawText =
       message.content[0].type === "text" ? message.content[0].text : ""
