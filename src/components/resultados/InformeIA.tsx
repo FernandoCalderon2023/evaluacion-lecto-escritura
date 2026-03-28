@@ -70,8 +70,15 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
 
     try {
       const res = await fetch(`/api/evaluaciones/${evaluacionId}/analisis`, { method: "POST" })
-      const data = await res.json()
       clearInterval(interval)
+
+      // Vercel puede devolver HTML en timeout — verificar content-type
+      const contentType = res.headers.get("content-type") ?? ""
+      if (!contentType.includes("application/json")) {
+        throw new Error("El servidor tardó demasiado. Intenta de nuevo — el análisis se genera en 20-40 segundos.")
+      }
+
+      const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Error al generar")
       setProgress(100)
       setStepMsg("Informe completo")

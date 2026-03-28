@@ -5,8 +5,8 @@ import { calcularScores } from "@/lib/scoring"
 import { buildAnalysisPrompt } from "@/lib/ai/promptBuilder"
 import { parseClaudeResponse } from "@/lib/ai/analysisParser"
 
-// Vercel: permitir hasta 60 segundos
-export const maxDuration = 60
+// Vercel Pro permite hasta 300s, Free hasta 60s
+export const maxDuration = 300
 
 export async function POST(_: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -19,10 +19,10 @@ export async function POST(_: NextRequest, { params }: { params: { id: string } 
     const scores = calcularScores(ev as any)
     const prompt = buildAnalysisPrompt(ev.estudiante, ev, scores)
 
-    // Usar streaming para evitar timeout de Anthropic SDK
+    // Streaming para evitar timeout del SDK
     const stream = anthropic.messages.stream({
-      model: "claude-sonnet-4-6",
-      max_tokens: 16000,
+      model: "claude-sonnet-4-5-20241022",
+      max_tokens: 4096,
       messages: [{ role: "user", content: prompt }],
     })
 
@@ -30,9 +30,8 @@ export async function POST(_: NextRequest, { params }: { params: { id: string } 
 
     const rawText =
       message.content[0].type === "text" ? message.content[0].text : ""
-    if (message.stop_reason === "max_tokens") {
-      console.warn("[analisis] Respuesta truncada, intentando parsear parcialmente...")
-    }
+    console.log("[analisis] stop_reason:", message.stop_reason, "length:", rawText.length)
+
     const analisis = parseClaudeResponse(rawText)
 
     await prisma.evaluacion.update({
