@@ -80,7 +80,7 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
 
       {/* Datos del informe (visible al imprimir) */}
       <div className="hidden print:block mb-4">
-        <h1 className="text-2xl font-bold">Informe de Evaluación — SPMA-DAEL-E</h1>
+        <h1 className="text-2xl font-bold">Informe de Evaluación — SIDEDA</h1>
         <p className="text-sm">Ministerio de Educación del Estado Plurinacional de Bolivia</p>
         <div className="grid grid-cols-3 gap-2 mt-3 text-sm border-t pt-3">
           <div><strong>Estudiante:</strong> {est.apellido1} {est.nombre}</div>

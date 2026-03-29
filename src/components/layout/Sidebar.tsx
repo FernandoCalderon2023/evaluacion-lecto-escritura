@@ -24,7 +24,7 @@ export function Sidebar() {
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900 text-white flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <BookOpen className="h-5 w-5 text-blue-400" />
-          <p className="font-bold text-sm">SPMA-DAEL-E</p>
+          <p className="font-bold text-sm">SIDEDA</p>
         </div>
         <button onClick={() => setOpen(!open)} className="p-1.5 rounded-lg hover:bg-slate-800">
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -46,8 +46,8 @@ export function Sidebar() {
           <div className="flex items-center gap-2">
             <BookOpen className="h-6 w-6 text-blue-400" />
             <div>
-              <p className="font-bold text-sm leading-tight">SPMA-DAEL-E</p>
-              <p className="text-xs text-slate-400">Sistema Psicopedagógico</p>
+              <p className="font-bold text-sm leading-tight">SIDEDA</p>
+              <p className="text-xs text-slate-400">sideda.com</p>
             </div>
           </div>
         </div>
