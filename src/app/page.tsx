@@ -212,7 +212,7 @@ export default function LandingPage() {
       <section className="bg-white py-12 border-t border-slate-100">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-slate-400 text-xs uppercase tracking-wide mb-2">Desarrollado por</p>
-          <p className="text-xl font-bold text-slate-900">Prof. Lourdes Olivares Franquel</p>
+          <p className="text-xl font-bold text-slate-900">Lic. Lourdes Olivares Franquel</p>
           <p className="text-slate-500 text-sm mt-1">Tesis de investigación en Educación Especial</p>
         </div>
       </section>
