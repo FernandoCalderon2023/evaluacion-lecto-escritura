@@ -22,7 +22,7 @@ export async function POST(_: NextRequest, { params }: { params: { id: string } 
     // Streaming para evitar timeout del SDK
     const stream = anthropic.messages.stream({
       model: "claude-sonnet-4-6",
-      max_tokens: 4096,
+      max_tokens: 16000,
       messages: [{ role: "user", content: prompt }],
     })
 
