@@ -21,8 +21,7 @@ import { Step11Rimas } from "./steps/Step11_Rimas"
 import { Step12Sustitucion } from "./steps/Step12_Sustitucion"
 import { Step13Omision } from "./steps/Step13_Omision"
 import { Step14Inversion } from "./steps/Step14_Inversion"
-import { Step15Dictado } from "./steps/Step15_Dictado"
-import { Step16Composicion } from "./steps/Step16_Composicion"
+import { Step15Escritura } from "./steps/Step15_Escritura"
 import { Step17BpmTonicidad } from "./steps/Step17_BPM_Tonicidad"
 import { Step18BpmEquilibrio } from "./steps/Step18_BPM_Equilibrio"
 import { Step19BpmLateralidadCuerpo } from "./steps/Step19_BPM_LateralidadCuerpo"
@@ -44,8 +43,7 @@ const STEPS = [
   { label: "12. Sustitución" },
   { label: "13. Omisión" },
   { label: "14. Inversión" },
-  { label: "15. Dictado" },
-  { label: "16. Composición" },
+  { label: "15-16. Escritura" },
   { label: "BPM — Tonicidad" },
   { label: "BPM — Equilibrio" },
   { label: "BPM — Lateralidad y Cuerpo" },
@@ -119,8 +117,7 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
     <Step12Sustitucion key={12} {...stepProps} />,
     <Step13Omision key={13} {...stepProps} />,
     <Step14Inversion key={14} {...stepProps} />,
-    <Step15Dictado key={15} {...stepProps} />,
-    <Step16Composicion key={16} {...stepProps} />,
+    <Step15Escritura key={15} {...stepProps} />,
     <Step17BpmTonicidad key={17} {...stepProps} />,
     <Step18BpmEquilibrio key={18} {...stepProps} />,
     <Step19BpmLateralidadCuerpo key={19} {...stepProps} />,
