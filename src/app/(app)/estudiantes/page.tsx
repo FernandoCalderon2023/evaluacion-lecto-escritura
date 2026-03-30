@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -12,10 +14,15 @@ export default async function EstudiantesPage({
   searchParams: { q?: string }
 }) {
   const q = searchParams.q ?? ""
+  const session = await getServerSession(authOptions)
+  const isAdmin = (session?.user as any)?.role === "ADMIN"
+  const docenteId = (session?.user as any)?.id
+
   const estudiantes = await prisma.estudiante.findMany({
-    where: q
-      ? { OR: [{ nombre: { contains: q } }, { apellido1: { contains: q } }] }
-      : undefined,
+    where: {
+      ...(q ? { OR: [{ nombre: { contains: q } }, { apellido1: { contains: q } }] } : {}),
+      ...(isAdmin ? {} : { docenteId }),
+    },
     orderBy: { createdAt: "desc" },
     include: { _count: { select: { evaluaciones: true } } },
   })

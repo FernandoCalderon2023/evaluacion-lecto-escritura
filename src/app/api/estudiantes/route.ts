@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -23,6 +25,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const estudiante = await prisma.estudiante.create({ data: body })
+  const session = await getServerSession(authOptions)
+  const docenteId = (session?.user as any)?.id
+  const estudiante = await prisma.estudiante.create({ data: { ...body, docenteId } })
   return NextResponse.json(estudiante, { status: 201 })
 }

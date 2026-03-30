@@ -7,6 +7,17 @@ datasource db {
   provider = "sqlite"
 }
 
+model Usuario {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  nombre       String
+  rol          String   @default("DOCENTE")  // ADMIN o DOCENTE
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 model Estudiante {
   id              String       @id @default(cuid())
   nombre          String
@@ -20,6 +31,7 @@ model Estudiante {
   sexo            String
   codigoRude      String?
   domicilio       String?
+  docenteId       String?   // ID del docente que registró al estudiante
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   evaluaciones    Evaluacion[]
@@ -31,6 +43,7 @@ model Evaluacion {
   estudiante   Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
   fecha        DateTime   @default(now())
   evaluador    String
+  docenteId    String?   // ID del docente que realizó la evaluación
 
   // Datos ingresados por el evaluador
   edadAlEvaluar  Int?    // Edad del estudiante al momento de la evaluación

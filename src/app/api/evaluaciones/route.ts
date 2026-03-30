@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { calcularScores } from "@/lib/scoring"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -39,10 +41,14 @@ export async function POST(req: NextRequest) {
     bpmPerfilGeneral: scores.bpm.perfilGeneral,
   } : {}
 
+  const session = await getServerSession(authOptions)
+  const docenteId = (session?.user as any)?.id
+
   const evaluacion = await prisma.evaluacion.create({
     data: {
       ...body,
       fecha,
+      docenteId,
       scoreCognitivo: scores.cognitivo.totalCorrect,
       scoreLexical: scores.lexical.totalCorrect,
       scoreComprension: scores.lectura.comprensionTotal,
