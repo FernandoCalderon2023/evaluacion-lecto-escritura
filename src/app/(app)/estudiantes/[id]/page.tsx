@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,11 +18,17 @@ const ESTADO_CONFIG = {
 }
 
 export default async function EstudiantePerfilPage({ params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions)
+  const isAdmin = (session?.user as any)?.role === "ADMIN"
+  const docenteId = (session?.user as any)?.id
+
   const est = await prisma.estudiante.findUnique({
     where: { id: params.id },
     include: { evaluaciones: { orderBy: { fecha: "desc" } } },
   })
   if (!est) notFound()
+  // Docente solo accede a sus propios estudiantes
+  if (!isAdmin && est.docenteId !== docenteId) notFound()
 
   const edad = Math.floor(
     (Date.now() - new Date(est.fechaNac).getTime()) / (1000 * 60 * 60 * 24 * 365.25)

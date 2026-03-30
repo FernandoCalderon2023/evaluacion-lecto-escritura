@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Users, ClipboardList, AlertTriangle, CheckCircle } from "lucide-react"
@@ -14,11 +16,17 @@ const ESTADO_CONFIG = {
 }
 
 export default async function DashboardPage() {
+  const session = await getServerSession(authOptions)
+  const isAdmin = (session?.user as any)?.role === "ADMIN"
+  const docenteId = (session?.user as any)?.id
+  const filtro = isAdmin ? {} : { docenteId }
+
   const [totalEst, totalEv, porEstado, recientes] = await Promise.all([
-    prisma.estudiante.count(),
-    prisma.evaluacion.count(),
-    prisma.evaluacion.groupBy({ by: ["estadoAprendizaje"], _count: { _all: true } }),
+    prisma.estudiante.count({ where: filtro }),
+    prisma.evaluacion.count({ where: filtro }),
+    prisma.evaluacion.groupBy({ by: ["estadoAprendizaje"], _count: { _all: true }, where: filtro }),
     prisma.evaluacion.findMany({
+      where: filtro,
       take: 6,
       orderBy: { fecha: "desc" },
       include: { estudiante: { select: { nombre: true, apellido1: true, grado: true } } },

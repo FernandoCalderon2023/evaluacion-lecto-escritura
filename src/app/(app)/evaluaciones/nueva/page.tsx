@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { EvaluacionWizard } from "@/components/evaluacion/EvaluacionWizard"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -11,7 +13,12 @@ export default async function NuevaEvaluacionPage({
 }: {
   searchParams: { estudianteId?: string }
 }) {
+  const session = await getServerSession(authOptions)
+  const isAdmin = (session?.user as any)?.role === "ADMIN"
+  const docenteId = (session?.user as any)?.id
+
   const estudiantes = await prisma.estudiante.findMany({
+    where: isAdmin ? {} : { docenteId },
     orderBy: { apellido1: "asc" },
     select: { id: true, nombre: true, apellido1: true, grado: true },
   })
