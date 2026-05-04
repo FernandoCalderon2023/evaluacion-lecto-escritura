@@ -42,17 +42,16 @@ export default async function EstudiantePerfilPage({ params }: { params: { id: s
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
-              {est.apellido1} {est.apellido2} {est.nombre}
-            </h1>
-            <p className="text-slate-500 text-sm">{est.grado} · {est.unidadEducativa}</p>
+            <h1 className="text-2xl font-bold text-slate-900 font-mono">{est.codigo ?? "—"}</h1>
+            <p className="text-xs text-slate-400 mt-0.5">{est.apellido1} {est.apellido2} {est.nombre}</p>
+            <p className="text-slate-500 text-sm mt-1">{est.grado} · {est.unidadEducativa}</p>
           </div>
         </div>
         <DeleteButton
           endpoint={`/api/estudiantes/${est.id}`}
           redirectTo="/estudiantes"
           label="Eliminar estudiante"
-          confirmMessage={`¿Eliminar a ${est.nombre} ${est.apellido1} y todas sus evaluaciones?`}
+          confirmMessage={`¿Eliminar al estudiante ${est.codigo} y todas sus evaluaciones?`}
         />
       </div>
 

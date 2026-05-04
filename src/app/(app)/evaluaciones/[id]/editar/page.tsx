@@ -15,8 +15,8 @@ export default async function EditarEvaluacionPage({ params }: { params: { id: s
   if (!ev) notFound()
 
   const estudiantes = await prisma.estudiante.findMany({
-    orderBy: { apellido1: "asc" },
-    select: { id: true, nombre: true, apellido1: true, grado: true },
+    orderBy: { codigo: "asc" },
+    select: { id: true, codigo: true, grado: true },
   })
 
   // Convert DB record to form data (strip computed fields)
@@ -45,7 +45,7 @@ export default async function EditarEvaluacionPage({ params }: { params: { id: s
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Editar Evaluación</h1>
           <p className="text-sm text-slate-500">
-            {ev.estudiante.apellido1} {ev.estudiante.nombre} — {new Date(ev.fecha).toLocaleDateString("es-BO")}
+            <span className="font-mono">{ev.estudiante.codigo ?? "—"}</span> — {new Date(ev.fecha).toLocaleDateString("es-BO")}
           </p>
         </div>
       </div>

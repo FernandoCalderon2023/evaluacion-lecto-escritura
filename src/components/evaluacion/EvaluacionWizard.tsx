@@ -58,7 +58,7 @@ function reducer(state: Partial<EvaluacionFormData>, action: Action): Partial<Ev
 
 interface Props {
   estudianteId?: string
-  estudiantes: Array<{ id: string; nombre: string; apellido1: string; grado: string }>
+  estudiantes: Array<{ id: string; codigo: string; grado: string }>
   editMode?: string  // evaluacion ID if editing
   initialData?: Partial<EvaluacionFormData>
 }

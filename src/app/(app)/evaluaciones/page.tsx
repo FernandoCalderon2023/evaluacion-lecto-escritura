@@ -27,7 +27,7 @@ export default async function EvaluacionesPage({ searchParams }: { searchParams:
     },
     orderBy: { fecha: "desc" },
     include: {
-      estudiante: { select: { nombre: true, apellido1: true, apellido2: true, grado: true, unidadEducativa: true } },
+      estudiante: { select: { codigo: true, grado: true, unidadEducativa: true } },
     },
   })
 
@@ -83,8 +83,8 @@ export default async function EvaluacionesPage({ searchParams }: { searchParams:
                 <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:shadow-sm hover:border-slate-300 transition-all">
                   <div className="flex gap-4 items-center">
                     <div>
-                      <p className="font-medium text-slate-900">
-                        {est.apellido1} {est.apellido2} {est.nombre}
+                      <p className="font-bold text-slate-900 font-mono">
+                        {est.codigo ?? "—"}
                       </p>
                       <p className="text-xs text-slate-500">
                         {est.grado} · {est.unidadEducativa} · Evaluador: {ev.evaluador}

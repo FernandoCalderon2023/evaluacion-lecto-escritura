@@ -54,9 +54,7 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">
-              {est.apellido1} {est.apellido2} {est.nombre}
-            </h1>
+            <h1 className="text-xl font-bold text-slate-900 font-mono">{est.codigo ?? "—"}</h1>
             <p className="text-sm text-slate-500">
               {est.grado} · {est.unidadEducativa} · {edad} años
             </p>
@@ -90,7 +88,7 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
         <h1 className="text-2xl font-bold">Informe de Evaluación — SIDEDA</h1>
         <p className="text-sm">Ministerio de Educación del Estado Plurinacional de Bolivia</p>
         <div className="grid grid-cols-3 gap-2 mt-3 text-sm border-t pt-3">
-          <div><strong>Estudiante:</strong> {est.apellido1} {est.nombre}</div>
+          <div><strong>Código:</strong> {est.codigo ?? "—"}</div>
           <div><strong>Grado:</strong> {est.grado}</div>
           <div><strong>Fecha:</strong> {new Date(ev.fecha).toLocaleDateString("es-BO")}</div>
           <div><strong>Unidad Educativa:</strong> {est.unidadEducativa}</div>

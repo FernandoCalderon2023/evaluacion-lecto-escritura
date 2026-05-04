@@ -20,7 +20,7 @@ export default async function EstudiantesPage({
 
   const estudiantes = await prisma.estudiante.findMany({
     where: {
-      ...(q ? { OR: [{ nombre: { contains: q } }, { apellido1: { contains: q } }] } : {}),
+      ...(q ? { OR: [{ codigo: { contains: q } }, { nombre: { contains: q } }, { apellido1: { contains: q } }] } : {}),
       ...(isAdmin ? {} : { docenteId }),
     },
     orderBy: { createdAt: "desc" },
@@ -47,8 +47,8 @@ export default async function EstudiantesPage({
         <input
           name="q"
           defaultValue={q}
-          placeholder="Buscar por nombre o apellido..."
-          className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Buscar por código, nombre o apellido..."
+          className="flex-1 border border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           type="submit"
@@ -75,10 +75,10 @@ export default async function EstudiantesPage({
                       <User className="h-5 w-5 text-blue-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-slate-900 truncate">
-                        {est.apellido1} {est.apellido2} {est.nombre}
+                      <p className="font-bold text-slate-900 truncate font-mono text-base">
+                        {est.codigo ?? "—"}
                       </p>
-                      <p className="text-sm text-slate-500">{est.grado} · {est.unidadEducativa}</p>
+                      <p className="text-xs text-slate-500">{est.grado} · {est.unidadEducativa}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <Badge variant="secondary" className="text-xs">
                           {est._count.evaluaciones} evaluación(es)

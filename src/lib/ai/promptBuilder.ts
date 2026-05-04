@@ -133,8 +133,8 @@ Analiza los resultados de ${estudianteLabel} evaluado/a con:
 ${scores.bpm.applied ? '2. La Batería Psicomotora (BPM) de Víctor da Fonseca (1975)' : ''}
 Cruza los resultados con las expectativas del currículo oficial boliviano (Planes y Programas EPCV, R.M. 1040/2022).
 
-## DATOS DEL ESTUDIANTE
-- Nombre: ${estudiante.nombre} ${estudiante.apellido1} ${estudiante.apellido2 ?? ""}
+## DATOS DEL ESTUDIANTE (anonimizado por ser menor de edad)
+- Código: ${(estudiante as any).codigo ?? "—"}
 - Sexo: ${estudiante.sexo}
 - Edad al momento de la evaluación: ${notaEdad}
 - Año de escolaridad: ${anioEscolar > 0 ? `${anioEscolar}° año` : "no registrado"} (${estudiante.grado})

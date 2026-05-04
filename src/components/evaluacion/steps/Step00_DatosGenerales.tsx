@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 interface Props {
   state: Partial<EvaluacionFormData>
   set: (field: keyof EvaluacionFormData) => (v: unknown) => void
-  estudiantes: Array<{ id: string; nombre: string; apellido1: string; grado: string }>
+  estudiantes: Array<{ id: string; codigo: string; grado: string }>
 }
 
 export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
@@ -25,7 +25,7 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
           <option value="">— Seleccionar estudiante —</option>
           {estudiantes.map((est) => (
             <option key={est.id} value={est.id}>
-              {est.apellido1} {est.nombre} — {est.grado}
+              {est.codigo} — {est.grado}
             </option>
           ))}
         </select>

@@ -20,6 +20,7 @@ model Usuario {
 
 model Estudiante {
   id              String       @id @default(cuid())
+  codigo          String       @unique  // Código anónimo: iniciales + sufijo
   nombre          String
   apellido1       String
   apellido2       String?

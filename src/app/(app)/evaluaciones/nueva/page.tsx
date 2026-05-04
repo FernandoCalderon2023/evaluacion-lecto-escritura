@@ -19,8 +19,8 @@ export default async function NuevaEvaluacionPage({
 
   const estudiantes = await prisma.estudiante.findMany({
     where: isAdmin ? {} : { docenteId },
-    orderBy: { apellido1: "asc" },
-    select: { id: true, nombre: true, apellido1: true, grado: true },
+    orderBy: { codigo: "asc" },
+    select: { id: true, codigo: true, grado: true },
   })
 
   if (estudiantes.length === 0) {

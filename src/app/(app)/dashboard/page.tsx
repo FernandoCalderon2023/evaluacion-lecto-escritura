@@ -29,7 +29,7 @@ export default async function DashboardPage() {
       where: filtro,
       take: 6,
       orderBy: { fecha: "desc" },
-      include: { estudiante: { select: { nombre: true, apellido1: true, grado: true } } },
+      include: { estudiante: { select: { codigo: true, grado: true } } },
     }),
   ])
 
@@ -136,8 +136,8 @@ export default async function DashboardPage() {
                   <Link key={ev.id} href={`/evaluaciones/${ev.id}`}>
                     <div className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200">
                       <div>
-                        <p className="text-sm font-medium text-slate-900">
-                          {ev.estudiante.nombre} {ev.estudiante.apellido1}
+                        <p className="text-sm font-bold text-slate-900 font-mono">
+                          {ev.estudiante.codigo ?? "—"}
                         </p>
                         <p className="text-xs text-slate-500">
                           {ev.estudiante.grado} · {new Date(ev.fecha).toLocaleDateString("es-BO")}

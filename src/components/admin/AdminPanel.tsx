@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { UserPlus, Shield, User, ToggleLeft, ToggleRight } from "lucide-react"
+import { UserPlus, Shield, User, ToggleLeft, ToggleRight, Database } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface Usuario {
@@ -55,15 +55,42 @@ export function AdminPanel({ usuarios }: { usuarios: Usuario[] }) {
     router.refresh()
   }
 
+  const [migrating, setMigrating] = useState(false)
+  async function ejecutarMigracion() {
+    if (!confirm("Ejecutar migración: agregar campo 'codigo' a estudiantes existentes. ¿Continuar?")) return
+    setMigrating(true)
+    try {
+      const res = await fetch("/api/admin/migrate", { method: "POST" })
+      const data = await res.json()
+      const log = (data.log || []).join("\n")
+      alert(res.ok ? `✅ Migración exitosa\n\n${log}` : `❌ Error\n\n${log}`)
+      router.refresh()
+    } catch (e) {
+      alert("Error de red al ejecutar migración")
+    } finally {
+      setMigrating(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <button
-        onClick={() => setShowForm(!showForm)}
-        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
-      >
-        <UserPlus className="h-4 w-4" />
-        {showForm ? "Cancelar" : "Crear nuevo usuario"}
-      </button>
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+        >
+          <UserPlus className="h-4 w-4" />
+          {showForm ? "Cancelar" : "Crear nuevo usuario"}
+        </button>
+        <button
+          onClick={ejecutarMigracion}
+          disabled={migrating}
+          className="flex items-center gap-2 bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700 disabled:opacity-50"
+        >
+          <Database className="h-4 w-4" />
+          {migrating ? "Migrando..." : "Migrar códigos"}
+        </button>
+      </div>
 
       {showForm && (
         <Card>
