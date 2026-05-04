@@ -40,7 +40,7 @@ async function runMigration() {
     log.push("• Columna 'codigo' ya existe")
   }
 
-  const sin = await client.execute('SELECT id, nombre, apellido1, apellido2, codigoRude FROM Estudiante WHERE codigo IS NULL OR codigo = ""')
+  const sin = await client.execute("SELECT id, nombre, apellido1, apellido2, codigoRude FROM Estudiante WHERE codigo IS NULL OR codigo = ''")
   log.push(`Estudiantes sin código: ${sin.rows.length}`)
 
   for (const row of sin.rows) {
