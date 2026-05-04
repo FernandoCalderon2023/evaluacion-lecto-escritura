@@ -70,14 +70,8 @@ async function runMigration() {
 export async function GET(req: NextRequest) {
   const token = (new URL(req.url).searchParams.get("token") || "").trim()
   const expected = (process.env.NEXTAUTH_SECRET || "").trim()
-  // bypass también con secreto fijo para esta migración una sola vez
-  if (token !== expected && token !== "MIGRATE-CODIGO-SIDEDA-2026") {
-    return NextResponse.json({
-      error: "Token inválido",
-      hint: "Use ?token=MIGRATE-CODIGO-SIDEDA-2026",
-      tokenLen: token.length,
-      expectedLen: expected.length,
-    }, { status: 403 })
+  if (token !== expected) {
+    return NextResponse.json({ error: "Token inválido" }, { status: 403 })
   }
   try {
     const log = await runMigration()
