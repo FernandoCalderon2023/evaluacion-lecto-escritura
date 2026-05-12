@@ -31,52 +31,52 @@ export const authOptions: NextAuthOptions = {
 
         if (!emailRl.allowed || !ipRl.allowed) {
           // Audit del intento bloqueado
-          await logAudit({
+          logAudit({
             actorEmail: email,
             action: "login_rate_limited",
             metadata: { reason: !emailRl.allowed ? "email" : "ip", ip },
-          }).catch(() => {})
+          })
           throw new Error("Demasiados intentos. Intenta en unos minutos.")
         }
 
         const user = await prisma.usuario.findUnique({ where: { email } })
         if (!user) {
-          await logAudit({
+          logAudit({
             actorEmail: email,
             action: "login_failed_no_user",
             metadata: { ip },
-          }).catch(() => {})
+          })
           return null
         }
 
         if (!user.activo) {
-          await logAudit({
+          logAudit({
             actorId: user.id,
             actorEmail: email,
             action: "login_failed_inactive",
             metadata: { ip },
-          }).catch(() => {})
+          })
           throw new Error("Cuenta desactivada. Contacta al administrador.")
         }
 
         const valid = await bcrypt.compare(credentials.password, user.passwordHash)
         if (!valid) {
-          await logAudit({
+          logAudit({
             actorId: user.id,
             actorEmail: email,
             action: "login_failed_bad_password",
             metadata: { ip },
-          }).catch(() => {})
+          })
           return null
         }
 
         // Login exitoso
-        await logAudit({
+        logAudit({
           actorId: user.id,
           actorEmail: email,
           action: "login_success",
           metadata: { ip },
-        }).catch(() => {})
+        })
 
         return {
           id: user.id,

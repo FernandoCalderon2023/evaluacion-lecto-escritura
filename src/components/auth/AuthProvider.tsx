@@ -22,7 +22,12 @@ function SentryUserContext() {
 
 export function AuthProvider({ children, session }: { children: React.ReactNode; session: any }) {
   return (
-    <SessionProvider session={session}>
+    <SessionProvider
+      session={session}
+      // No hacer polling automático — solo refrescar cuando el usuario regresa a la pestaña
+      refetchInterval={0}
+      refetchOnWindowFocus={true}
+    >
       <SentryUserContext />
       {children}
     </SessionProvider>

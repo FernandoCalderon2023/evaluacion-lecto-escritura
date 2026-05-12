@@ -11,10 +11,9 @@ interface AuditEntry {
 }
 
 /**
- * Registra una acción sensible en el audit log.
- * Nunca debe romper el flujo principal — si falla, solo loggeamos.
+ * Escribe el audit log en la DB (función interna).
  */
-export async function logAudit(entry: AuditEntry): Promise<void> {
+async function persist(entry: AuditEntry): Promise<void> {
   try {
     await prisma.auditLog.create({
       data: {
@@ -30,6 +29,25 @@ export async function logAudit(entry: AuditEntry): Promise<void> {
   } catch (err) {
     console.error("[audit] No se pudo registrar:", err)
   }
+}
+
+/**
+ * Registra una acción sensible en el audit log de forma NO BLOQUEANTE.
+ *
+ * Fire-and-forget: no esperamos la escritura para no bloquear la respuesta
+ * al usuario. En Vercel Functions, la promesa sigue corriendo hasta que termine.
+ */
+export function logAudit(entry: AuditEntry): void {
+  // No await — la promesa se resuelve en background
+  persist(entry).catch(() => {})
+}
+
+/**
+ * Versión síncrona para casos donde NECESITAMOS esperar la escritura
+ * (ej: tests, scripts). En APIs siempre usar logAudit().
+ */
+export async function logAuditSync(entry: AuditEntry): Promise<void> {
+  await persist(entry)
 }
 
 /**

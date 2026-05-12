@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Ya existe un usuario con ese correo" }, { status: 409 })
     }
 
-    const passwordHash = await bcrypt.hash(data.password, 12)
+    const passwordHash = await bcrypt.hash(data.password, 10)
     const usuario = await prisma.usuario.create({
       data: {
         nombre: data.nombre,
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
     // Audit log
     const ctx = getRequestContext(req)
-    await logAudit({
+    logAudit({
       actorId: adminId,
       actorEmail: session!.user?.email ?? null,
       action: "create_user",

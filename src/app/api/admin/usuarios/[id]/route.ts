@@ -17,7 +17,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   })
 
   const ctx = getRequestContext(req)
-  await logAudit({
+  logAudit({
     actorId: (session!.user as any).id,
     actorEmail: session!.user?.email ?? null,
     action: body.activo ? "activate_user" : "deactivate_user",

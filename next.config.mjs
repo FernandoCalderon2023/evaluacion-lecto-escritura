@@ -1,34 +1,68 @@
 import { withSentryConfig } from "@sentry/nextjs"
 
+const securityHeaders = [
+  // Fuerza HTTPS por 1 año (incluye subdominios)
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=31536000; includeSubDomains; preload",
+  },
+  // No permitir embedding en iframes (anti clickjacking)
+  {
+    key: "X-Frame-Options",
+    value: "DENY",
+  },
+  // No sniffing de content type
+  {
+    key: "X-Content-Type-Options",
+    value: "nosniff",
+  },
+  // No enviar referer a sitios externos completos
+  {
+    key: "Referrer-Policy",
+    value: "strict-origin-when-cross-origin",
+  },
+  // Permisos mínimos: no acceder a cámara, mic, geolocation salvo que sea estrictamente necesario
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+  },
+  // X-XSS-Protection (legacy pero útil)
+  {
+    key: "X-XSS-Protection",
+    value: "1; mode=block",
+  },
+]
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    // Required for Sentry instrumentation in Next.js 14
     instrumentationHook: true,
+  },
+  // Habilitar compresión gzip/brotli (default en Vercel pero explícito)
+  compress: true,
+  // Quitar header "powered by Next.js"
+  poweredByHeader: false,
+  // React strict mode (mejor debugging)
+  reactStrictMode: true,
+  async headers() {
+    return [
+      {
+        // Aplicar a todas las rutas
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+    ]
   },
 }
 
 export default withSentryConfig(nextConfig, {
-  // Suppresses source map uploading logs during build
   silent: true,
-
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
-
-  // Hide source maps from generated client bundles (don't expose to users)
   hideSourceMaps: true,
-
-  // Auto-instrumentation: agrega tracing automático a fetch, db queries, etc.
-  // Solo activar si NO se acumula latencia. Para 100 concurrent users sí vale.
   autoInstrumentServerFunctions: true,
-
-  // Tunnel para evitar bloqueos de ad-blockers
   tunnelRoute: "/monitoring",
-
-  // Don't tree-shake logger statements (mantener console.error en producción)
   disableLogger: false,
-
-  // Upload source maps solo si tenemos auth token
   ...(process.env.SENTRY_AUTH_TOKEN
     ? { authToken: process.env.SENTRY_AUTH_TOKEN }
     : { sourcemaps: { disable: true } }),

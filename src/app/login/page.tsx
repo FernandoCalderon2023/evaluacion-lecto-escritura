@@ -23,11 +23,16 @@ export default function LoginPage() {
     })
 
     if (result?.error) {
-      setError("Correo o contraseña incorrectos")
+      // Mensaje específico según tipo de error
+      const msg = result.error.includes("Demasiados") ? result.error
+        : result.error.includes("desactivada") ? result.error
+        : "Correo o contraseña incorrectos"
+      setError(msg)
       setLoading(false)
     } else {
-      router.push("/dashboard")
-      router.refresh()
+      // Full reload para que SessionProvider cargue la sesión limpia
+      // (más rápido que router.push + refresh que hace 2 renders)
+      window.location.href = "/dashboard"
     }
   }
 
