@@ -53,40 +53,77 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
   const [progress, setProgress] = useState(0)
   const [stepMsg, setStepMsg] = useState("")
 
+  async function pollStatus(jobId: string, timeoutMs = 240_000): Promise<AnalisisIA> {
+    const start = Date.now()
+    let lastPos = -1
+    while (Date.now() - start < timeoutMs) {
+      await new Promise((r) => setTimeout(r, 2500))
+      try {
+        const res = await fetch(`/api/evaluaciones/${evaluacionId}/analisis/status?jobId=${jobId}`)
+        if (!res.ok) continue
+        const data = await res.json()
+        if (data.status === "done" && data.analisis) {
+          setProgress(100)
+          setStepMsg("Informe completo")
+          return data.analisis
+        }
+        if (data.status === "failed") {
+          throw new Error(data.error || "El análisis falló. Intenta de nuevo.")
+        }
+        if (data.status === "processing") {
+          setProgress((p) => Math.max(p, 75))
+          setStepMsg("Claude está generando el informe...")
+        } else if (data.status === "queued") {
+          if (data.posicion && data.posicion !== lastPos) {
+            lastPos = data.posicion
+            setStepMsg(`En cola — posición ${data.posicion}`)
+            setProgress((p) => Math.max(p, Math.min(20 + (10 - data.posicion) * 3, 60)))
+          }
+        }
+      } catch (e) {
+        // network blip — continúa polling
+      }
+    }
+    throw new Error("El análisis está tardando más de lo esperado. Recarga la página en unos minutos.")
+  }
+
   async function generarAnalisis() {
     setLoading(true)
-    setProgress(0)
-    setStepMsg(LOADING_STEPS[0])
-
-    // Simular progreso mientras espera la IA
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        const next = Math.min(prev + 2, 90)
-        const stepIdx = Math.min(Math.floor(next / 12), LOADING_STEPS.length - 1)
-        setStepMsg(LOADING_STEPS[stepIdx])
-        return next
-      })
-    }, 800)
+    setProgress(5)
+    setStepMsg("Encolando trabajo...")
 
     try {
       const res = await fetch(`/api/evaluaciones/${evaluacionId}/analisis`, { method: "POST" })
-      clearInterval(interval)
 
-      // Vercel puede devolver HTML en timeout — verificar content-type
       const contentType = res.headers.get("content-type") ?? ""
       if (!contentType.includes("application/json")) {
-        throw new Error("El servidor tardó demasiado. Intenta de nuevo — el análisis se genera en 20-40 segundos.")
+        throw new Error("Respuesta inválida del servidor. Intenta de nuevo.")
       }
 
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Error al generar")
-      setProgress(100)
-      setStepMsg("Informe completo")
-      setAnalisis(data.analisis)
+      if (!res.ok) {
+        throw new Error(data.error || "Error al encolar el análisis")
+      }
+
+      // Si el endpoint devolvió análisis directo (legacy), usarlo
+      if (data.analisis) {
+        setProgress(100)
+        setAnalisis(data.analisis)
+        setGeneradoEn(new Date())
+        toast({ title: "Análisis generado correctamente" })
+        return
+      }
+
+      // Polling del job
+      if (!data.jobId) throw new Error("No se recibió jobId del servidor")
+      setProgress(15)
+      setStepMsg("Trabajo encolado. Esperando...")
+
+      const analisis = await pollStatus(data.jobId)
+      setAnalisis(analisis)
       setGeneradoEn(new Date())
       toast({ title: "Análisis generado correctamente" })
     } catch (err: unknown) {
-      clearInterval(interval)
       const msg = err instanceof Error ? err.message : "Error al generar el análisis"
       toast({ title: msg, variant: "destructive" })
     } finally {

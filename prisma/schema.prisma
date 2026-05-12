@@ -18,6 +18,22 @@ model Usuario {
   updatedAt    DateTime @updatedAt
 }
 
+model AnalysisJob {
+  id            String   @id @default(cuid())
+  evaluacionId  String
+  docenteId     String?
+  status        String   @default("queued")  // queued | processing | done | failed
+  error         String?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([evaluacionId])
+  @@index([status])
+  @@index([createdAt])
+}
+
 model Estudiante {
   id              String       @id @default(cuid())
   codigo          String       @unique  // Código anónimo: iniciales + sufijo

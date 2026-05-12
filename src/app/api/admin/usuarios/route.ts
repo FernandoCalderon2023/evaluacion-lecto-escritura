@@ -5,11 +5,21 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { usuarioCreateSchema, validationError } from "@/lib/validators"
 import { ZodError } from "zod"
+import { adminRateLimit, checkRateLimit } from "@/lib/ratelimit"
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if ((session?.user as any)?.role !== "ADMIN") {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 })
+  }
+
+  // Rate limit: 50 acciones admin por hora
+  const adminId = (session!.user as any).id
+  const rl = await checkRateLimit(adminRateLimit, `admin:${adminId}`)
+  if (!rl.allowed) {
+    return NextResponse.json({
+      error: `Demasiadas acciones. Intenta en ${Math.ceil(rl.retryAfterSeconds / 60)} minutos.`,
+    }, { status: 429 })
   }
 
   try {
