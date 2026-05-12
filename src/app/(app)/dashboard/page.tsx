@@ -1,12 +1,35 @@
 export const dynamic = "force-dynamic"
+export const revalidate = 30 // cache 30 segundos
 
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { unstable_cache } from "next/cache"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Users, ClipboardList, AlertTriangle, CheckCircle } from "lucide-react"
 import Link from "next/link"
+
+// Cache de datos del dashboard por docente (30s)
+const getDashboardData = unstable_cache(
+  async (docenteId: string | null, isAdmin: boolean) => {
+    const filtro = isAdmin ? {} : { docenteId: docenteId ?? "__none__" }
+    const [totalEst, totalEv, porEstado, recientes] = await Promise.all([
+      prisma.estudiante.count({ where: filtro }),
+      prisma.evaluacion.count({ where: filtro }),
+      prisma.evaluacion.groupBy({ by: ["estadoAprendizaje"], _count: { _all: true }, where: filtro }),
+      prisma.evaluacion.findMany({
+        where: filtro,
+        take: 6,
+        orderBy: { fecha: "desc" },
+        include: { estudiante: { select: { codigo: true, grado: true } } },
+      }),
+    ])
+    return { totalEst, totalEv, porEstado, recientes }
+  },
+  ["dashboard-data"],
+  { revalidate: 30, tags: ["dashboard"] }
+)
 
 const ESTADO_CONFIG = {
   "sin-dificultades":    { label: "Sin Dificultades",    color: "bg-green-100 text-green-800" },
@@ -19,19 +42,8 @@ export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
   const isAdmin = (session?.user as any)?.role === "ADMIN"
   const docenteId = (session?.user as any)?.id
-  const filtro = isAdmin ? {} : { docenteId }
 
-  const [totalEst, totalEv, porEstado, recientes] = await Promise.all([
-    prisma.estudiante.count({ where: filtro }),
-    prisma.evaluacion.count({ where: filtro }),
-    prisma.evaluacion.groupBy({ by: ["estadoAprendizaje"], _count: { _all: true }, where: filtro }),
-    prisma.evaluacion.findMany({
-      where: filtro,
-      take: 6,
-      orderBy: { fecha: "desc" },
-      include: { estudiante: { select: { codigo: true, grado: true } } },
-    }),
-  ])
+  const { totalEst, totalEv, porEstado, recientes } = await getDashboardData(docenteId ?? null, isAdmin)
 
   const estadoMap: Record<string, number> = {}
   for (const r of porEstado) estadoMap[r.estadoAprendizaje ?? "sin-evaluar"] = r._count._all
