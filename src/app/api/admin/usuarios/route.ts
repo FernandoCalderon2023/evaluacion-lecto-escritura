@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import { usuarioCreateSchema, validationError } from "@/lib/validators"
+import { ZodError } from "zod"
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -10,25 +12,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 })
   }
 
-  const { nombre, email, password, rol } = await req.json()
-  if (!nombre || !email || !password) {
-    return NextResponse.json({ error: "Faltan campos requeridos" }, { status: 400 })
+  try {
+    const raw = await req.json()
+    const data = usuarioCreateSchema.parse(raw)
+
+    const exists = await prisma.usuario.findUnique({ where: { email: data.email } })
+    if (exists) {
+      return NextResponse.json({ error: "Ya existe un usuario con ese correo" }, { status: 409 })
+    }
+
+    const passwordHash = await bcrypt.hash(data.password, 12)
+    const usuario = await prisma.usuario.create({
+      data: {
+        nombre: data.nombre,
+        email: data.email,
+        passwordHash,
+        rol: data.rol,
+      },
+    })
+
+    return NextResponse.json({ id: usuario.id, nombre: usuario.nombre, email: usuario.email }, { status: 201 })
+  } catch (err) {
+    if (err instanceof ZodError) {
+      return NextResponse.json(validationError(err), { status: 400 })
+    }
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error("[admin/usuarios/POST]", msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
-
-  const exists = await prisma.usuario.findUnique({ where: { email: email.toLowerCase().trim() } })
-  if (exists) {
-    return NextResponse.json({ error: "Ya existe un usuario con ese correo" }, { status: 409 })
-  }
-
-  const passwordHash = await bcrypt.hash(password, 12)
-  const usuario = await prisma.usuario.create({
-    data: {
-      nombre,
-      email: email.toLowerCase().trim(),
-      passwordHash,
-      rol: rol === "ADMIN" ? "ADMIN" : "DOCENTE",
-    },
-  })
-
-  return NextResponse.json({ id: usuario.id, nombre: usuario.nombre, email: usuario.email }, { status: 201 })
 }

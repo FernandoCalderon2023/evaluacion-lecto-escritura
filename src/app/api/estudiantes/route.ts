@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { estudianteSchema, validationError } from "@/lib/validators"
+import { ZodError } from "zod"
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -47,25 +49,37 @@ function generarCodigo(nombre: string, apellido1: string, apellido2: string | nu
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
     const session = await getServerSession(authOptions)
-    const docenteId = (session?.user as any)?.id
+    if (!session?.user) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 })
+    }
+    const docenteId = (session.user as any).id
+
+    const raw = await req.json()
+    const data = estudianteSchema.parse(raw)
 
     // Generar código único (reintentar si colisiona)
-    let codigo = generarCodigo(body.nombre, body.apellido1, body.apellido2, body.codigoRude)
+    let codigo = generarCodigo(data.nombre, data.apellido1, data.apellido2 ?? null, data.codigoRude ?? null)
     for (let i = 0; i < 5; i++) {
       const exists = await prisma.estudiante.findUnique({ where: { codigo } })
       if (!exists) break
-      // En colisión, agregar sufijo random adicional
       const extra = Math.random().toString(36).slice(2, 4).toUpperCase()
       codigo = `${codigo}${extra}`
     }
 
     const estudiante = await prisma.estudiante.create({
-      data: { ...body, codigo, docenteId },
+      data: {
+        ...data,
+        fechaNac: typeof data.fechaNac === "string" ? new Date(data.fechaNac) : data.fechaNac,
+        codigo,
+        docenteId,
+      },
     })
     return NextResponse.json(estudiante, { status: 201 })
   } catch (err: unknown) {
+    if (err instanceof ZodError) {
+      return NextResponse.json(validationError(err), { status: 400 })
+    }
     const msg = err instanceof Error ? err.message : String(err)
     console.error("[estudiantes/POST]", msg)
     return NextResponse.json({ error: msg }, { status: 500 })

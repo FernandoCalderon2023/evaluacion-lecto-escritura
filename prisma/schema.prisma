@@ -36,6 +36,9 @@ model Estudiante {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   evaluaciones    Evaluacion[]
+
+  @@index([docenteId])
+  @@index([createdAt])
 }
 
 model Evaluacion {
@@ -320,4 +323,9 @@ model Evaluacion {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([docenteId])
+  @@index([estudianteId])
+  @@index([fecha])
+  @@index([estadoAprendizaje])
 }

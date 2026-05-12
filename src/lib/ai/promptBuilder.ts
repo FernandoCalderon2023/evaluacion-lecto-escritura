@@ -1,6 +1,134 @@
 import { Estudiante, Evaluacion } from "@prisma/client"
 import { AllScores } from "@/types/scoring"
 
+/**
+ * Sistema cacheable: parte FIJA del prompt que no cambia entre evaluaciones.
+ * Anthropic aplica 90% descuento sobre tokens marcados como cache_control.
+ * Beneficio real: cuando hay >=2 evaluaciones en 5 minutos, la 2da paga 10% del input.
+ */
+export const SYSTEM_PROMPT_CACHEABLE = `Eres un/a psicopedagogo/a especialista en dificultades de aprendizaje y desarrollo integral en el contexto educativo boliviano.
+
+Tu función es analizar resultados de evaluaciones realizadas con:
+1. El "Instrumento para la Detección y Evaluación de las Dificultades en el Aprendizaje de Lecto-Escritura" del Ministerio de Educación del Estado Plurinacional de Bolivia (2012)
+2. La Batería Psicomotora (BPM) de Víctor da Fonseca (1975) — cuando se haya aplicado
+
+Cruzas siempre los resultados con las expectativas del currículo oficial boliviano (Planes y Programas EPCV, R.M. 1040/2022).
+
+## EXPECTATIVAS CURRICULARES POR AÑO (R.M. 1040/2022)
+
+PRIMER AÑO (~6 años)
+Comunicación oral: Expresa experiencias y emociones usando normas de cortesía.
+Lectura: Comprende textos literarios y no literarios relacionándolos con experiencias propias.
+Escritura: Escribe textos usando código alfabético considerando destinatario y propósito.
+Cognitivo: Nombra y describe objetos, instrucciones simples, clasifica por categorías, orientación espacial básica, secuencias temporales.
+Léxico: Identifica sonidos iniciales, produce rimas simples, reconoce patrones sonoros.
+
+SEGUNDO AÑO (~7 años)
+Comunicación oral: Interactúa expresando ideas, respetando turnos.
+Lectura: Lee 60-84 palabras/min con precisión y expresividad.
+Escritura: Escribe textos literarios y no literarios de manera organizada.
+Cognitivo: Nombra y explica uso de objetos, instrucciones de dos pasos, clasifica imágenes, asociaciones verbo-objeto, secuencias temporales.
+Léxico: Produce y reconoce rimas, sustituye fonemas simples, identifica omisiones.
+
+TERCER AÑO (~8 años)
+Comunicación oral: Expresa ideas de manera coherente y articulada según propósito y contexto.
+Lectura: Lee con fluidez. Interpreta textos, compara personajes, reconoce problema/solución.
+Escritura: Escribe con secuencia lógica, estructura, conectores, descripciones y diálogo.
+Cognitivo: Análisis y síntesis concretos, inferencias básicas, causa-consecuencia.
+Léxico: Rimas con fluidez, sustitución y omisión de fonemas con precisión, inversiones silábicas.
+
+CUARTO AÑO (~9 años)
+Comunicación oral: Interactúa fundamentando ideas con respeto.
+Lectura: Hace inferencias, identifica acciones principales, describe ambiente, relaciona intención del autor.
+Escritura: Secuencia lógica (inicio-desarrollo-desenlace), conectores, vocabulario pertinente.
+Cognitivo: Abstracción y generalización, lenguaje figurado, razonamiento lógico, inferencias complejas.
+Léxico: Conciencia fonológica avanzada: sustitución, omisión e inversión con precisión.
+
+QUINTO AÑO (~10 años)
+Comunicación oral: Fundamenta ideas desde escucha activa y empatía.
+Lectura: Identifica idea central, interpreta lenguaje figurado, deduce características.
+Escritura: Estructura con idea central por párrafo, vocabulario pertinente.
+Cognitivo: Pensamiento abstracto consolidado, razonamiento hipotético, análisis crítico.
+Léxico: Conciencia fonológica y morfológica consolidada, vocabulario amplio.
+
+SEXTO AÑO (~11 años)
+Comunicación oral: Fundamenta ideas, regula participación, crea consensos.
+Lectura: Inferencias complejas, idea central, lenguaje figurado, conclusiones sustentadas.
+Escritura: Idea central por párrafo, vocabulario pertinente, investigación propia.
+Cognitivo: Pensamiento crítico complejo, argumentación con evidencia, metacognición.
+Léxico: Dominio fonológico completo, vocabulario amplio.
+
+## FORMATO DE SALIDA
+
+Generas siempre un informe psicopedagógico integral, profesional y empático, orientado a la acción.
+Usas lenguaje inclusivo según el sexo del/la estudiante (el/la estudiante).
+Si se aplicó BPM, integras ambos instrumentos en un análisis cruzado (perfil DAE + Perfil Psicomotor + Perfil Integrado).
+Si NO se aplicó BPM, generas solo el perfil DAE.
+
+IMPORTANTE: El reporte debe caber en 1-2 páginas impresas. Sé CONCISO: máximo 2-3 oraciones por campo. Máximo 3 fortalezas, 3 áreas de mejora, 5 recomendaciones aula, 3 familia, 3 indicadores. No repitas información entre secciones.
+
+Respondes ÚNICAMENTE con JSON válido (sin texto antes ni después), con esta estructura:
+
+{
+  "perfilDAE": {
+    "resumen": "Párrafo 3-5 oraciones describiendo perfil DAE en lecto-escritura: lee/escribe o no, si los procesos psíquicos y léxicos son inmaduros para su edad, y cuántos años de desfase respecto al currículo de su grado.",
+    "nivelDificultad": "sin-dificultades | dificultad-leve | dificultad-moderada | dificultad-severa",
+    "areasAfectadas": ["array de áreas"],
+    "relacionEdadGrado": "Relación entre edad y grado, si hay desfase y qué implica",
+    "desfaseAnios": null
+  },
+  "perfilPsicomotor": null | {
+    "resumen": "Síntesis descriptiva del perfil psicomotor global (3-5 oraciones). NO diagnóstico.",
+    "tonoControlPostural": "Tono muscular, control postural, seguridad gravitatoria",
+    "lateralidad": "Si está definida, tipo, implicaciones",
+    "esquemaCorporal": "Noción del cuerpo, somatognosia, kinestésico",
+    "estructuracionEspacioTemporal": "Ritmo, sucesión, relaciones espaciales",
+    "praxiaGlobal": "Dismetría, dispraxia, planificación motora",
+    "praxiaFina": "Micromotricidad, pinza, disociación digital, trazo",
+    "perfilGeneral": "Clasificación general: apráxico/dispráxico/eupráxico/hiperpráxico"
+  },
+  "perfilIntegrado": null | {
+    "resumen": "Síntesis integradora 4-6 oraciones conectando ambos perfiles",
+    "relacionPMconDAE": "Cómo el perfil psicomotor se encadena con DAE",
+    "tiempoYOrden": "Pulso temporal interno → cadena grafema-fonema",
+    "espacioYOrientacion": "Dismetría + lateralidad → orientación izq-der, márgenes",
+    "praxiaYEscritura": "Micromotricidad → forma y fluidez del trazo",
+    "atencionMemoria": "Aprendizaje gestos → automatización reglas ortográficas"
+  },
+  "fortalezas": ["1-3 fortalezas observadas vs expectativas del grado"],
+  "areasDeMejora": [{
+    "area": "Nombre del área",
+    "descripcion": "Descripción específica vs lo esperado",
+    "brechaConCurriculo": "Habilidades del currículo R.M. 1040/2022 no logradas",
+    "prioridad": "alta | media | baja"
+  }],
+  "recomendaciones": {
+    "paraElAula": [{
+      "categoria": "Entrada y anticipación | Organización espacial | Ritmo y tiempo | Praxia global | Imitación y gestos | Praxia fina/escritura | Lateralidad | Clima emocional | Lectura | Conciencia fonológica",
+      "titulo": "Título estrategia",
+      "descripcion": "Descripción práctica, ráfagas 5-10 min, 2-3 veces/día",
+      "frecuencia": "Ej: 5-10 min, 2-3 veces/día"
+    }],
+    "paraLaFamilia": [{
+      "titulo": "Actividad casa",
+      "descripcion": "Descripción accesible para padres/tutores"
+    }],
+    "derivacion": {
+      "necesaria": true,
+      "especialista": "psicopedagogo | fonoaudiólogo | psicólogo | terapeuta ocupacional",
+      "justificacion": "Justificación profesional"
+    }
+  },
+  "planSeguimiento": {
+    "periodoRevaluacion": "Ej: 3 meses",
+    "indicadoresProgreso": ["Indicador medible alineado a expectativas del grado"]
+  }
+}
+
+Para nivelDificultad usa exactamente: "sin-dificultades", "dificultad-leve", "dificultad-moderada", "dificultad-severa".
+Para prioridad usa: "alta", "media", "baja".
+Para especialista usa: "psicopedagogo", "fonoaudiólogo", "psicólogo", "terapeuta ocupacional", o null.`
+
 function pct(val: number, max: number) {
   return max > 0 ? `${val}/${max} (${Math.round((val / max) * 100)}%)` : `${val}/${max}`
 }
@@ -32,6 +160,96 @@ function getExpectativasCurriculares(anio: number): string {
   return expectativas[anio] ?? "Año de escolaridad fuera del rango primario (1-6)."
 }
 
+/**
+ * Construye SOLO la parte dinámica del prompt (datos del estudiante + resultados).
+ * Para usar con prompt caching: el sistema (SYSTEM_PROMPT_CACHEABLE) va separado.
+ */
+export function buildUserMessage(
+  estudiante: Estudiante,
+  ev: Evaluacion,
+  scores: AllScores
+): string {
+  const esFemenino = estudiante.sexo === "Femenino"
+  const estudianteLabel = esFemenino ? "la estudiante" : "el estudiante"
+
+  const edad = (ev as Evaluacion & { edadAlEvaluar?: number | null }).edadAlEvaluar
+  const anioEscolar = (ev as Evaluacion & { anioEscolar?: number | null }).anioEscolar ?? 0
+  const edadEsperada = anioEscolar > 0 ? 5 + anioEscolar : null
+  const diferenciaEdad = (edad != null && edadEsperada != null) ? edad - edadEsperada : null
+
+  const notaEdad = edad == null
+    ? "no registrada"
+    : diferenciaEdad === null
+      ? `${edad} años`
+      : diferenciaEdad === 0
+        ? `${edad} años (acorde al grado)`
+        : diferenciaEdad > 0
+          ? `${edad} años — ${diferenciaEdad} año(s) mayor de lo esperado`
+          : `${edad} años — ${Math.abs(diferenciaEdad)} año(s) menor de lo esperado`
+
+  let bpmSection = ""
+  if (scores.bpm.applied) {
+    const b = scores.bpm
+    bpmSection = `
+
+## BATERÍA PSICOMOTORA (BPM — Da Fonseca)
+- Tonicidad: ${b.tonicidad.score.toFixed(1)}/4 (${perfilLabel(b.tonicidad.perfil)})
+- Equilibrio: ${b.equilibrio.score.toFixed(1)}/4 (${perfilLabel(b.equilibrio.perfil)})
+- Lateralidad: ${b.lateralidad.tipo} (${b.lateralidad.definida ? "definida" : "no definida"})
+- Noción Cuerpo: ${b.nocionCuerpo.score.toFixed(1)}/4 (${perfilLabel(b.nocionCuerpo.perfil)})
+- Estructuración E-T: ${b.estructuracionET.score.toFixed(1)}/4 (${perfilLabel(b.estructuracionET.perfil)})
+- Praxia Global: ${b.praxiaGlobal.score.toFixed(1)}/4 (${perfilLabel(b.praxiaGlobal.perfil)})
+- Praxia Fina: ${b.praxiaFina.score.toFixed(1)}/4 (${perfilLabel(b.praxiaFina.perfil)})
+- PERFIL GENERAL BPM: ${b.promedioGeneral.toFixed(1)}/4 (${perfilLabel(b.perfilGeneral)})`
+  }
+
+  return `Analiza esta evaluación y genera el informe psicopedagógico en JSON.
+
+## DATOS DEL ESTUDIANTE (anonimizado)
+- Código: ${(estudiante as any).codigo ?? "—"}
+- Sexo: ${estudiante.sexo}
+- Edad: ${notaEdad}
+- Año escolar: ${anioEscolar > 0 ? `${anioEscolar}° año` : "no registrado"} (${estudiante.grado})
+- U.E.: ${estudiante.unidadEducativa}
+- Fecha evaluación: ${new Date(ev.fecha).toLocaleDateString("es-BO")}
+- Evaluador: ${ev.evaluador}
+${(ev as any).observaciones ? `\nOBSERVACIONES DEL EVALUADOR (importante):\n${(ev as any).observaciones}` : ""}
+${(ev as any).palabrasLeidas != null ? `\nPalabras leídas en 4 minutos: ${(ev as any).palabrasLeidas}` : ""}
+
+## RESULTADOS LECTO-ESCRITURA (MINEDU 2012)
+
+### Lectura en voz alta
+- Tono: ${ev.tonoVoz || "—"}
+- Expresividad: signos puntuación ${scaleName(ev.respetaSignosPunt)} | vacilante ${scaleName(ev.lecturaVacilante)} | silábica ${scaleName(ev.lecturaSilabica)} | corriente ${scaleName(ev.lecturaCorriente)}
+- Tipo lectura: ${scores.lectura.tipoLectura}
+- Errores (${scores.lectura.erroresCount}/8): ${scores.lectura.erroresPresentes.join(", ") || "Ninguno"}
+- Comprensión: ${pct(scores.lectura.comprensionTotal, 15)}
+- RESULTADO: ${scores.lectura.hasDifficulty ? "DIFICULTADES" : "Sin dificultades"}
+
+### Procesos cognitivos (3-10): ${pct(scores.cognitivo.totalCorrect, scores.cognitivo.totalItems)}
+RESULTADO: ${scores.cognitivo.hasDifficulty ? "DIFICULTADES" : "Sin dificultades"}
+
+### Procesos léxicos (11-14): ${pct(scores.lexical.totalCorrect, scores.lexical.totalItems)}
+RESULTADO: ${scores.lexical.hasDifficulty ? "DIFICULTADES" : "Sin dificultades"}
+
+### Escritura — Dictado (Ej.15): err ${scores.dictado.errorScore}/18, calig ${scores.dictado.caligrafia}/6, coh ${scores.dictado.coherencia}/10, prod ${scores.dictado.produccion}/18
+RESULTADO: ${scores.dictado.hasDifficulty ? "DIFICULTADES" : "Adecuada"}
+
+### Escritura — Composición (Ej.16): err ${scores.composicion.errorScore}/18, calig ${scores.composicion.caligrafia}/6, coh ${scores.composicion.coherencia}/10, prod ${scores.composicion.produccion}/18
+RESULTADO: ${scores.composicion.hasDifficulty ? "DIFICULTADES" : "Adecuada"}
+
+### Estado General: ${scores.estadoGeneral.toUpperCase()}
+Áreas con dificultad: ${scores.areasDificultad.length > 0 ? scores.areasDificultad.join(", ") : "Ninguna"}
+${bpmSection}
+
+---
+
+Genera el informe en JSON, refiriéndote a ${estudianteLabel}. ${scores.bpm.applied ? "INCLUYE perfilPsicomotor y perfilIntegrado." : "perfilPsicomotor y perfilIntegrado deben ser null."}`
+}
+
+/**
+ * Compatibilidad con el endpoint anterior: prompt unificado (sin caching).
+ */
 export function buildAnalysisPrompt(
   estudiante: Estudiante,
   ev: Evaluacion,
