@@ -5,6 +5,7 @@ import { calcularScores } from "@/lib/scoring"
 import { SYSTEM_PROMPT_CACHEABLE, buildUserMessage } from "@/lib/ai/promptBuilder"
 import { parseClaudeResponse } from "@/lib/ai/analysisParser"
 import { verifySignatureAppRouter } from "@upstash/qstash/nextjs"
+import * as Sentry from "@sentry/nextjs"
 
 export const maxDuration = 300
 
@@ -76,6 +77,12 @@ async function handler(req: NextRequest) {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error("[process-analysis] Error:", msg)
+
+    // Reportar a Sentry con contexto
+    Sentry.captureException(err, {
+      tags: { worker: "process-analysis", jobId: job?.id ?? "unknown" },
+      extra: { evaluacionId: job?.evaluacionId },
+    })
 
     if (job) {
       await prisma.analysisJob.update({

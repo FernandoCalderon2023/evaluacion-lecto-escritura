@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect } from "react"
 import { AlertTriangle, Home, RotateCw } from "lucide-react"
+import * as Sentry from "@sentry/nextjs"
 
 export default function GlobalError({
   error,
@@ -13,6 +14,11 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     console.error("[App Error]", error)
+    // Reportar a Sentry con contexto adicional
+    Sentry.captureException(error, {
+      tags: { boundary: "app-error" },
+      extra: { digest: error.digest },
+    })
   }, [error])
 
   return (
