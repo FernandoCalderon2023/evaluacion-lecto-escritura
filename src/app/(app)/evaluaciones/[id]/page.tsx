@@ -9,8 +9,17 @@ import { ArrowLeft, Printer } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { calcularScores } from "@/lib/scoring"
 import { EstadoBadge } from "@/components/resultados/EstadoAprendizaje"
-import { GraficoRadar } from "@/components/resultados/GraficoRadar"
+import dynamicImport from "next/dynamic"
 import { InformeIA } from "@/components/resultados/InformeIA"
+
+// Lazy-load recharts (~50KB) — solo cargar cuando se ve la página de resultados
+const GraficoRadar = dynamicImport(
+  () => import("@/components/resultados/GraficoRadar").then(m => ({ default: m.GraficoRadar })),
+  {
+    ssr: false,
+    loading: () => <div className="h-[260px] flex items-center justify-center text-slate-400 text-sm">Cargando gráfico...</div>,
+  }
+)
 import { AnalisisIA } from "@/types/ai"
 import { EstadoAprendizaje } from "@/types/evaluacion"
 import { PrintButton } from "@/components/resultados/PrintButton"

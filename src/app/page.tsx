@@ -219,15 +219,26 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-slate-950 text-slate-400 py-8">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-blue-400" />
-            <span className="font-bold text-white">SIDEDA</span>
-            <span className="text-xs">· sideda.com</span>
+        <div className="max-w-6xl mx-auto px-4 flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-blue-400" />
+              <span className="font-bold text-white">SIDEDA</span>
+              <span className="text-xs">· sideda.com</span>
+            </div>
+            <p className="text-xs text-center sm:text-right">
+              Sistema de Evaluación de Dificultades de Aprendizaje · Potenciado por Claude AI (Anthropic)
+            </p>
           </div>
-          <p className="text-xs text-center sm:text-right">
-            Sistema de Evaluación de Dificultades de Aprendizaje · Potenciado por Claude AI (Anthropic)
-          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs pt-4 border-t border-slate-800">
+            <Link href="/acerca" className="hover:text-white transition-colors">Acerca de</Link>
+            <span className="text-slate-700">·</span>
+            <Link href="/privacidad" className="hover:text-white transition-colors">Privacidad</Link>
+            <span className="text-slate-700">·</span>
+            <Link href="/terminos" className="hover:text-white transition-colors">Términos de Uso</Link>
+            <span className="text-slate-700">·</span>
+            <Link href="/login" className="hover:text-white transition-colors">Ingresar</Link>
+          </div>
         </div>
       </footer>
     </div>

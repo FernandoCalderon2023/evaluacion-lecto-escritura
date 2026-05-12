@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs"
 import { usuarioCreateSchema, validationError } from "@/lib/validators"
 import { ZodError } from "zod"
 import { adminRateLimit, checkRateLimit } from "@/lib/ratelimit"
+import { logAudit, getRequestContext } from "@/lib/audit"
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -39,6 +40,17 @@ export async function POST(req: NextRequest) {
         passwordHash,
         rol: data.rol,
       },
+    })
+
+    // Audit log
+    const ctx = getRequestContext(req)
+    await logAudit({
+      actorId: adminId,
+      actorEmail: session!.user?.email ?? null,
+      action: "create_user",
+      target: usuario.id,
+      metadata: { email: usuario.email, rol: usuario.rol },
+      ...ctx,
     })
 
     return NextResponse.json({ id: usuario.id, nombre: usuario.nombre, email: usuario.email }, { status: 201 })

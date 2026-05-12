@@ -18,6 +18,22 @@ model Usuario {
   updatedAt    DateTime @updatedAt
 }
 
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?  // userId que ejecutó la acción
+  actorEmail String?
+  action     String   // create_user, deactivate_user, delete_evaluacion, run_migration, etc.
+  target     String?  // ID del recurso afectado
+  metadata   String?  // JSON con detalles adicionales
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+}
+
 model AnalysisJob {
   id            String   @id @default(cuid())
   evaluacionId  String
