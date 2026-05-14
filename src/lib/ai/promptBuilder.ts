@@ -58,76 +58,16 @@ Escritura: Idea central por párrafo, vocabulario pertinente, investigación pro
 Cognitivo: Pensamiento crítico complejo, argumentación con evidencia, metacognición.
 Léxico: Dominio fonológico completo, vocabulario amplio.
 
-## FORMATO DE SALIDA
+## INSTRUCCIONES DE GENERACIÓN
 
-Generas siempre un informe psicopedagógico integral, profesional y empático, orientado a la acción.
+Generas un informe psicopedagógico integral, profesional, empático y orientado a la acción.
 Usas lenguaje inclusivo según el sexo del/la estudiante (el/la estudiante).
 Si se aplicó BPM, integras ambos instrumentos en un análisis cruzado (perfil DAE + Perfil Psicomotor + Perfil Integrado).
-Si NO se aplicó BPM, generas solo el perfil DAE.
+Si NO se aplicó BPM, perfilPsicomotor y perfilIntegrado deben ser null.
 
 IMPORTANTE: El reporte debe caber en 1-2 páginas impresas. Sé CONCISO: máximo 2-3 oraciones por campo. Máximo 3 fortalezas, 3 áreas de mejora, 5 recomendaciones aula, 3 familia, 3 indicadores. No repitas información entre secciones.
 
-Respondes ÚNICAMENTE con JSON válido (sin texto antes ni después), con esta estructura:
-
-{
-  "perfilDAE": {
-    "resumen": "Párrafo 3-5 oraciones describiendo perfil DAE en lecto-escritura: lee/escribe o no, si los procesos psíquicos y léxicos son inmaduros para su edad, y cuántos años de desfase respecto al currículo de su grado.",
-    "nivelDificultad": "sin-dificultades | dificultad-leve | dificultad-moderada | dificultad-severa",
-    "areasAfectadas": ["array de áreas"],
-    "relacionEdadGrado": "Relación entre edad y grado, si hay desfase y qué implica",
-    "desfaseAnios": null
-  },
-  "perfilPsicomotor": null | {
-    "resumen": "Síntesis descriptiva del perfil psicomotor global (3-5 oraciones). NO diagnóstico.",
-    "tonoControlPostural": "Tono muscular, control postural, seguridad gravitatoria",
-    "lateralidad": "Si está definida, tipo, implicaciones",
-    "esquemaCorporal": "Noción del cuerpo, somatognosia, kinestésico",
-    "estructuracionEspacioTemporal": "Ritmo, sucesión, relaciones espaciales",
-    "praxiaGlobal": "Dismetría, dispraxia, planificación motora",
-    "praxiaFina": "Micromotricidad, pinza, disociación digital, trazo",
-    "perfilGeneral": "Clasificación general: apráxico/dispráxico/eupráxico/hiperpráxico"
-  },
-  "perfilIntegrado": null | {
-    "resumen": "Síntesis integradora 4-6 oraciones conectando ambos perfiles",
-    "relacionPMconDAE": "Cómo el perfil psicomotor se encadena con DAE",
-    "tiempoYOrden": "Pulso temporal interno → cadena grafema-fonema",
-    "espacioYOrientacion": "Dismetría + lateralidad → orientación izq-der, márgenes",
-    "praxiaYEscritura": "Micromotricidad → forma y fluidez del trazo",
-    "atencionMemoria": "Aprendizaje gestos → automatización reglas ortográficas"
-  },
-  "fortalezas": ["1-3 fortalezas observadas vs expectativas del grado"],
-  "areasDeMejora": [{
-    "area": "Nombre del área",
-    "descripcion": "Descripción específica vs lo esperado",
-    "brechaConCurriculo": "Habilidades del currículo R.M. 1040/2022 no logradas",
-    "prioridad": "alta | media | baja"
-  }],
-  "recomendaciones": {
-    "paraElAula": [{
-      "categoria": "Entrada y anticipación | Organización espacial | Ritmo y tiempo | Praxia global | Imitación y gestos | Praxia fina/escritura | Lateralidad | Clima emocional | Lectura | Conciencia fonológica",
-      "titulo": "Título estrategia",
-      "descripcion": "Descripción práctica, ráfagas 5-10 min, 2-3 veces/día",
-      "frecuencia": "Ej: 5-10 min, 2-3 veces/día"
-    }],
-    "paraLaFamilia": [{
-      "titulo": "Actividad casa",
-      "descripcion": "Descripción accesible para padres/tutores"
-    }],
-    "derivacion": {
-      "necesaria": true,
-      "especialista": "psicopedagogo | fonoaudiólogo | psicólogo | terapeuta ocupacional",
-      "justificacion": "Justificación profesional"
-    }
-  },
-  "planSeguimiento": {
-    "periodoRevaluacion": "Ej: 3 meses",
-    "indicadoresProgreso": ["Indicador medible alineado a expectativas del grado"]
-  }
-}
-
-Para nivelDificultad usa exactamente: "sin-dificultades", "dificultad-leve", "dificultad-moderada", "dificultad-severa".
-Para prioridad usa: "alta", "media", "baja".
-Para especialista usa: "psicopedagogo", "fonoaudiólogo", "psicólogo", "terapeuta ocupacional", o null.`
+Para entregar el informe, invoca la herramienta \`generar_informe_psicopedagogico\` con los campos correspondientes. NO escribas texto adicional fuera de la invocación del tool.`
 
 function pct(val: number, max: number) {
   return max > 0 ? `${val}/${max} (${Math.round((val / max) * 100)}%)` : `${val}/${max}`
