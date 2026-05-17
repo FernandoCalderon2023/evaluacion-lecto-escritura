@@ -25,11 +25,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const isAdmin = (session.user as any).role === "ADMIN"
     const docenteId = (session.user as any).id
 
-    // Rate limit: 5 IA por hora por usuario
+    // Rate limit: 20 IA por hora por usuario
     const rl = await checkRateLimit(aiRateLimit, `user:${docenteId}`)
     if (!rl.allowed) {
       return NextResponse.json({
-        error: `Has alcanzado el límite de 5 análisis IA por hora. Intenta en ${Math.ceil(rl.retryAfterSeconds / 60)} minutos.`,
+        error: `Has alcanzado el límite de 20 análisis IA por hora. Intenta en ${Math.ceil(rl.retryAfterSeconds / 60)} minutos.`,
         retryAfterSeconds: rl.retryAfterSeconds,
       }, {
         status: 429,
@@ -74,6 +74,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           url: targetUrl,
           body: { jobId: job.id, evaluacionId: params.id },
           retries: 2,
+          // FlowControl: máximo 5 jobs procesando en paralelo a Anthropic
+          // Esto previene errores 429 (rate limit) y mantiene la cola ordenada
+          flowControl: {
+            key: "ai-analysis",
+            parallelism: 5,
+          },
         })
         return NextResponse.json({ jobId: job.id, status: "queued", queued: true })
       } catch (err) {

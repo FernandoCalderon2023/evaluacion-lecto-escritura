@@ -18,10 +18,12 @@ const redis = getRedis()
  * Rate limit para generación de IA: 5 por hora por usuario.
  * Cada usuario puede generar máximo 5 reportes IA en una ventana de 1 hora.
  */
+// Rate limit IA: 20/hora por usuario. Suficiente para pruebas + uso normal.
+// Bajar a 5/hora cuando termine la fase de pruebas si es necesario.
 export const aiRateLimit = redis
   ? new Ratelimit({
       redis,
-      limiter: Ratelimit.slidingWindow(5, "1 h"),
+      limiter: Ratelimit.slidingWindow(20, "1 h"),
       analytics: true,
       prefix: "rl:ai",
     })
