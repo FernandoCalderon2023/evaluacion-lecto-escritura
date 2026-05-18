@@ -55,21 +55,21 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
   )
 
   return (
-    <div className="p-4 lg:p-6 space-y-6 max-w-5xl">
-      {/* Header */}
+    <div className="p-4 lg:p-6 space-y-6 w-full">
+      {/* Header (oculto al imprimir) */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
-        <div className="flex items-center gap-3">
-          <Link href="/evaluaciones" className="text-slate-500 hover:text-slate-700">
+        <div className="flex items-center gap-3 min-w-0">
+          <Link href="/evaluaciones" className="text-slate-500 hover:text-slate-700 shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 font-mono">{est.codigo ?? "—"}</h1>
-            <p className="text-sm text-slate-500">
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-slate-900 font-mono truncate">{est.codigo ?? "—"}</h1>
+            <p className="text-sm text-slate-500 truncate">
               {est.grado} · {est.unidadEducativa} · {edad} años
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 shrink-0">
           <DeleteButton
             endpoint={`/api/evaluaciones/${ev.id}`}
             redirectTo={`/estudiantes/${est.id}`}
@@ -87,22 +87,37 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
             href={`/evaluaciones/nueva?estudianteId=${est.id}`}
             className="text-sm bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700"
           >
-            Nueva evaluación
+            Nueva
           </Link>
         </div>
       </div>
 
-      {/* Datos del informe (visible al imprimir) */}
-      <div className="hidden print:block mb-4">
-        <h1 className="text-2xl font-bold">Informe de Evaluación — SIDEDA</h1>
-        <p className="text-sm">Ministerio de Educación del Estado Plurinacional de Bolivia</p>
-        <div className="grid grid-cols-3 gap-2 mt-3 text-sm border-t pt-3">
-          <div><strong>Código:</strong> {est.codigo ?? "—"}</div>
-          <div><strong>Grado:</strong> {est.grado}</div>
-          <div><strong>Fecha:</strong> {new Date(ev.fecha).toLocaleDateString("es-BO")}</div>
-          <div><strong>Unidad Educativa:</strong> {est.unidadEducativa}</div>
-          <div><strong>Evaluador:</strong> {ev.evaluador}</div>
-          <div><strong>Edad:</strong> {edad} años</div>
+      {/* === ENCABEZADO PROFESIONAL DEL INFORME (solo print) === */}
+      <div className="hidden print:block">
+        <div className="border-b-2 border-slate-800 pb-3 mb-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[8pt] uppercase tracking-widest text-slate-500 mb-1">SIDEDA · Sistema de Evaluación de Dificultades de Aprendizaje</p>
+              <h1 className="text-[20pt] font-bold text-slate-900 leading-tight m-0">Informe Psicopedagógico</h1>
+              <p className="text-[10pt] text-slate-600 mt-1">Instrumento MINEDU 2012{scores.bpm.applied ? " + Batería Psicomotora Da Fonseca" : ""} · R.M. 1040/2022</p>
+            </div>
+            <div className="text-right text-[8pt] text-slate-500">
+              <p>Bolivia · {new Date().getFullYear()}</p>
+              <p className="font-mono mt-0.5">{est.codigo ?? "—"}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-4">
+          <div className="grid grid-cols-3 gap-x-4 gap-y-2 text-[9.5pt]">
+            <div><span className="text-slate-500">Código:</span> <strong className="font-mono">{est.codigo ?? "—"}</strong></div>
+            <div><span className="text-slate-500">Sexo:</span> <strong>{est.sexo}</strong></div>
+            <div><span className="text-slate-500">Edad:</span> <strong>{edad} años</strong></div>
+            <div><span className="text-slate-500">Grado:</span> <strong>{est.grado}</strong></div>
+            <div><span className="text-slate-500">U. Educativa:</span> <strong>{est.unidadEducativa}</strong></div>
+            <div><span className="text-slate-500">Fecha:</span> <strong>{new Date(ev.fecha).toLocaleDateString("es-BO", { day: "2-digit", month: "long", year: "numeric" })}</strong></div>
+            <div className="col-span-3"><span className="text-slate-500">Evaluador/a:</span> <strong>{ev.evaluador}</strong></div>
+          </div>
         </div>
       </div>
 

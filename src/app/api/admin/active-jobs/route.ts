@@ -23,9 +23,6 @@ export async function GET(req: NextRequest) {
     where: { createdAt: { gte: since } },
     orderBy: { createdAt: "desc" },
     take: 20,
-    include: {
-      // No hay relación directa, hacemos query separada
-    },
   })
 
   // Para cada job, traer estudiante (para excluir loadtest)
