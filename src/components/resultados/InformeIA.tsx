@@ -35,7 +35,7 @@ const INTEGRADO_LABELS: Record<string, string> = {
 }
 
 const LOADING_STEPS = [
-  "Conectando con Claude IA...",
+  "Iniciando análisis...",
   "Analizando resultados de lecto-escritura...",
   "Evaluando procesos cognitivos y léxicos...",
   "Cruzando con currículo R.M. 1040/2022...",
@@ -72,7 +72,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
         }
         if (data.status === "processing") {
           setProgress((p) => Math.max(p, 75))
-          setStepMsg("Claude está generando el informe...")
+          setStepMsg("Generando el informe psicopedagógico...")
         } else if (data.status === "queued") {
           if (data.posicion && data.posicion !== lastPos) {
             lastPos = data.posicion
@@ -138,7 +138,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
         <div>
           <p className="font-semibold text-slate-700">Informe Psicopedagógico con IA</p>
           <p className="text-sm text-slate-500 mt-1">
-            Claude generará un informe integrado: Perfil DAE + Perfil Psicomotor + Perfil Integrado + Recomendaciones
+            Genera un informe integrado: Perfil DAE + Perfil Psicomotor + Perfil Integrado + Recomendaciones
           </p>
         </div>
 
@@ -187,7 +187,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <Sparkles className="h-4 w-4 text-blue-500" />
-          <span>Informe generado por Claude AI</span>
+          <span>Informe psicopedagógico generado</span>
           {generadoEn && (
             <span className="text-xs">· {new Date(generadoEn).toLocaleDateString("es-BO")}</span>
           )}

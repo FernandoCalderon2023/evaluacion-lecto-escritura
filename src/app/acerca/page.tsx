@@ -125,11 +125,11 @@ export default function AcercaPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-slate-600">
             <div className="border border-slate-200 rounded-lg p-3">
               <p className="font-bold text-slate-900 mb-1">IA</p>
-              <p>Claude (Anthropic) con caching de prompts</p>
+              <p>Modelo de lenguaje avanzado con caching de prompts</p>
             </div>
             <div className="border border-slate-200 rounded-lg p-3">
               <p className="font-bold text-slate-900 mb-1">Infraestructura</p>
-              <p>Vercel + Turso (libSQL)</p>
+              <p>Cloud distribuido con replicación automática</p>
             </div>
             <div className="border border-slate-200 rounded-lg p-3">
               <p className="font-bold text-slate-900 mb-1">Seguridad</p>

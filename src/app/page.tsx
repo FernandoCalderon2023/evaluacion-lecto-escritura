@@ -146,10 +146,10 @@ export default function LandingPage() {
               Inteligencia Artificial
             </div>
             <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-4">
-              Análisis potenciado por Claude AI
+              Análisis psicopedagógico potenciado por IA
             </h2>
             <p className="text-slate-600 leading-relaxed mb-6">
-              SIDEDA utiliza Claude de Anthropic para generar informes psicopedagógicos profesionales.
+              SIDEDA aplica inteligencia artificial para generar informes psicopedagógicos profesionales.
               La IA no reemplaza al especialista — lo asiste proporcionando un análisis estructurado
               y recomendaciones basadas en evidencia que el docente puede adaptar a cada contexto.
             </p>
@@ -227,7 +227,7 @@ export default function LandingPage() {
               <span className="text-xs">· sideda.com</span>
             </div>
             <p className="text-xs text-center sm:text-right">
-              Sistema de Evaluación de Dificultades de Aprendizaje · Potenciado por Claude AI (Anthropic)
+              Sistema de Evaluación de Dificultades de Aprendizaje · Potenciado por Inteligencia Artificial
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs pt-4 border-t border-slate-800">
