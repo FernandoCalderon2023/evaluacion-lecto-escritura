@@ -19,7 +19,7 @@ export const ANALYSIS_TOOL: Tool = {
           resumen: {
             type: "string",
             description:
-              "Párrafo de 3-5 oraciones describiendo el perfil de DAE: si lee/escribe, si los procesos psíquicos y léxicos son inmaduros para su edad, y cuántos años de desfase respecto al currículo.",
+              "Párrafo EMPÁTICO de 3-4 oraciones describiendo el perfil. Conecta lo observado con la fase evolutiva (Frith/Ehri) y la edad/grado. Usa lenguaje cálido y constructivo, hablando del/la estudiante por su sexo (nunca por código). Evita etiquetas clínicas.",
           },
           nivelDificultad: {
             type: "string",
@@ -38,11 +38,11 @@ export const ANALYSIS_TOOL: Tool = {
           relacionEdadGrado: {
             type: "string",
             description:
-              "Relación entre la edad real y la edad esperada para el grado. Qué implica.",
+              "1-2 oraciones cálidas conectando edad real con expectativas del grado. Si hay desfase, encuádralo como punto de partida desde donde construir.",
           },
           desfaseAnios: {
             type: ["integer", "null"],
-            description: "Años de desfase respecto al currículo del grado (0 si está acorde).",
+            description: "Años de desfase respecto al currículo del grado (0 si está acorde). Puede ser número negativo si está adelantado.",
           },
         },
         required: [
@@ -55,50 +55,93 @@ export const ANALYSIS_TOOL: Tool = {
       },
       perfilPsicomotor: {
         type: ["object", "null"],
-        description:
-          "Solo si se aplicó BPM. Síntesis descriptiva (no diagnóstico). null si no se aplicó BPM.",
+        description: "Solo si se aplicó BPM. Síntesis descriptiva empática (NO diagnóstico). null si no aplica.",
         properties: {
-          resumen: { type: "string" },
-          tonoControlPostural: { type: "string" },
-          lateralidad: { type: "string" },
-          esquemaCorporal: { type: "string" },
-          estructuracionEspacioTemporal: { type: "string" },
-          praxiaGlobal: { type: "string" },
-          praxiaFina: { type: "string" },
+          resumen: {
+            type: "string",
+            description: "2-3 oraciones cálidas describiendo el desarrollo psicomotor global del/la estudiante en términos de su unidad funcional cuerpo-mente (Da Fonseca).",
+          },
+          tonoControlPostural: {
+            type: "string",
+            description: "1-2 oraciones. Tono muscular, control postural, seguridad gravitatoria. Lenguaje descriptivo, sin alarmar.",
+          },
+          lateralidad: {
+            type: "string",
+            description: "1-2 oraciones. Cómo está la lateralidad y qué implica para la orientación espacial en lecto-escritura.",
+          },
+          esquemaCorporal: {
+            type: "string",
+            description: "1-2 oraciones. Noción del cuerpo, somatognosia, componente kinestésico.",
+          },
+          estructuracionEspacioTemporal: {
+            type: "string",
+            description: "1-2 oraciones. Ritmo, sucesión, relaciones espaciales. Clave para grafema-fonema.",
+          },
+          praxiaGlobal: {
+            type: "string",
+            description: "1-2 oraciones. Planificación y ejecución motora amplia.",
+          },
+          praxiaFina: {
+            type: "string",
+            description: "1-2 oraciones. Micromotricidad, pinza, trazo, velocidad-precisión.",
+          },
           perfilGeneral: {
             type: "string",
-            description: "Clasificación: apráxico | dispráxico | eupráxico | hiperpráxico",
+            description: "Una palabra: apráxico | dispráxico | eupráxico | hiperpráxico",
           },
         },
       },
       perfilIntegrado: {
         type: ["object", "null"],
-        description:
-          "Solo si se aplicó BPM. Cruza el perfil DAE con el psicomotor. null si no aplica.",
+        description: "Solo si se aplicó BPM. Hilo narrativo conectando psicomotricidad con lecto-escritura. null si no aplica.",
         properties: {
-          resumen: { type: "string" },
-          relacionPMconDAE: { type: "string" },
-          tiempoYOrden: { type: "string" },
-          espacioYOrientacion: { type: "string" },
-          praxiaYEscritura: { type: "string" },
-          atencionMemoria: { type: "string" },
+          resumen: {
+            type: "string",
+            description: "3-4 oraciones con HILO NARRATIVO claro: cómo el cuerpo y la psicomotricidad sostienen (o desafían) los aprendizajes lectoescritos. Tono cálido.",
+          },
+          relacionPMconDAE: {
+            type: "string",
+            description: "1-2 oraciones. Conexión causa-efecto entre perfil psicomotor y dificultades DAE específicas.",
+          },
+          tiempoYOrden: {
+            type: "string",
+            description: "1-2 oraciones. Cómo el pulso temporal interno impacta la cadena grafema-fonema.",
+          },
+          espacioYOrientacion: {
+            type: "string",
+            description: "1-2 oraciones. Dismetría/lateralidad → orientación izq-der, márgenes, linealidad de escritura.",
+          },
+          praxiaYEscritura: {
+            type: "string",
+            description: "1-2 oraciones. Cómo la micromotricidad sostiene la forma y fluidez del trazo.",
+          },
+          atencionMemoria: {
+            type: "string",
+            description: "1-2 oraciones. Aprendizaje de gestos motores ↔ automatización de reglas ortográficas.",
+          },
         },
       },
       fortalezas: {
         type: "array",
         items: { type: "string" },
-        description: "Máximo 3 fortalezas observadas vs expectativas del grado.",
+        description: "Máx. 3 fortalezas CONCRETAS observadas (no genéricas). Cada una empieza con verbo activo: 'Lee con...', 'Comprende...', 'Demuestra...'. Tono celebrador.",
       },
       areasDeMejora: {
         type: "array",
         items: {
           type: "object",
           properties: {
-            area: { type: "string" },
-            descripcion: { type: "string" },
+            area: {
+              type: "string",
+              description: "Nombre del área en términos POSITIVOS (ej: 'Fluidez lectora en desarrollo' en vez de 'Lentitud lectora').",
+            },
+            descripcion: {
+              type: "string",
+              description: "1-2 oraciones describiendo el área como oportunidad de aprendizaje (no como déficit). Tono constructivo.",
+            },
             brechaConCurriculo: {
               type: "string",
-              description: "Qué habilidades del currículo R.M. 1040/2022 no se están logrando.",
+              description: "1 oración con la habilidad específica del currículo R.M. 1040/2022 que se está construyendo (no 'no logra' sino 'en camino hacia...').",
             },
             prioridad: {
               type: "string",
@@ -107,7 +150,7 @@ export const ANALYSIS_TOOL: Tool = {
           },
           required: ["area", "descripcion", "brechaConCurriculo", "prioridad"],
         },
-        description: "Máximo 3 áreas",
+        description: "Máx. 3 áreas en construcción",
       },
       recomendaciones: {
         type: "object",
@@ -119,31 +162,42 @@ export const ANALYSIS_TOOL: Tool = {
               properties: {
                 categoria: {
                   type: "string",
-                  description:
-                    "Una de: Entrada y anticipación | Organización espacial | Ritmo y tiempo | Praxia global | Imitación y gestos | Praxia fina/escritura | Lateralidad | Clima emocional | Lectura | Conciencia fonológica",
+                  description: "Categoría aplicada: Entrada y anticipación | Organización espacial | Ritmo y tiempo | Praxia global | Imitación y gestos | Praxia fina/escritura | Lateralidad | Clima emocional | Lectura | Conciencia fonológica | Comprensión lectora | Producción escrita",
                 },
-                titulo: { type: "string" },
-                descripcion: { type: "string" },
+                titulo: {
+                  type: "string",
+                  description: "Título corto y motivador de la estrategia (4-7 palabras).",
+                },
+                descripcion: {
+                  type: "string",
+                  description: "1-2 oraciones con la actividad CONCRETA (qué hace el docente, qué materiales usa, qué se espera). Basado en ZDP de Vygotsky y andamiaje de Bruner.",
+                },
                 frecuencia: {
                   type: ["string", "null"],
-                  description: "Ej: 5-10 min, 2-3 veces/día",
+                  description: "Ej: '5-10 min, 2-3 veces/día' o '15 min diarios al inicio de clase'",
                 },
               },
               required: ["categoria", "titulo", "descripcion"],
             },
-            description: "Máximo 5 recomendaciones para el aula",
+            description: "Máx. 5 estrategias aplicables ya. Concretas, no genéricas.",
           },
           paraLaFamilia: {
             type: "array",
             items: {
               type: "object",
               properties: {
-                titulo: { type: "string" },
-                descripcion: { type: "string" },
+                titulo: {
+                  type: "string",
+                  description: "Título cálido y motivador (no técnico). Ej: 'Lectura compartida antes de dormir' en vez de 'Estimulación fonológica'.",
+                },
+                descripcion: {
+                  type: "string",
+                  description: "1-2 oraciones en lenguaje SIMPLE para padres/madres. Sin jerga técnica. Énfasis en el VÍNCULO afectivo + actividad concreta.",
+                },
               },
               required: ["titulo", "descripcion"],
             },
-            description: "Máximo 3 recomendaciones para la familia",
+            description: "Máx. 3 sugerencias para casa, en lenguaje accesible para padres.",
           },
           derivacion: {
             type: "object",
@@ -151,10 +205,12 @@ export const ANALYSIS_TOOL: Tool = {
               necesaria: { type: "boolean" },
               especialista: {
                 type: ["string", "null"],
-                description:
-                  "psicopedagogo | fonoaudiólogo | psicólogo | terapeuta ocupacional | null",
+                description: "psicopedagogo | fonoaudiólogo | psicólogo | terapeuta ocupacional | null",
               },
-              justificacion: { type: ["string", "null"] },
+              justificacion: {
+                type: ["string", "null"],
+                description: "Si necesaria=true, 1-2 oraciones SERENAS explicando POR QUÉ se beneficiaría de valoración complementaria. Encuadrar como complemento al trabajo del docente, no como problema grave.",
+              },
             },
             required: ["necesaria", "especialista", "justificacion"],
           },
@@ -166,12 +222,12 @@ export const ANALYSIS_TOOL: Tool = {
         properties: {
           periodoRevaluacion: {
             type: "string",
-            description: "Ej: 3 meses, 6 meses, 1 año",
+            description: "Plazo razonable según severidad. sin-dificultades: '6 meses' | leve: '3 meses' | moderada: '2-3 meses' | severa: '4-6 semanas con monitoreo'.",
           },
           indicadoresProgreso: {
             type: "array",
             items: { type: "string" },
-            description: "Máximo 3 indicadores medibles",
+            description: "Máx. 3 indicadores MEDIBLES y observables en aula. Cada uno con verbo concreto: 'Lee X palabras/min', 'Identifica Y de Z fonemas', etc.",
           },
         },
         required: ["periodoRevaluacion", "indicadoresProgreso"],
