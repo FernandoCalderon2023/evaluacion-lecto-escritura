@@ -128,7 +128,7 @@ export default async function DashboardPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Evaluaciones Recientes</CardTitle>
-          <Link href="/evaluaciones/nueva" className="text-sm text-blue-600 hover:underline">
+          <Link href="/evaluaciones/nueva" className="text-sm text-viria-600 hover:underline">
             + Nueva evaluación
           </Link>
         </CardHeader>
@@ -136,7 +136,7 @@ export default async function DashboardPage() {
           {recientes.length === 0 ? (
             <p className="text-slate-400 text-sm text-center py-8">
               No hay evaluaciones aún.{" "}
-              <Link href="/evaluaciones/nueva" className="text-blue-600 hover:underline">
+              <Link href="/evaluaciones/nueva" className="text-viria-600 hover:underline">
                 Crear la primera
               </Link>
             </p>

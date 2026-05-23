@@ -15,7 +15,7 @@ export function Step19BpmLateralidadCuerpo({ state, set }: Props) {
         <div className="grid grid-cols-4 gap-2">
           <span><strong className="text-red-600">1</strong> — Débil (apráxico)</span>
           <span><strong className="text-yellow-600">2</strong> — Satisfactorio (dispráxico)</span>
-          <span><strong className="text-blue-600">3</strong> — Bueno (eupráxico)</span>
+          <span><strong className="text-viria-600">3</strong> — Bueno (eupráxico)</span>
           <span><strong className="text-green-600">4</strong> — Excelente (hiperpráxico)</span>
         </div>
       </div>

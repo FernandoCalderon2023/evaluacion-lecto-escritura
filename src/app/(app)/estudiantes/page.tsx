@@ -36,7 +36,7 @@ export default async function EstudiantesPage({
         </div>
         <Link
           href="/estudiantes/nuevo"
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 bg-viria-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-viria-700 transition-colors"
         >
           <Plus className="h-4 w-4" />
           Nuevo estudiante
@@ -48,7 +48,7 @@ export default async function EstudiantesPage({
           name="q"
           defaultValue={q}
           placeholder="Buscar por código, nombre o apellido..."
-          className="flex-1 border border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 border border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500"
         />
         <button
           type="submit"
@@ -71,8 +71,8 @@ export default async function EstudiantesPage({
               <Card className="hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-3">
-                    <div className="bg-blue-100 rounded-full p-2">
-                      <User className="h-5 w-5 text-blue-600" />
+                    <div className="bg-viria-100 rounded-full p-2">
+                      <User className="h-5 w-5 text-viria-600" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-slate-900 truncate font-mono text-base">

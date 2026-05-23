@@ -13,7 +13,7 @@ export default function PrivacidadPage() {
       <header className="bg-slate-900 text-white">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <BookOpen className="h-6 w-6 text-blue-400" />
+            <BookOpen className="h-6 w-6 text-viria-400" />
             <span className="font-bold">SIDEDA</span>
           </Link>
           <Link href="/" className="text-sm text-slate-300 hover:text-white flex items-center gap-1">
@@ -65,7 +65,7 @@ export default function PrivacidadPage() {
             </p>
             <p className="text-sm text-slate-600">
               Anthropic mantiene logs operativos por 30 días para fines de seguridad, pero no entrena
-              sus modelos con datos del API. Más información: <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">anthropic.com/privacy</a>.
+              sus modelos con datos del API. Más información: <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer" className="text-viria-600 hover:underline">anthropic.com/privacy</a>.
             </p>
           </div>
 
@@ -136,7 +136,7 @@ export default function PrivacidadPage() {
         </section>
 
         <div className="mt-12 pt-6 border-t border-slate-200 text-center">
-          <Link href="/" className="text-blue-600 hover:underline text-sm">← Volver al inicio</Link>
+          <Link href="/" className="text-viria-600 hover:underline text-sm">← Volver al inicio</Link>
         </div>
       </main>
 

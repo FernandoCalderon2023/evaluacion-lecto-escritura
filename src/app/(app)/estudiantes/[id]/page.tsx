@@ -78,7 +78,7 @@ export default async function EstudiantePerfilPage({ params }: { params: { id: s
             <CardTitle className="text-base">Historial de Evaluaciones</CardTitle>
             <Link
               href={`/evaluaciones/nueva?estudianteId=${est.id}`}
-              className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-blue-700"
+              className="flex items-center gap-1 bg-viria-600 text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-viria-700"
             >
               <Plus className="h-3 w-3" />
               Nueva

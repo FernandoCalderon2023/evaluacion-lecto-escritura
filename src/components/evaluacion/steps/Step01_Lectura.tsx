@@ -32,7 +32,7 @@ export function Step01Lectura({ state, set }: Props) {
             placeholder="Ej: 45"
             value={state.palabrasLeidas ?? ""}
             onChange={(e) => set("palabrasLeidas")(e.target.value ? Number(e.target.value) : null)}
-            className="w-full max-w-xs border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-lg"
+            className="w-full max-w-xs border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500 font-bold text-lg"
           />
         </div>
       </div>
@@ -52,8 +52,8 @@ export function Step01Lectura({ state, set }: Props) {
                 className={cn(
                   "px-4 py-2 rounded-lg text-sm border font-medium transition-colors",
                   state.tonoVoz === t.value
-                    ? "bg-blue-600 border-blue-600 text-white"
-                    : "bg-white border-slate-300 text-slate-600 hover:border-blue-400"
+                    ? "bg-viria-600 border-viria-600 text-white"
+                    : "bg-white border-slate-300 text-slate-600 hover:border-viria-400"
                 )}
               >
                 {t.label}
@@ -62,9 +62,9 @@ export function Step01Lectura({ state, set }: Props) {
           </div>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <p className="text-xs font-semibold text-blue-700 mb-1">Expresión de matices emocionales</p>
-          <p className="text-xs text-blue-600">Se evalúa a través de los 4 indicadores siguientes. Puede dejar en blanco si no aplica.</p>
+        <div className="bg-viria-50 border border-viria-200 rounded-lg p-3">
+          <p className="text-xs font-semibold text-viria-700 mb-1">Expresión de matices emocionales</p>
+          <p className="text-xs text-viria-600">Se evalúa a través de los 4 indicadores siguientes. Puede dejar en blanco si no aplica.</p>
         </div>
 
         <ScaleSelector label="Respeta los signos de puntuación" value={state.respetaSignosPunt} onChange={(v) => set("respetaSignosPunt")(v)} />

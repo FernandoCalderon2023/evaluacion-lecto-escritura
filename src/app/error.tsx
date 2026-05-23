@@ -39,7 +39,7 @@ export default function GlobalError({
         <div className="flex gap-2 justify-center">
           <button
             onClick={() => reset()}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700"
+            className="flex items-center gap-2 bg-viria-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-viria-700"
           >
             <RotateCw className="h-4 w-4" />
             Reintentar

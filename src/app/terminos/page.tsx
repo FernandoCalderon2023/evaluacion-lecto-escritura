@@ -13,7 +13,7 @@ export default function TerminosPage() {
       <header className="bg-slate-900 text-white">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <BookOpen className="h-6 w-6 text-blue-400" />
+            <BookOpen className="h-6 w-6 text-viria-400" />
             <span className="font-bold">SIDEDA</span>
           </Link>
           <Link href="/" className="text-sm text-slate-300 hover:text-white flex items-center gap-1">
@@ -24,7 +24,7 @@ export default function TerminosPage() {
 
       <main className="max-w-3xl mx-auto px-4 py-12">
         <div className="flex items-center gap-3 mb-3">
-          <FileText className="h-8 w-8 text-blue-600" />
+          <FileText className="h-8 w-8 text-viria-600" />
           <h1 className="text-3xl font-extrabold text-slate-900 m-0">Términos de Uso</h1>
         </div>
         <p className="text-sm text-slate-500 mb-8">Última actualización: {new Date().toLocaleDateString("es-BO")}</p>
@@ -34,7 +34,7 @@ export default function TerminosPage() {
             <h2 className="text-xl font-bold text-slate-900 mb-2">1. Aceptación</h2>
             <p className="text-sm">
               Al ingresar y utilizar SIDEDA, el/la docente acepta estos Términos de Uso y la{" "}
-              <Link href="/privacidad" className="text-blue-600 hover:underline">Política de Privacidad</Link>.
+              <Link href="/privacidad" className="text-viria-600 hover:underline">Política de Privacidad</Link>.
               Si no está de acuerdo, no debe utilizar la plataforma.
             </p>
           </div>
@@ -116,7 +116,7 @@ export default function TerminosPage() {
         </section>
 
         <div className="mt-12 pt-6 border-t border-slate-200 text-center">
-          <Link href="/" className="text-blue-600 hover:underline text-sm">← Volver al inicio</Link>
+          <Link href="/" className="text-viria-600 hover:underline text-sm">← Volver al inicio</Link>
         </div>
       </main>
 

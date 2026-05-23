@@ -40,7 +40,7 @@ export default async function EvaluacionesPage({ searchParams }: { searchParams:
         </div>
         <Link
           href="/evaluaciones/nueva"
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+          className="flex items-center gap-2 bg-viria-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-viria-700"
         >
           <Plus className="h-4 w-4" />
           Nueva evaluación
@@ -70,7 +70,7 @@ export default async function EvaluacionesPage({ searchParams }: { searchParams:
         <Card>
           <CardContent className="py-12 text-center text-slate-400">
             No hay evaluaciones registradas.{" "}
-            <Link href="/evaluaciones/nueva" className="text-blue-600 hover:underline">Crear la primera</Link>
+            <Link href="/evaluaciones/nueva" className="text-viria-600 hover:underline">Crear la primera</Link>
           </CardContent>
         </Card>
       ) : (
@@ -99,7 +99,7 @@ export default async function EvaluacionesPage({ searchParams }: { searchParams:
                       </span>
                     )}
                     {ev.analisisIA && (
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">✨ IA</span>
+                      <span className="text-xs bg-viria-100 text-viria-700 px-2 py-1 rounded-full">✨ IA</span>
                     )}
                   </div>
                 </div>

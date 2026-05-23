@@ -134,7 +134,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
   if (!analisis) {
     return (
       <div className="text-center py-10 space-y-4 border-2 border-dashed border-slate-200 rounded-xl">
-        <Sparkles className="h-10 w-10 text-blue-400 mx-auto" />
+        <Sparkles className="h-10 w-10 text-viria-400 mx-auto" />
         <div>
           <p className="font-semibold text-slate-700">Informe Psicopedagógico con IA</p>
           <p className="text-sm text-slate-500 mt-1">
@@ -146,17 +146,17 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
           <div className="max-w-sm mx-auto space-y-2 px-4">
             <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-blue-600 rounded-full transition-all duration-700 ease-out"
+                className="h-full bg-viria-600 rounded-full transition-all duration-700 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="text-xs text-blue-600 font-medium animate-pulse">{stepMsg}</p>
+            <p className="text-xs text-viria-600 font-medium animate-pulse">{stepMsg}</p>
             <p className="text-xs text-slate-400">{progress}% — esto puede tomar 20-40 segundos</p>
           </div>
         ) : (
           <button
             onClick={generarAnalisis}
-            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-2 mx-auto"
+            className="bg-viria-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-viria-700 flex items-center gap-2 mx-auto"
           >
             <Sparkles className="h-4 w-4" />
             Generar Informe IA
@@ -186,7 +186,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-slate-500">
-          <Sparkles className="h-4 w-4 text-blue-500" />
+          <Sparkles className="h-4 w-4 text-viria-500" />
           <span>Informe psicopedagógico generado</span>
           {generadoEn && (
             <span className="text-xs">· {new Date(generadoEn).toLocaleDateString("es-BO")}</span>
@@ -195,7 +195,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
         <button
           onClick={generarAnalisis}
           disabled={loading}
-          className="text-xs text-blue-600 hover:underline disabled:opacity-50"
+          className="text-xs text-viria-600 hover:underline disabled:opacity-50"
         >
           {loading ? "Regenerando..." : "Regenerar"}
         </button>
@@ -203,16 +203,16 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
 
       {/* PERFIL DAE */}
       {perfilDAE && (
-        <Card className="border-blue-200">
+        <Card className="border-viria-200">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2 text-blue-700">
+            <CardTitle className="text-sm flex items-center gap-2 text-viria-700">
               <BookOpen className="h-4 w-4" /> Perfil de DAE en Lecto-Escritura
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-slate-800 leading-relaxed">{perfilDAE.resumen}</p>
             {perfilDAE.relacionEdadGrado && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 text-xs text-blue-800">
+              <div className="bg-viria-50 border border-viria-200 rounded-lg p-2.5 text-xs text-viria-800">
                 <strong>Relación edad-grado:</strong> {perfilDAE.relacionEdadGrado}
               </div>
             )}
@@ -336,7 +336,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
       {/* RECOMENDACIONES PARA EL AULA */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center gap-2 text-blue-700">
+          <CardTitle className="text-sm flex items-center gap-2 text-viria-700">
             <BookOpen className="h-4 w-4" /> Recomendaciones para el aula
           </CardTitle>
         </CardHeader>
@@ -347,11 +347,11 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">{cat}</p>
                 <div className="space-y-2">
                   {recs.map((r, i) => (
-                    <div key={i} className="border-l-2 border-blue-400 pl-3">
+                    <div key={i} className="border-l-2 border-viria-400 pl-3">
                       <p className="text-sm font-medium text-slate-800">{r.titulo}</p>
                       <p className="text-xs text-slate-600 mt-0.5">{r.descripcion}</p>
                       {r.frecuencia && (
-                        <p className="text-xs text-blue-600 mt-1 font-medium">{r.frecuencia}</p>
+                        <p className="text-xs text-viria-600 mt-1 font-medium">{r.frecuencia}</p>
                       )}
                     </div>
                   ))}
@@ -414,7 +414,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
           <ul className="space-y-1">
             {analisis.planSeguimiento.indicadoresProgreso.map((ind, i) => (
               <li key={i} className="flex gap-2 text-xs text-slate-600">
-                <span className="text-blue-500 mt-0.5">•</span>
+                <span className="text-viria-500 mt-0.5">•</span>
                 {ind}
               </li>
             ))}

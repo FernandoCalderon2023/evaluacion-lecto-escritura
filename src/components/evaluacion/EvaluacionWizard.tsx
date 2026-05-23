@@ -137,7 +137,7 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
         </div>
         <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
           <div
-            className="h-full bg-blue-600 rounded-full transition-all duration-300"
+            className="h-full bg-viria-600 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -150,7 +150,7 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
               onClick={() => setStep(i)}
               className={`shrink-0 px-2 py-1 rounded text-xs transition-colors ${
                 i === step
-                  ? "bg-blue-600 text-white"
+                  ? "bg-viria-600 text-white"
                   : i < step
                   ? "bg-green-100 text-green-700"
                   : "bg-slate-100 text-slate-500"
@@ -191,7 +191,7 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
           <button
             type="button"
             onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+            className="flex items-center gap-2 px-4 py-2 bg-viria-600 text-white rounded-lg text-sm font-medium hover:bg-viria-700"
           >
             Siguiente
             <ChevronRight className="h-4 w-4" />

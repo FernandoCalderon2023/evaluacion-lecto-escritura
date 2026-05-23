@@ -26,7 +26,7 @@ import { PrintButton } from "@/components/resultados/PrintButton"
 import { DeleteButton } from "@/components/shared/DeleteButton"
 
 const AREA_COLOR = {
-  "Lectura y Comprensión": "bg-blue-500",
+  "Lectura y Comprensión": "bg-viria-500",
   "Procesos Cognitivos": "bg-purple-500",
   "Procesos Léxicos": "bg-indigo-500",
   "Escritura (Dictado)": "bg-orange-500",
@@ -85,7 +85,7 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
           <PrintButton />
           <Link
             href={`/evaluaciones/nueva?estudianteId=${est.id}`}
-            className="text-sm bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700"
+            className="text-sm bg-viria-600 text-white px-3 py-2 rounded-lg hover:bg-viria-700"
           >
             Nueva
           </Link>
@@ -251,7 +251,7 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
                 { label: "Praxia Global", score: scores.bpm.praxiaGlobal.score, perfil: scores.bpm.praxiaGlobal.perfil },
                 { label: "Praxia Fina", score: scores.bpm.praxiaFina.score, perfil: scores.bpm.praxiaFina.perfil },
               ].map(({ label, score, perfil }) => {
-                const color = score <= 1.5 ? "bg-red-50 border-red-200" : score <= 2.5 ? "bg-yellow-50 border-yellow-200" : score <= 3.5 ? "bg-blue-50 border-blue-200" : "bg-green-50 border-green-200"
+                const color = score <= 1.5 ? "bg-red-50 border-red-200" : score <= 2.5 ? "bg-yellow-50 border-yellow-200" : score <= 3.5 ? "bg-viria-50 border-viria-200" : "bg-green-50 border-green-200"
                 return (
                   <div key={label} className={`rounded-lg p-3 border ${color}`}>
                     <p className="text-xs text-slate-500">{label}</p>
@@ -260,7 +260,7 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
                   </div>
                 )
               })}
-              <div className={`rounded-lg p-3 border ${scores.bpm.promedioGeneral <= 1.5 ? "bg-red-100 border-red-300" : scores.bpm.promedioGeneral <= 2.5 ? "bg-yellow-100 border-yellow-300" : scores.bpm.promedioGeneral <= 3.5 ? "bg-blue-100 border-blue-300" : "bg-green-100 border-green-300"}`}>
+              <div className={`rounded-lg p-3 border ${scores.bpm.promedioGeneral <= 1.5 ? "bg-red-100 border-red-300" : scores.bpm.promedioGeneral <= 2.5 ? "bg-yellow-100 border-yellow-300" : scores.bpm.promedioGeneral <= 3.5 ? "bg-viria-100 border-blue-300" : "bg-green-100 border-green-300"}`}>
                 <p className="text-xs text-slate-500 font-semibold">GENERAL</p>
                 <p className="font-bold text-xl">{scores.bpm.promedioGeneral.toFixed(1)}<span className="text-xs font-normal text-slate-400">/4</span></p>
                 <p className="text-xs font-semibold capitalize">{scores.bpm.perfilGeneral}</p>

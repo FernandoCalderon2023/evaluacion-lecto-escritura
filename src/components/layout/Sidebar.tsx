@@ -2,7 +2,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { BookOpen, Users, ClipboardList, LayoutDashboard, Menu, X, LogOut, Settings, ChevronLeft } from "lucide-react"
+import { Users, ClipboardList, LayoutDashboard, Menu, X, LogOut, Settings, ChevronLeft } from "lucide-react"
+import { Logo } from "@/components/branding/Logo"
 import { useState, useEffect } from "react"
 import { useSession, signOut } from "next-auth/react"
 
@@ -40,16 +41,14 @@ export function Sidebar() {
   return (
     <>
       {/* === HEADER MÓVIL === */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900 text-white flex items-center justify-between px-4 py-3 shadow-md print:hidden">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-gradient-to-r from-viria-900 to-orchid-800 text-white flex items-center justify-between px-4 py-3 shadow-md print:hidden">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="bg-blue-600 p-1.5 rounded-lg">
-            <BookOpen className="h-4 w-4 text-white" />
-          </div>
-          <span className="font-bold text-sm tracking-tight">SIDEDA</span>
+          <Logo variant="white" size={22} showText={false} />
+          <span className="font-extrabold text-sm tracking-tight">SIDEDA</span>
         </Link>
         <button
           onClick={() => setOpen(!open)}
-          className="p-2 rounded-lg hover:bg-slate-800 transition-colors"
+          className="p-2 rounded-lg hover:bg-white/10 transition-colors"
           aria-label={open ? "Cerrar menú" : "Abrir menú"}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -67,7 +66,7 @@ export function Sidebar() {
       {/* === SIDEBAR === */}
       <aside
         className={cn(
-          "fixed lg:sticky z-50 top-0 left-0 h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-white flex flex-col transition-all duration-300 ease-out shadow-2xl print:hidden",
+          "fixed lg:sticky z-50 top-0 left-0 h-screen bg-gradient-to-b from-viria-900 via-viria-800 to-orchid-800 text-white flex flex-col transition-all duration-300 ease-out shadow-2xl print:hidden",
           collapsed ? "lg:w-16" : "lg:w-64",
           "w-72",
           "lg:translate-x-0",
@@ -75,15 +74,13 @@ export function Sidebar() {
         )}
       >
         {/* Logo */}
-        <div className={cn("border-b border-slate-800/60 transition-all", collapsed ? "p-3" : "p-5")}>
+        <div className={cn("border-b border-white/10 transition-all", collapsed ? "p-3" : "p-5")}>
           <div className={cn("flex items-center gap-2.5", collapsed && "lg:justify-center")}>
-            <div className="bg-blue-600 p-2 rounded-xl shrink-0 shadow-lg shadow-blue-600/30">
-              <BookOpen className="h-5 w-5 text-white" />
-            </div>
+            <Logo variant="white" size={collapsed ? 28 : 32} showText={false} />
             {!collapsed && (
               <div className="overflow-hidden">
-                <p className="font-bold text-base leading-tight tracking-tight">SIDEDA</p>
-                <p className="text-[10px] text-slate-400 mt-0.5 truncate">sideda.com</p>
+                <p className="font-extrabold text-base leading-tight tracking-tight bg-clip-text text-transparent bg-ia-gradient">SIDEDA</p>
+                <p className="text-[10px] text-viria-300 mt-0.5 truncate">producto de VirIA</p>
               </div>
             )}
           </div>
@@ -102,8 +99,8 @@ export function Sidebar() {
                   "group relative flex items-center rounded-xl transition-all",
                   collapsed ? "lg:justify-center p-3" : "gap-3 px-3 py-2.5",
                   active
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-                    : "text-slate-300 hover:bg-slate-800/80 hover:text-white"
+                    ? "bg-white/15 text-white shadow-md backdrop-blur-sm border border-white/10"
+                    : "text-viria-100/80 hover:bg-white/5 hover:text-white"
                 )}
               >
                 <Icon className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-4 w-4")} />
@@ -117,18 +114,18 @@ export function Sidebar() {
         </nav>
 
         {/* Footer: user + acciones */}
-        <div className={cn("border-t border-slate-800/60 space-y-2", collapsed ? "p-2" : "p-3")}>
+        <div className={cn("border-t border-white/10 space-y-2", collapsed ? "p-2" : "p-3")}>
           {session?.user && !collapsed && (
-            <div className="px-2 py-2 rounded-lg bg-slate-800/40">
+            <div className="px-2 py-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/5">
               <p className="text-xs font-semibold text-white truncate">{session.user.name}</p>
-              <p className="text-[10px] text-slate-400 truncate">{session.user.email}</p>
+              <p className="text-[10px] text-viria-200/70 truncate">{session.user.email}</p>
             </div>
           )}
 
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             className={cn(
-              "flex items-center w-full rounded-lg text-xs text-slate-400 hover:text-white hover:bg-slate-800 transition-colors",
+              "flex items-center w-full rounded-lg text-xs text-viria-100/80 hover:text-white hover:bg-white/10 transition-colors",
               collapsed ? "lg:justify-center p-3" : "gap-2 px-3 py-2"
             )}
             title={collapsed ? "Cerrar sesión" : undefined}
@@ -142,7 +139,7 @@ export function Sidebar() {
           <button
             onClick={() => setCollapsed(!collapsed)}
             className={cn(
-              "hidden lg:flex items-center w-full rounded-lg text-[10px] text-slate-500 hover:text-white hover:bg-slate-800 transition-colors",
+              "hidden lg:flex items-center w-full rounded-lg text-[10px] text-viria-300/60 hover:text-white hover:bg-white/10 transition-colors",
               collapsed ? "justify-center p-2.5" : "gap-2 px-3 py-2"
             )}
             title={collapsed ? "Expandir" : "Colapsar"}
@@ -163,7 +160,7 @@ export function Sidebar() {
               href={href}
               className={cn(
                 "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all",
-                active ? "text-blue-600" : "text-slate-400 hover:text-slate-600"
+                active ? "text-viria-600" : "text-slate-400 hover:text-slate-600"
               )}
             >
               <Icon className={cn("h-5 w-5", active && "scale-110")} />

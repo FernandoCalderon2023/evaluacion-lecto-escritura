@@ -23,7 +23,7 @@ export function Step15Escritura({ state, set }: Props) {
           onClick={() => setTab("dict")}
           className={cn(
             "flex-1 py-2 rounded-md text-sm font-semibold transition-all",
-            tab === "dict" ? "bg-white text-blue-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            tab === "dict" ? "bg-white text-viria-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
           )}
         >
           Ej. 15 — Dictado
@@ -33,7 +33,7 @@ export function Step15Escritura({ state, set }: Props) {
           onClick={() => setTab("comp")}
           className={cn(
             "flex-1 py-2 rounded-md text-sm font-semibold transition-all",
-            tab === "comp" ? "bg-white text-blue-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            tab === "comp" ? "bg-white text-viria-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
           )}
         >
           Ej. 16 — Composición

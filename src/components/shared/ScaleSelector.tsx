@@ -28,8 +28,8 @@ export function ScaleSelector({ label, value, onChange }: Props) {
             className={cn(
               "px-3 py-2 rounded-lg text-xs font-bold border-2 transition-all",
               value === o.value
-                ? "bg-blue-600 border-blue-600 text-white shadow-md"
-                : "bg-white border-slate-300 text-slate-700 hover:border-blue-400 hover:bg-blue-50"
+                ? "bg-viria-600 border-viria-600 text-white shadow-md"
+                : "bg-white border-slate-300 text-slate-700 hover:border-viria-400 hover:bg-viria-50"
             )}
           >
             {o.short} — {o.label}

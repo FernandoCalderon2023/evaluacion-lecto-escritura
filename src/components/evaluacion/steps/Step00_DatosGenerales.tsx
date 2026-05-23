@@ -19,7 +19,7 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
         <select
           value={state.estudianteId ?? ""}
           onChange={(e) => set("estudianteId")(e.target.value)}
-          className="w-full border border-slate-300 bg-white text-slate-900 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full border border-slate-300 bg-white text-slate-900 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500"
           required
         >
           <option value="">— Seleccionar estudiante —</option>
@@ -80,7 +80,7 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
               onChange={(e) =>
                 set("anioEscolar")(e.target.value ? Number(e.target.value) : null)
               }
-              className="w-full border border-slate-300 bg-white text-slate-900 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-slate-300 bg-white text-slate-900 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500"
             >
               <option value="">— Seleccionar —</option>
               <option value={1}>1° año (1ro Primaria)</option>
@@ -100,13 +100,13 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
           value={state.observaciones ?? ""}
           onChange={(e) => set("observaciones")(e.target.value || null)}
           placeholder="Ej: No se evaluó lectura porque el estudiante aún no lee. Sección X dejada en blanco porque..."
-          className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] resize-y"
+          className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500 min-h-[80px] resize-y"
           rows={3}
         />
         <p className="text-xs text-slate-400">Use este campo para anotar por qué se dejaron secciones en blanco u otras observaciones relevantes.</p>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+      <div className="bg-viria-50 border border-viria-200 rounded-lg p-4 text-sm text-viria-800">
         <p className="font-medium mb-1">Instrucciones</p>
         <p>
           Complete los datos de cada ejercicio según las respuestas del estudiante en el cuadernillo físico.

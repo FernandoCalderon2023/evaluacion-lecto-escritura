@@ -77,7 +77,7 @@ export function AdminPanel({ usuarios }: { usuarios: Usuario[] }) {
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+          className="flex items-center gap-2 bg-viria-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-viria-700"
         >
           <UserPlus className="h-4 w-4" />
           {showForm ? "Cancelar" : "Crear nuevo usuario"}
@@ -100,22 +100,22 @@ export function AdminPanel({ usuarios }: { usuarios: Usuario[] }) {
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-slate-700">Nombre completo *</label>
                 <input value={nombre} onChange={(e) => setNombre(e.target.value)} required
-                  className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-slate-700">Correo electrónico *</label>
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
-                  className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-slate-700">Contraseña *</label>
                 <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6}
-                  className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-slate-700">Rol</label>
                 <select value={rol} onChange={(e) => setRol(e.target.value)}
-                  className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500">
                   <option value="DOCENTE">Docente</option>
                   <option value="ADMIN">Administrador</option>
                 </select>
@@ -136,7 +136,7 @@ export function AdminPanel({ usuarios }: { usuarios: Usuario[] }) {
             {usuarios.map((u) => (
               <div key={u.id} className={`flex items-center justify-between p-3 rounded-lg border-2 ${u.activo ? "border-slate-200 bg-white" : "border-red-200 bg-red-50"}`}>
                 <div className="flex items-center gap-3">
-                  {u.rol === "ADMIN" ? <Shield className="h-5 w-5 text-purple-500" /> : <User className="h-5 w-5 text-blue-500" />}
+                  {u.rol === "ADMIN" ? <Shield className="h-5 w-5 text-purple-500" /> : <User className="h-5 w-5 text-viria-500" />}
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{u.nombre}</p>
                     <p className="text-xs text-slate-500">{u.email} · {u.rol}</p>

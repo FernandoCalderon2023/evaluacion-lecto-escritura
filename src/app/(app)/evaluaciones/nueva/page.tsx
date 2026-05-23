@@ -35,7 +35,7 @@ export default async function NuevaEvaluacionPage({
         <Card>
           <CardContent className="py-12 text-center text-slate-500">
             <p>Primero debes registrar al menos un estudiante.</p>
-            <Link href="/estudiantes/nuevo" className="text-blue-600 hover:underline mt-2 inline-block">
+            <Link href="/estudiantes/nuevo" className="text-viria-600 hover:underline mt-2 inline-block">
               Registrar estudiante
             </Link>
           </CardContent>

@@ -15,7 +15,7 @@ export function Step17BpmTonicidad({ state, set }: Props) {
         <div className="grid grid-cols-4 gap-2">
           <span><strong className="text-red-600">1</strong> — Débil (apráxico)</span>
           <span><strong className="text-yellow-600">2</strong> — Satisfactorio (dispráxico)</span>
-          <span><strong className="text-blue-600">3</strong> — Bueno (eupráxico)</span>
+          <span><strong className="text-viria-600">3</strong> — Bueno (eupráxico)</span>
           <span><strong className="text-green-600">4</strong> — Excelente (hiperpráxico)</span>
         </div>
       </div>
@@ -33,8 +33,8 @@ export function Step17BpmTonicidad({ state, set }: Props) {
                   onClick={() => set("bpm_tipoSomatico")(state.bpm_tipoSomatico === tipo ? null : tipo)}
                   className={`px-4 py-2 rounded-lg border-2 text-sm font-bold transition-all ${
                     state.bpm_tipoSomatico === tipo
-                      ? "bg-blue-600 border-blue-600 text-white shadow-md"
-                      : "bg-white border-slate-300 text-slate-700 hover:border-blue-400"
+                      ? "bg-viria-600 border-viria-600 text-white shadow-md"
+                      : "bg-white border-slate-300 text-slate-700 hover:border-viria-400"
                   }`}
                 >
                   {tipo}
@@ -49,7 +49,7 @@ export function Step17BpmTonicidad({ state, set }: Props) {
               placeholder="Describir desviaciones observadas..."
               value={state.bpm_desviacionesPosturales ?? ""}
               onChange={(e) => set("bpm_desviacionesPosturales")(e.target.value || null)}
-              className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500"
             />
           </div>
         </div>
@@ -66,7 +66,7 @@ export function Step17BpmTonicidad({ state, set }: Props) {
               placeholder="Ej: 15 segundos"
               value={state.bpm_apneaDuracion ?? ""}
               onChange={(e) => set("bpm_apneaDuracion")(e.target.value || null)}
-              className="w-full max-w-xs border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full max-w-xs border-2 border-slate-300 bg-white text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500"
             />
           </div>
       </div>
