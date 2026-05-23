@@ -157,7 +157,7 @@ export default function AcercaPage() {
             <Logo variant="default" size={36} showTagline={true} />
           </div>
           <p className="text-xs text-slate-500 max-w-md mx-auto mt-2">
-            VirIA desarrolla soluciones de evaluación inteligente para el contexto educativo de Latinoamérica.
+            VirIA desarrolla soluciones de evaluación inteligente.
           </p>
         </section>
 

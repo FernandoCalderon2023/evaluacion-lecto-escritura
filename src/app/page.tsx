@@ -219,8 +219,7 @@ export default function LandingPage() {
           </div>
           <p className="text-slate-700 text-lg lg:text-2xl max-w-3xl mx-auto leading-relaxed font-light">
             VirIA desarrolla soluciones de{" "}
-            <strong className="text-viria-700 font-bold">evaluación inteligente</strong>{" "}
-            para el contexto educativo de Latinoamérica.
+            <strong className="text-viria-700 font-bold">evaluación inteligente</strong>.
           </p>
         </div>
       </section>
