@@ -200,29 +200,28 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Marco legal */}
-      <section className="bg-slate-900 text-white py-12">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-slate-400 text-sm mb-2">Enmarcado en</p>
-          <p className="text-lg font-medium">
-            Ley 070 Avelino Siñani — Elizardo Pérez · Modelo Educativo EPCV · R.M. 1040/2022
-          </p>
-          <p className="text-slate-400 text-sm mt-2">
-            Ministerio de Educación del Estado Plurinacional de Bolivia
-          </p>
+      {/* SIDEDA es un producto de VirIA — sección destacada */}
+      <section className="relative bg-gradient-to-br from-viria-50 via-white to-orchid-400/10 py-24 lg:py-32 border-y border-viria-100 overflow-hidden">
+        {/* Decoración sutil */}
+        <div className="absolute inset-0 pointer-events-none opacity-40">
+          <div className="absolute top-16 left-12 w-2 h-2 rounded-full bg-viria-300" />
+          <div className="absolute top-24 right-24 w-3 h-3 rounded-full bg-orchid-400" />
+          <div className="absolute bottom-20 left-1/4 w-2 h-2 rounded-full bg-viria-400" />
+          <div className="absolute bottom-32 right-1/3 w-2.5 h-2.5 rounded-full bg-orchid-500" />
         </div>
-      </section>
 
-      {/* Autora */}
-      <section className="bg-white py-12 border-t border-slate-100">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-slate-400 text-xs uppercase tracking-wide mb-2">Desarrollado por</p>
-          <p className="text-xl font-bold text-slate-900">Lic. Lourdes Olivares Franquel</p>
-          <p className="text-slate-500 text-sm mt-1">Tesis de investigación en Educación Especial</p>
-          <div className="mt-6 inline-flex items-center gap-2 text-xs text-slate-400">
-            <span>SIDEDA es un producto de</span>
-            <Logo variant="default" size={16} showTagline={false} className="opacity-80" />
+        <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
+          <p className="text-viria-700 text-sm lg:text-base font-bold uppercase tracking-[0.35em] mb-10">
+            SIDEDA es un producto de
+          </p>
+          <div className="flex justify-center mb-8">
+            <Logo variant="default" size={120} showTagline={true} />
           </div>
+          <p className="text-slate-700 text-lg lg:text-2xl max-w-3xl mx-auto leading-relaxed font-light">
+            VirIA desarrolla soluciones de{" "}
+            <strong className="text-viria-700 font-bold">evaluación inteligente</strong>{" "}
+            para el contexto educativo de Latinoamérica.
+          </p>
         </div>
       </section>
 
