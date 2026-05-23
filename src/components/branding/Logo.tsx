@@ -22,7 +22,7 @@ export function Logo({ variant = "default", size = 32, showText = true, showTagl
 
   return (
     <div className={cn("inline-flex items-center gap-2.5", className)}>
-      {/* Isotipo: cerebro neural */}
+      {/* Isotipo: cerebro de costado (vista lateral) */}
       <svg
         width={size}
         height={size}
@@ -38,34 +38,71 @@ export function Logo({ variant = "default", size = 32, showText = true, showTagl
             <stop offset="100%" stopColor="#058A9A" />
           </linearGradient>
         </defs>
-        {/* Silueta cerebro estilizada con nodos */}
-        <path
-          d="M22 14c-5 0-9 4-9 9 0 2 .5 4 1.5 5.5C13 30 12 32 12 35c0 3 1.5 5.5 4 7-.5 1.5-.5 3 0 4.5 1 3 4 5 7.5 5 1 0 2-.2 3-.6.8 1.6 2.5 2.6 4.5 2.6s3.7-1 4.5-2.6c1 .4 2 .6 3 .6 3.5 0 6.5-2 7.5-5 .5-1.5.5-3 0-4.5 2.5-1.5 4-4 4-7 0-3-1-5-2.5-6.5C49.5 27 50 25 50 23c0-5-4-9-9-9-2 0-3.8.7-5.3 1.8C34.5 14.6 33.3 14 32 14s-2.5.6-3.7 1.8C26.8 14.7 25 14 22 14z"
-          stroke={iconColor ?? "url(#viria-brain)"}
-          strokeWidth="1.5"
-          fill={variant === "mono" ? "currentColor" : "none"}
-        />
-        {/* Nodos de red neuronal */}
-        <circle cx="20" cy="24" r="2" fill={iconColor ?? "#0FBFC9"} />
-        <circle cx="32" cy="20" r="2" fill={iconColor ?? "#0FBFC9"} />
-        <circle cx="44" cy="24" r="2" fill={iconColor ?? "#0FBFC9"} />
-        <circle cx="20" cy="38" r="2" fill={iconColor ?? "#058A9A"} />
-        <circle cx="32" cy="34" r="2.5" fill={iconColor ?? "#058A9A"} />
-        <circle cx="44" cy="38" r="2" fill={iconColor ?? "#058A9A"} />
-        <circle cx="26" cy="48" r="2" fill={iconColor ?? "#0FBFC9"} />
-        <circle cx="38" cy="48" r="2" fill={iconColor ?? "#0FBFC9"} />
-        {/* Conexiones entre nodos */}
-        <g stroke={iconColor ?? "#0FBFC9"} strokeWidth="0.8" opacity="0.6">
-          <line x1="20" y1="24" x2="32" y2="20" />
-          <line x1="32" y1="20" x2="44" y2="24" />
-          <line x1="20" y1="24" x2="32" y2="34" />
-          <line x1="32" y1="34" x2="44" y2="24" />
-          <line x1="20" y1="38" x2="32" y2="34" />
-          <line x1="32" y1="34" x2="44" y2="38" />
-          <line x1="20" y1="38" x2="26" y2="48" />
-          <line x1="44" y1="38" x2="38" y2="48" />
-          <line x1="26" y1="48" x2="38" y2="48" />
-        </g>
+        {(() => {
+          const strokeColor = iconColor ?? "url(#viria-brain)"
+          const fillColor = variant === "mono" ? "currentColor" : "none"
+          return (
+            <g
+              stroke={strokeColor}
+              fill={fillColor}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              {/* Silueta del cerebro vista de costado (frente a la izquierda) */}
+              <path
+                d="M 30 8
+                   C 20 8, 12 14, 11 23
+                   C 5 26, 5 34, 11 37
+                   C 10 44, 15 50, 22 50
+                   C 22 55, 28 57, 32 54
+                   C 36 57, 42 55, 42 50
+                   C 49 50, 54 45, 53 38
+                   C 59 36, 59 28, 53 25
+                   C 54 16, 46 9, 37 11
+                   C 35 8, 32 8, 30 8 Z"
+                strokeWidth="2"
+              />
+              {/* Surco central — pliegue principal del cerebro */}
+              <path
+                d="M 30 11 C 28 18, 34 24, 30 31 C 26 39, 36 44, 32 54"
+                strokeWidth="1.4"
+                opacity="0.85"
+              />
+              {/* Giro frontal */}
+              <path
+                d="M 17 22 C 21 23, 22 28, 19 32"
+                strokeWidth="1.2"
+                opacity="0.7"
+              />
+              {/* Giro parietal */}
+              <path
+                d="M 42 18 C 47 22, 44 28, 48 32"
+                strokeWidth="1.2"
+                opacity="0.7"
+              />
+              {/* Giro temporal */}
+              <path
+                d="M 15 40 C 19 41, 22 44, 21 48"
+                strokeWidth="1.2"
+                opacity="0.7"
+              />
+              {/* Cerebelo */}
+              <path
+                d="M 40 50 C 44 54, 50 52, 50 47 C 52 44, 48 42, 44 44"
+                strokeWidth="1.5"
+              />
+              {/* Tallo cerebral */}
+              <path
+                d="M 34 56 L 34 60 M 38 56 L 38 60"
+                strokeWidth="1.5"
+              />
+              {/* Acentos neuronales sutiles */}
+              <circle cx="22" cy="18" r="1.3" fill={iconColor ?? "#0FBFC9"} stroke="none" />
+              <circle cx="46" cy="26" r="1.3" fill={iconColor ?? "#058A9A"} stroke="none" />
+              <circle cx="26" cy="44" r="1.3" fill={iconColor ?? "#0FBFC9"} stroke="none" />
+            </g>
+          )
+        })()}
       </svg>
 
       {/* Texto */}
