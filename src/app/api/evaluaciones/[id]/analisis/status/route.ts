@@ -30,7 +30,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   // Si pasaron jobId específico
   if (jobId) {
-    const job = await prisma.analysisJob.findUnique({ where: { id: jobId } })
+    // Scope: el job debe pertenecer a esta evaluación (cuya propiedad ya se verificó arriba).
+    const job = await prisma.analysisJob.findFirst({ where: { id: jobId, evaluacionId: params.id } })
     if (!job) return NextResponse.json({ status: "not_found" }, { status: 404 })
 
     if (job.status === "done") {

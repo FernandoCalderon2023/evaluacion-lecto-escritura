@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAdmin } from "@/lib/apiAuth"
 import { createClient } from "@libsql/client"
 
 export const maxDuration = 30
@@ -48,12 +49,9 @@ async function runMigration() {
   return log
 }
 
-export async function GET(req: NextRequest) {
-  const token = (new URL(req.url).searchParams.get("token") || "").trim()
-  const expected = (process.env.NEXTAUTH_SECRET || "").trim()
-  if (token !== expected) {
-    return NextResponse.json({ error: "Token inválido" }, { status: 403 })
-  }
+export async function GET() {
+  const gate = await requireAdmin()
+  if (!gate.ok) return gate.response
   try {
     const log = await runMigration()
     return NextResponse.json({ ok: true, log })

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { anthropic } from "@/lib/anthropic"
 import { redis } from "@/lib/ratelimit"
+import { requireAdmin } from "@/lib/apiAuth"
 
 export const maxDuration = 30
 
@@ -12,12 +13,9 @@ export const maxDuration = 30
  *
  * Uso: curl https://sideda.com/api/admin/warmup?token=NEXTAUTH_SECRET
  */
-export async function GET(req: NextRequest) {
-  const token = (new URL(req.url).searchParams.get("token") || "").trim()
-  const expected = (process.env.NEXTAUTH_SECRET || "").trim()
-  if (token !== expected) {
-    return NextResponse.json({ error: "Token inválido" }, { status: 403 })
-  }
+export async function GET() {
+  const gate = await requireAdmin()
+  if (!gate.ok) return gate.response
 
   const start = Date.now()
   const results: Record<string, { ok: boolean; ms?: number; error?: string }> = {}

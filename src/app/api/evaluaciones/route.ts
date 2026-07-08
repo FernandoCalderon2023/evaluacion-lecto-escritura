@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { calcularScores } from "@/lib/scoring"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getAuthContext, unauthorizedResponse, forbiddenResponse, canAccessResource, ownerScope } from "@/lib/apiAuth"
+import { evaluacionSchema, validationError, stripServerControlledEvalFields } from "@/lib/validators"
+import { ZodError } from "zod"
 
 export async function GET(req: NextRequest) {
+  const auth = await getAuthContext()
+  if (!auth) return unauthorizedResponse()
+
   const { searchParams } = new URL(req.url)
   const estudianteId = searchParams.get("estudianteId")
 
+  // Aislamiento por docente (admin ve todo).
+  const where: any = { ...ownerScope(auth) }
+  if (estudianteId) where.estudianteId = estudianteId
+
   const evaluaciones = await prisma.evaluacion.findMany({
-    where: estudianteId ? { estudianteId } : undefined,
+    where,
     orderBy: { fecha: "desc" },
     include: {
       estudiante: {
@@ -21,40 +29,64 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json()
+  try {
+    const auth = await getAuthContext()
+    if (!auth) return unauthorizedResponse()
 
-  // Convertir fecha a ISO-8601 completo que Prisma acepta
-  const fecha = body.fecha ? new Date(body.fecha).toISOString() : new Date().toISOString()
+    const body = await req.json()
+    // Solo exigimos estudianteId (para verificar propiedad). El resto de los campos los
+    // gobierna el wizard; no reintroducimos validación estricta que rechace guardados
+    // parciales que antes funcionaban (p. ej. "Evaluador" en blanco).
+    const estudianteId = typeof body?.estudianteId === "string" ? body.estudianteId.trim() : ""
+    if (!estudianteId) {
+      return NextResponse.json({ error: "estudianteId requerido" }, { status: 400 })
+    }
 
-  // Calcular scores del servidor
-  const scores = calcularScores(body)
+    // El estudiante debe pertenecer al docente (o ser admin).
+    const estudiante = await prisma.estudiante.findUnique({
+      where: { id: estudianteId },
+      select: { docenteId: true },
+    })
+    if (!estudiante) return NextResponse.json({ error: "Estudiante no encontrado" }, { status: 404 })
+    if (!canAccessResource(auth, estudiante.docenteId)) return forbiddenResponse()
 
-  // Preparar datos BPM calculados
-  const bpmScores = scores.bpm.applied ? {
-    bpmScoreTonicidad: scores.bpm.tonicidad.score,
-    bpmScoreEquilibrio: scores.bpm.equilibrio.score,
-    bpmScoreLateralidad: scores.bpm.lateralidad.score,
-    bpmScoreNocionCuerpo: scores.bpm.nocionCuerpo.score,
-    bpmScoreEstructuracionET: scores.bpm.estructuracionET.score,
-    bpmScorePraxiaGlobal: scores.bpm.praxiaGlobal.score,
-    bpmScorePraxiaFina: scores.bpm.praxiaFina.score,
-    bpmPerfilGeneral: scores.bpm.perfilGeneral,
-  } : {}
+    // Quitar campos controlados por el servidor antes del spread.
+    const clean = stripServerControlledEvalFields(body)
+    const fecha = clean.fecha ? new Date(clean.fecha as string).toISOString() : new Date().toISOString()
 
-  const session = await getServerSession(authOptions)
-  const docenteId = (session?.user as any)?.id
+    // Calcular scores del servidor
+    const scores = calcularScores(clean)
 
-  const evaluacion = await prisma.evaluacion.create({
-    data: {
-      ...body,
-      fecha,
-      docenteId,
-      scoreCognitivo: scores.cognitivo.totalCorrect,
-      scoreLexical: scores.lexical.totalCorrect,
-      scoreComprension: scores.lectura.comprensionTotal,
-      estadoAprendizaje: scores.estadoGeneral,
-      ...bpmScores,
-    },
-  })
-  return NextResponse.json(evaluacion, { status: 201 })
+    const bpmScores = scores.bpm.applied ? {
+      bpmScoreTonicidad: scores.bpm.tonicidad.score,
+      bpmScoreEquilibrio: scores.bpm.equilibrio.score,
+      bpmScoreLateralidad: scores.bpm.lateralidad.score,
+      bpmScoreNocionCuerpo: scores.bpm.nocionCuerpo.score,
+      bpmScoreEstructuracionET: scores.bpm.estructuracionET.score,
+      bpmScorePraxiaGlobal: scores.bpm.praxiaGlobal.score,
+      bpmScorePraxiaFina: scores.bpm.praxiaFina.score,
+      bpmPerfilGeneral: scores.bpm.perfilGeneral,
+    } : {}
+
+    const evaluacion = await prisma.evaluacion.create({
+      data: {
+        ...clean,
+        fecha,
+        docenteId: auth.userId,
+        scoreCognitivo: scores.cognitivo.totalCorrect,
+        scoreLexical: scores.lexical.totalCorrect,
+        scoreComprension: scores.lectura.comprensionTotal,
+        estadoAprendizaje: scores.estadoGeneral,
+        ...bpmScores,
+      },
+    })
+    return NextResponse.json(evaluacion, { status: 201 })
+  } catch (err: unknown) {
+    if (err instanceof ZodError) {
+      return NextResponse.json(validationError(err), { status: 400 })
+    }
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error("[evaluaciones/POST]", msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { put, list, del } from "@vercel/blob"
 import * as Sentry from "@sentry/nextjs"
+import { getAuthContext } from "@/lib/apiAuth"
 
 export const maxDuration = 300
 
@@ -12,8 +13,8 @@ export const maxDuration = 300
  *   { "crons": [{ "path": "/api/cron/backup", "schedule": "0 3 * * *" }] }
  *
  * Vercel invoca este endpoint con header `Authorization: Bearer <CRON_SECRET>`.
- * Si CRON_SECRET no está configurado, también acepta token vía query (?token=...)
- * para invocación manual de prueba.
+ * Para invocación manual, requiere una sesión de administrador autenticada.
+ * (Configura CRON_SECRET en las variables de entorno de Vercel para el cron.)
  */
 async function isAuthorized(req: NextRequest): Promise<boolean> {
   const cronSecret = process.env.CRON_SECRET?.trim()
@@ -22,10 +23,9 @@ async function isAuthorized(req: NextRequest): Promise<boolean> {
   // Vercel Cron envía Authorization: Bearer <CRON_SECRET>
   if (cronSecret && auth === `Bearer ${cronSecret}`) return true
 
-  // Fallback: token por query string (para invocación manual)
-  const queryToken = new URL(req.url).searchParams.get("token")?.trim()
-  const fallback = (process.env.NEXTAUTH_SECRET ?? "").trim()
-  if (queryToken && fallback && queryToken === fallback) return true
+  // Invocación manual: solo administradores autenticados (sin secretos en la URL)
+  const ctx = await getAuthContext()
+  if (ctx?.isAdmin) return true
 
   return false
 }
@@ -64,7 +64,7 @@ async function runBackup() {
 
   // Subir a Vercel Blob (sobreescribe si ya existe el del día)
   const blob = await put(filename, json, {
-    access: "public",
+    access: "private",
     addRandomSuffix: false,
     contentType: "application/json",
   })

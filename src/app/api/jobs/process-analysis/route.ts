@@ -122,6 +122,22 @@ async function handler(req: NextRequest) {
   }
 }
 
-// En desarrollo (sin signing keys) deshabilitamos verificación
-const isDev = !process.env.QSTASH_CURRENT_SIGNING_KEY
-export const POST = isDev ? handler : verifySignatureAppRouter(handler)
+// Verificación de firma QStash.
+//  - Con signing key: verificación OBLIGATORIA (verifySignatureAppRouter).
+//  - Sin signing key en producción: fail-closed (503) para no dejar el worker abierto.
+//  - Sin signing key en desarrollo: se permite (para pruebas locales sin QStash).
+const hasSigningKey = !!process.env.QSTASH_CURRENT_SIGNING_KEY
+const isProd = process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production"
+
+async function rejectUnconfigured() {
+  return NextResponse.json(
+    { error: "Worker no configurado: falta QSTASH_CURRENT_SIGNING_KEY" },
+    { status: 503 },
+  )
+}
+
+export const POST = hasSigningKey
+  ? verifySignatureAppRouter(handler)
+  : isProd
+    ? rejectUnconfigured
+    : handler
