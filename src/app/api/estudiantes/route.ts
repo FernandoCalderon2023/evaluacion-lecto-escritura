@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { getAuthContext, unauthorizedResponse, ownerScope } from "@/lib/apiAuth"
 import { estudianteSchema, validationError } from "@/lib/validators"
+import { findOrCreateUE } from "@/lib/organizaciones"
 import { ZodError } from "zod"
 
 export async function GET(req: NextRequest) {
@@ -73,12 +74,19 @@ export async function POST(req: NextRequest) {
       codigo = `${codigo}${extra}`
     }
 
+    // Enlazar a su Unidad Educativa (find-or-create normalizado, sin duplicados).
+    // Best-effort: nunca rompe la creación del estudiante si esto falla.
+    let unidadEducativaId: string | null = null
+    try { unidadEducativaId = await findOrCreateUE(data.unidadEducativa) }
+    catch (e) { console.error("[estudiantes/POST] resolver U.E.:", e) }
+
     const estudiante = await prisma.estudiante.create({
       data: {
         ...data,
         fechaNac: typeof data.fechaNac === "string" ? new Date(data.fechaNac) : data.fechaNac,
         codigo,
         docenteId,
+        unidadEducativaId,
       },
     })
     return NextResponse.json(estudiante, { status: 201 })

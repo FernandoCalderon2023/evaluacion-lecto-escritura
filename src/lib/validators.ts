@@ -42,7 +42,7 @@ export const estudianteUpdateSchema = estudianteSchema.partial()
 
 // Campos que controla el servidor: nunca deben aceptarse desde el cliente (anti-inyección vía spread).
 const SERVER_CONTROLLED_EVAL_FIELDS = [
-  "docenteId", "analisisIA", "analisisGeneradoEn",
+  "docenteId", "unidadEducativaId", "analisisIA", "analisisGeneradoEn",
   "scoreCognitivo", "scoreLexical", "scoreComprension", "estadoAprendizaje",
   "bpmScoreTonicidad", "bpmScoreEquilibrio", "bpmScoreLateralidad",
   "bpmScoreNocionCuerpo", "bpmScoreEstructuracionET", "bpmScorePraxiaGlobal",

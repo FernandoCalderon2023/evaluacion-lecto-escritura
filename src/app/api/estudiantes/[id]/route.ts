@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getAuthContext, unauthorizedResponse, forbiddenResponse, canAccessResource } from "@/lib/apiAuth"
 import { estudianteUpdateSchema, validationError } from "@/lib/validators"
+import { findOrCreateUE } from "@/lib/organizaciones"
 import { ZodError } from "zod"
 
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
@@ -35,6 +36,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const data = estudianteUpdateSchema.parse(body)
     const patch: any = { ...data }
     if (typeof data.fechaNac === "string") patch.fechaNac = new Date(data.fechaNac)
+    // Si cambió el nombre de la U.E., re-resolver su FK (find-or-create normalizado).
+    if (typeof data.unidadEducativa === "string" && data.unidadEducativa.trim()) {
+      try { patch.unidadEducativaId = await findOrCreateUE(data.unidadEducativa) }
+      catch (e) { console.error("[estudiantes/[id]/PUT] resolver U.E.:", e) }
+    }
     const est = await prisma.estudiante.update({ where: { id: params.id }, data: patch })
     return NextResponse.json(est)
   } catch (err: unknown) {
