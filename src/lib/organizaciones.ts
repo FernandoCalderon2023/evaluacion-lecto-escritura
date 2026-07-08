@@ -28,3 +28,36 @@ export async function findOrCreateUE(nombreRaw: string | null | undefined): Prom
   await prisma.organizacion.update({ where: { id: creada.id }, data: { path: creada.id } })
   return creada.id
 }
+
+/**
+ * Crea una organización en la jerarquía y calcula su `path` materializado.
+ * Raíz → path = su id. Con padre → path = padre.path + "/" + id.
+ */
+export async function crearOrganizacion(input: {
+  nombre: string
+  tipo: string
+  parentId?: string | null
+  codigoSie?: string | null
+}) {
+  const nombre = nombreLimpio(input.nombre)
+  let parentPath = ""
+  if (input.parentId) {
+    const parent = await prisma.organizacion.findUnique({
+      where: { id: input.parentId },
+      select: { id: true, path: true },
+    })
+    if (!parent) throw new Error("Organización superior no encontrada")
+    parentPath = parent.path || parent.id
+  }
+  const org = await prisma.organizacion.create({
+    data: {
+      nombre,
+      tipo: input.tipo,
+      parentId: input.parentId ?? null,
+      codigoSie: input.codigoSie ?? null,
+      path: "",
+    },
+  })
+  const path = parentPath ? `${parentPath}/${org.id}` : org.id
+  return prisma.organizacion.update({ where: { id: org.id }, data: { path } })
+}

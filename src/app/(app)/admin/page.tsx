@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { AdminPanel } from "@/components/admin/AdminPanel"
+import { RolesPanel } from "@/components/admin/RolesPanel"
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions)
@@ -29,6 +30,14 @@ export default async function AdminPage() {
         <p className="text-slate-500 text-sm mt-1">Crear, activar y desactivar cuentas de docentes</p>
       </div>
       <AdminPanel usuarios={usuarios} />
+
+      <div className="pt-4 border-t border-slate-200">
+        <h2 className="text-xl font-bold text-slate-900">Organizaciones y roles</h2>
+        <p className="text-slate-500 text-sm mt-1 mb-4">
+          Creá la estructura (departamentos, distritos, unidades educativas) y asigná directores/as y distritales.
+        </p>
+        <RolesPanel usuarios={usuarios.map((u) => ({ id: u.id, nombre: u.nombre, email: u.email }))} />
+      </div>
     </div>
   )
 }

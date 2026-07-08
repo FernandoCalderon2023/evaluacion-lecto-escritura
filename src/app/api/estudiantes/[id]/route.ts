@@ -42,6 +42,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       catch (e) { console.error("[estudiantes/[id]/PUT] resolver U.E.:", e) }
     }
     const est = await prisma.estudiante.update({ where: { id: params.id }, data: patch })
+    // Sincronizar la U.E. denormalizada de las evaluaciones del estudiante: evita que
+    // un director de la U.E. anterior conserve acceso a la PII del menor tras un traslado.
+    if (typeof patch.unidadEducativaId !== "undefined") {
+      await prisma.evaluacion.updateMany({
+        where: { estudianteId: params.id },
+        data: { unidadEducativaId: patch.unidadEducativaId },
+      })
+    }
     return NextResponse.json(est)
   } catch (err: unknown) {
     if (err instanceof ZodError) {

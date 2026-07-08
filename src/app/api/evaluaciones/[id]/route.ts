@@ -13,7 +13,11 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
     include: { estudiante: true },
   })
   if (!ev) return NextResponse.json({ error: "No encontrado" }, { status: 404 })
-  if (!(await canViewInScope(auth, ev))) return forbiddenResponse()
+  // Autorizar por la U.E. ACTUAL del estudiante (no la copia denormalizada de la evaluación),
+  // para no dejar acceso a un director de la U.E. anterior tras un traslado del menor.
+  if (!(await canViewInScope(auth, { docenteId: ev.docenteId, unidadEducativaId: ev.estudiante?.unidadEducativaId ?? null }))) {
+    return forbiddenResponse()
+  }
   return NextResponse.json(ev)
 }
 
