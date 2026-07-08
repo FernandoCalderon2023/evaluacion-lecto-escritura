@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     // El estudiante debe pertenecer al docente (o ser admin).
     const estudiante = await prisma.estudiante.findUnique({
       where: { id: estudianteId },
-      select: { docenteId: true },
+      select: { docenteId: true, unidadEducativaId: true },
     })
     if (!estudiante) return NextResponse.json({ error: "Estudiante no encontrado" }, { status: 404 })
     if (!canAccessResource(auth, estudiante.docenteId)) return forbiddenResponse()
@@ -77,6 +77,8 @@ export async function POST(req: NextRequest) {
         scoreLexical: scores.lexical.totalCorrect,
         scoreComprension: scores.lectura.comprensionTotal,
         estadoAprendizaje: scores.estadoGeneral,
+        // Hereda la U.E. del estudiante (para agregación por colegio).
+        unidadEducativaId: estudiante.unidadEducativaId ?? null,
         ...bpmScores,
       },
     })
