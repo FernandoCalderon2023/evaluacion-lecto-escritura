@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getAuthContext, resolveScope } from "@/lib/apiAuth"
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -14,15 +14,14 @@ export default async function EstudiantesPage({
   searchParams: { q?: string }
 }) {
   const q = searchParams.q ?? ""
-  const session = await getServerSession(authOptions)
-  const isAdmin = (session?.user as any)?.role === "ADMIN"
-  const docenteId = (session?.user as any)?.id
+  const auth = await getAuthContext()
+  if (!auth) redirect("/login")
+  const scope = await resolveScope(auth, "individual")
+  const search = q ? { OR: [{ codigo: { contains: q } }, { nombre: { contains: q } }, { apellido1: { contains: q } }] } : null
+  const where: any = search ? { AND: [scope, search] } : scope
 
   const estudiantes = await prisma.estudiante.findMany({
-    where: {
-      ...(q ? { OR: [{ codigo: { contains: q } }, { nombre: { contains: q } }, { apellido1: { contains: q } }] } : {}),
-      ...(isAdmin ? {} : { docenteId }),
-    },
+    where,
     orderBy: { createdAt: "desc" },
     include: { _count: { select: { evaluaciones: true } } },
   })

@@ -2,8 +2,8 @@ export const dynamic = "force-dynamic"
 export const revalidate = 30 // cache 30 segundos
 
 import { prisma } from "@/lib/prisma"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getAuthContext, resolveScope } from "@/lib/apiAuth"
+import { redirect } from "next/navigation"
 import { unstable_cache } from "next/cache"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -12,8 +12,7 @@ import Link from "next/link"
 
 // Cache de datos del dashboard por docente (30s)
 const getDashboardData = unstable_cache(
-  async (docenteId: string | null, isAdmin: boolean) => {
-    const filtro = isAdmin ? {} : { docenteId: docenteId ?? "__none__" }
+  async (_cacheKey: string, filtro: any) => {
     const [totalEst, totalEv, porEstado, recientes] = await Promise.all([
       prisma.estudiante.count({ where: filtro }),
       prisma.evaluacion.count({ where: filtro }),
@@ -39,11 +38,11 @@ const ESTADO_CONFIG = {
 }
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions)
-  const isAdmin = (session?.user as any)?.role === "ADMIN"
-  const docenteId = (session?.user as any)?.id
+  const auth = await getAuthContext()
+  if (!auth) redirect("/login")
+  const scope = await resolveScope(auth, "aggregate")
 
-  const { totalEst, totalEv, porEstado, recientes } = await getDashboardData(docenteId ?? null, isAdmin)
+  const { totalEst, totalEv, porEstado, recientes } = await getDashboardData(auth.userId, scope)
 
   const estadoMap: Record<string, number> = {}
   for (const r of porEstado) estadoMap[r.estadoAprendizaje ?? "sin-evaluar"] = r._count._all

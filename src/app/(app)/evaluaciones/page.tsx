@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getAuthContext, resolveScope } from "@/lib/apiAuth"
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Plus } from "lucide-react"
@@ -15,16 +15,14 @@ const ESTADO_CONFIG = {
 }
 
 export default async function EvaluacionesPage({ searchParams }: { searchParams: { estado?: string } }) {
-  const session = await getServerSession(authOptions)
-  const isAdmin = (session?.user as any)?.role === "ADMIN"
-  const docenteId = (session?.user as any)?.id
+  const auth = await getAuthContext()
+  if (!auth) redirect("/login")
   const filtroEstado = searchParams.estado
+  const scope = await resolveScope(auth, "individual")
+  const where: any = filtroEstado ? { AND: [scope, { estadoAprendizaje: filtroEstado }] } : scope
 
   const evaluaciones = await prisma.evaluacion.findMany({
-    where: {
-      ...(filtroEstado ? { estadoAprendizaje: filtroEstado } : {}),
-      ...(isAdmin ? {} : { docenteId }),
-    },
+    where,
     orderBy: { fecha: "desc" },
     include: {
       estudiante: { select: { codigo: true, grado: true, unidadEducativa: true } },

@@ -1,9 +1,8 @@
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { notFound } from "next/navigation"
+import { getAuthContext, canViewInScope } from "@/lib/apiAuth"
+import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Printer } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,16 +33,15 @@ const AREA_COLOR = {
 }
 
 export default async function EvaluacionResultadoPage({ params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions)
-  const isAdmin = (session?.user as any)?.role === "ADMIN"
-  const docenteId = (session?.user as any)?.id
+  const auth = await getAuthContext()
+  if (!auth) redirect("/login")
 
   const ev = await prisma.evaluacion.findUnique({
     where: { id: params.id },
     include: { estudiante: true },
   })
   if (!ev) notFound()
-  if (!isAdmin && ev.docenteId !== docenteId) notFound()
+  if (!(await canViewInScope(auth, { docenteId: ev.docenteId, unidadEducativaId: ev.estudiante?.unidadEducativaId ?? null }))) notFound()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const scores = calcularScores(ev as any)
