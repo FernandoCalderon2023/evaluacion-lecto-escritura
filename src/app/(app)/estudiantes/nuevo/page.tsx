@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,15 @@ export default function NuevoEstudiantePage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const [unidades, setUnidades] = useState<string[]>([])
+
+  // Sugerencias de Unidad Educativa (para evitar duplicados de tipeo)
+  useEffect(() => {
+    fetch("/api/organizaciones/ue")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => setUnidades(Array.isArray(data) ? data.map((u: { nombre: string }) => u.nombre) : []))
+      .catch(() => {})
+  }, [])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -35,6 +44,10 @@ export default function NuevoEstudiantePage() {
         body: JSON.stringify(data),
       })
       const est = await res.json()
+      if (!res.ok) {
+        toast({ title: est?.error ?? "Error al guardar", variant: "destructive" })
+        return
+      }
       toast({ title: "Estudiante registrado correctamente" })
       router.push(`/estudiantes/${est.id}`)
     } catch {
@@ -98,7 +111,13 @@ export default function NuevoEstudiantePage() {
             </div>
             <div className="space-y-1">
               <Label htmlFor="unidadEducativa">Unidad Educativa *</Label>
-              <Input id="unidadEducativa" name="unidadEducativa" required />
+              <Input id="unidadEducativa" name="unidadEducativa" list="ue-list" autoComplete="off" required />
+              <datalist id="ue-list">
+                {unidades.map((u) => (
+                  <option key={u} value={u} />
+                ))}
+              </datalist>
+              <p className="text-xs text-slate-500">Empezá a escribir: si el colegio ya existe, elegilo de la lista.</p>
             </div>
             <div className="space-y-1">
               <Label htmlFor="docente">Docente responsable *</Label>

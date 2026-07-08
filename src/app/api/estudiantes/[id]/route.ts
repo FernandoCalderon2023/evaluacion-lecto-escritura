@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { getAuthContext, unauthorizedResponse, forbiddenResponse, canAccessResource } from "@/lib/apiAuth"
+import { getAuthContext, unauthorizedResponse, forbiddenResponse, canAccessResource, canViewInScope } from "@/lib/apiAuth"
 import { estudianteUpdateSchema, validationError } from "@/lib/validators"
 import { findOrCreateUE } from "@/lib/organizaciones"
 import { ZodError } from "zod"
@@ -19,7 +19,7 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
     },
   })
   if (!est) return NextResponse.json({ error: "No encontrado" }, { status: 404 })
-  if (!canAccessResource(auth, est.docenteId)) return forbiddenResponse()
+  if (!(await canViewInScope(auth, est))) return forbiddenResponse()
   return NextResponse.json(est)
 }
 

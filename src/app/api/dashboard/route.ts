@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { getAuthContext, unauthorizedResponse, ownerScope } from "@/lib/apiAuth"
+import { getAuthContext, unauthorizedResponse, resolveScope } from "@/lib/apiAuth"
 
 export const dynamic = "force-dynamic"
 
@@ -8,8 +8,8 @@ export async function GET() {
   const auth = await getAuthContext()
   if (!auth) return unauthorizedResponse()
 
-  // Aislamiento por docente (admin ve el agregado global).
-  const scope = ownerScope(auth)
+  // Scope jerárquico agregado (docente / director / distrital / departamental / admin).
+  const scope = await resolveScope(auth, "aggregate")
 
   const [totalEstudiantes, totalEvaluaciones, porEstado] = await Promise.all([
     prisma.estudiante.count({ where: scope }),

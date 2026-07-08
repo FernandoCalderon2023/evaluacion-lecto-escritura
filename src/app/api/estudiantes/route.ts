@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { getAuthContext, unauthorizedResponse, ownerScope } from "@/lib/apiAuth"
+import { getAuthContext, unauthorizedResponse, resolveScope } from "@/lib/apiAuth"
 import { estudianteSchema, validationError } from "@/lib/validators"
 import { findOrCreateUE } from "@/lib/organizaciones"
 import { ZodError } from "zod"
@@ -14,16 +14,17 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const q = searchParams.get("q") ?? ""
 
-  // Aislamiento por docente: un docente solo ve sus estudiantes; admin ve todos.
-  const where: any = { ...ownerScope(auth) }
-  if (q) {
-    where.OR = [
-      { codigo: { contains: q } },
-      { nombre: { contains: q } },
-      { apellido1: { contains: q } },
-      { apellido2: { contains: q } },
-    ]
-  }
+  // Scope jerárquico: docente = lo suyo, director = su U.E., admin = todo.
+  const scope = await resolveScope(auth, "individual")
+  const search = q
+    ? { OR: [
+        { codigo: { contains: q } },
+        { nombre: { contains: q } },
+        { apellido1: { contains: q } },
+        { apellido2: { contains: q } },
+      ] }
+    : null
+  const where: any = search ? { AND: [scope, search] } : scope
 
   const estudiantes = await prisma.estudiante.findMany({
     where,

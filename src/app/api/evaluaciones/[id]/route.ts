@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { calcularScores } from "@/lib/scoring"
-import { getAuthContext, unauthorizedResponse, forbiddenResponse, canAccessResource } from "@/lib/apiAuth"
+import { getAuthContext, unauthorizedResponse, forbiddenResponse, canAccessResource, canViewInScope } from "@/lib/apiAuth"
 import { stripServerControlledEvalFields } from "@/lib/validators"
 
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
@@ -13,7 +13,7 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
     include: { estudiante: true },
   })
   if (!ev) return NextResponse.json({ error: "No encontrado" }, { status: 404 })
-  if (!canAccessResource(auth, ev.docenteId)) return forbiddenResponse()
+  if (!(await canViewInScope(auth, ev))) return forbiddenResponse()
   return NextResponse.json(ev)
 }
 

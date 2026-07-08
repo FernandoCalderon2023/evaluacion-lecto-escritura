@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { calcularScores } from "@/lib/scoring"
-import { getAuthContext, unauthorizedResponse, forbiddenResponse, canAccessResource, ownerScope } from "@/lib/apiAuth"
+import { getAuthContext, unauthorizedResponse, forbiddenResponse, canAccessResource, resolveScope } from "@/lib/apiAuth"
 import { evaluacionSchema, validationError, stripServerControlledEvalFields } from "@/lib/validators"
 import { ZodError } from "zod"
 
@@ -12,9 +12,9 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const estudianteId = searchParams.get("estudianteId")
 
-  // Aislamiento por docente (admin ve todo).
-  const where: any = { ...ownerScope(auth) }
-  if (estudianteId) where.estudianteId = estudianteId
+  // Scope jerárquico (docente / director / admin).
+  const scope = await resolveScope(auth, "individual")
+  const where: any = estudianteId ? { AND: [scope, { estudianteId }] } : scope
 
   const evaluaciones = await prisma.evaluacion.findMany({
     where,
