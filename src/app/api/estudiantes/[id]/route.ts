@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { getAuthContext, unauthorizedResponse, forbiddenResponse, canAccessResource } from "@/lib/apiAuth"
+import { estudianteUpdateSchema, validationError } from "@/lib/validators"
+import { ZodError } from "zod"
 
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await getAuthContext()
+  if (!auth) return unauthorizedResponse()
+
   const est = await prisma.estudiante.findUnique({
     where: { id: params.id },
     include: {
@@ -12,16 +18,43 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
     },
   })
   if (!est) return NextResponse.json({ error: "No encontrado" }, { status: 404 })
+  if (!canAccessResource(auth, est.docenteId)) return forbiddenResponse()
   return NextResponse.json(est)
 }
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const body = await req.json()
-  const est = await prisma.estudiante.update({ where: { id: params.id }, data: body })
-  return NextResponse.json(est)
+  const auth = await getAuthContext()
+  if (!auth) return unauthorizedResponse()
+
+  const existing = await prisma.estudiante.findUnique({ where: { id: params.id }, select: { docenteId: true } })
+  if (!existing) return NextResponse.json({ error: "No encontrado" }, { status: 404 })
+  if (!canAccessResource(auth, existing.docenteId)) return forbiddenResponse()
+
+  try {
+    const body = await req.json()
+    const data = estudianteUpdateSchema.parse(body)
+    const patch: any = { ...data }
+    if (typeof data.fechaNac === "string") patch.fechaNac = new Date(data.fechaNac)
+    const est = await prisma.estudiante.update({ where: { id: params.id }, data: patch })
+    return NextResponse.json(est)
+  } catch (err: unknown) {
+    if (err instanceof ZodError) {
+      return NextResponse.json(validationError(err), { status: 400 })
+    }
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error("[estudiantes/[id]/PUT]", msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await getAuthContext()
+  if (!auth) return unauthorizedResponse()
+
+  const existing = await prisma.estudiante.findUnique({ where: { id: params.id }, select: { docenteId: true } })
+  if (!existing) return NextResponse.json({ error: "No encontrado" }, { status: 404 })
+  if (!canAccessResource(auth, existing.docenteId)) return forbiddenResponse()
+
   try {
     // Borrar evaluaciones primero, luego el estudiante
     await prisma.evaluacion.deleteMany({ where: { estudianteId: params.id } })
@@ -29,7 +62,7 @@ export async function DELETE(_: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ ok: true })
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
-    console.error("[estudiantes/DELETE]", msg)
+    console.error("[estudiantes/[id]/DELETE]", msg)
     return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

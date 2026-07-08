@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { requireAdmin } from "@/lib/apiAuth"
 
 export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
+  const gate = await requireAdmin()
+  if (!gate.ok) return gate.response
   const url = new URL(req.url)
-  const token = (url.searchParams.get("token") || "").trim()
-  const expected = (process.env.NEXTAUTH_SECRET || "").trim()
-  if (token !== expected) {
-    return NextResponse.json({ error: "Token inválido" }, { status: 403 })
-  }
 
   const batchId = url.searchParams.get("batchId")
   if (!batchId) return NextResponse.json({ error: "batchId requerido" }, { status: 400 })

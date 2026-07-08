@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getQStash, getAppUrl } from "@/lib/qstash"
+import { requireAdmin } from "@/lib/apiAuth"
 
 export const maxDuration = 60
 
@@ -20,12 +21,9 @@ const BATCH_PREFIX = "LOADTEST"
  * Y /api/admin/load-test/cleanup?batchId=X para borrar todo.
  */
 export async function GET(req: NextRequest) {
+  const gate = await requireAdmin()
+  if (!gate.ok) return gate.response
   const url = new URL(req.url)
-  const token = (url.searchParams.get("token") || "").trim()
-  const expected = (process.env.NEXTAUTH_SECRET || "").trim()
-  if (token !== expected) {
-    return NextResponse.json({ error: "Token inválido" }, { status: 403 })
-  }
 
   const count = Math.min(parseInt(url.searchParams.get("count") || "10", 10), 100)
   const batchId = `${BATCH_PREFIX}-${Date.now()}`
@@ -202,8 +200,8 @@ export async function GET(req: NextRequest) {
       failed,
       setupMs,
       jobIds: jobs.map((j) => j.id),
-      statusUrl: `/api/admin/load-test/status?token=${token}&batchId=${batchId}`,
-      cleanupUrl: `/api/admin/load-test/cleanup?token=${token}&batchId=${batchId}`,
+      statusUrl: `/api/admin/load-test/status?batchId=${batchId}`,
+      cleanupUrl: `/api/admin/load-test/cleanup?batchId=${batchId}`,
     })
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)

@@ -36,6 +36,27 @@ export const evaluacionSchema = z.object({
   observaciones: z.string().max(2000).nullable().optional(),
 }).passthrough() // permitir campos extra del wizard
 
+// Update parcial de estudiante: todos los campos opcionales. No incluye codigo ni docenteId,
+// así que esos no pueden inyectarse desde el cliente.
+export const estudianteUpdateSchema = estudianteSchema.partial()
+
+// Campos que controla el servidor: nunca deben aceptarse desde el cliente (anti-inyección vía spread).
+const SERVER_CONTROLLED_EVAL_FIELDS = [
+  "docenteId", "analisisIA", "analisisGeneradoEn",
+  "scoreCognitivo", "scoreLexical", "scoreComprension", "estadoAprendizaje",
+  "bpmScoreTonicidad", "bpmScoreEquilibrio", "bpmScoreLateralidad",
+  "bpmScoreNocionCuerpo", "bpmScoreEstructuracionET", "bpmScorePraxiaGlobal",
+  "bpmScorePraxiaFina", "bpmPerfilGeneral",
+  "id", "createdAt", "updatedAt",
+]
+
+/** Elimina los campos controlados por el servidor de un body antes de persistirlo. */
+export function stripServerControlledEvalFields<T extends Record<string, unknown>>(body: T): T {
+  const clone: Record<string, unknown> = { ...body }
+  for (const f of SERVER_CONTROLLED_EVAL_FIELDS) delete clone[f]
+  return clone as T
+}
+
 export type EstudianteInput = z.infer<typeof estudianteSchema>
 export type UsuarioCreateInput = z.infer<typeof usuarioCreateSchema>
 export type UsuarioUpdateInput = z.infer<typeof usuarioUpdateSchema>

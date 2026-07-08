@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { requireAdmin } from "@/lib/apiAuth"
 
 export const dynamic = "force-dynamic"
 
@@ -7,13 +8,9 @@ export const dynamic = "force-dynamic"
  * Lista jobs activos y recientes para monitoreo en vivo.
  * Excluye jobs de LOADTEST.
  */
-export async function GET(req: NextRequest) {
-  const url = new URL(req.url)
-  const token = (url.searchParams.get("token") || "").trim()
-  const expected = (process.env.NEXTAUTH_SECRET || "").trim()
-  if (token !== expected) {
-    return NextResponse.json({ error: "Token inválido" }, { status: 403 })
-  }
+export async function GET() {
+  const gate = await requireAdmin()
+  if (!gate.ok) return gate.response
 
   // Últimos 15 minutos de jobs (excluyendo loadtest)
   const since = new Date(Date.now() - 15 * 60 * 1000)
