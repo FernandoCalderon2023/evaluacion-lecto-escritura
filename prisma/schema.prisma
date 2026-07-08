@@ -65,12 +65,16 @@ model Estudiante {
   codigoRude      String?
   domicilio       String?
   docenteId       String?   // ID del docente que registró al estudiante
+  // Multi-tenant (Fase 1): FK a la Unidad Educativa (Organizacion). Nullable → backfill posterior.
+  unidadEducativaId String?
+  ueOrg           Organizacion? @relation("UEEstudiantes", fields: [unidadEducativaId], references: [id])
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   evaluaciones    Evaluacion[]
 
   @@index([docenteId])
   @@index([createdAt])
+  @@index([unidadEducativaId])
 }
 
 model Evaluacion {
@@ -80,6 +84,9 @@ model Evaluacion {
   fecha        DateTime   @default(now())
   evaluador    String
   docenteId    String?   // ID del docente que realizó la evaluación
+  // Multi-tenant (Fase 1): FK a la Unidad Educativa (Organizacion). Nullable → backfill posterior.
+  unidadEducativaId String?
+  ueOrg        Organizacion? @relation("UEEvaluaciones", fields: [unidadEducativaId], references: [id])
 
   // Datos ingresados por el evaluador
   edadAlEvaluar  Int?    // Edad del estudiante al momento de la evaluación
@@ -360,4 +367,50 @@ model Evaluacion {
   @@index([estudianteId])
   @@index([fecha])
   @@index([estadoAprendizaje])
+  @@index([unidadEducativaId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Multi-tenant (Fase 1) — esquema compartido (una sola base Turso)
+// ─────────────────────────────────────────────────────────────
+
+/// Nodo de la jerarquía organizacional. Un solo modelo auto-referenciado cubre
+/// Departamento > Distrito > Unidad Educativa (y Red privada). El aislamiento es
+/// lógico (por FK + reglas en la app) sobre la base compartida.
+model Organizacion {
+  id        String         @id @default(cuid())
+  nombre    String
+  tipo      String         // DEPARTAMENTO | DISTRITO | UNIDAD_EDUCATIVA | RED
+  parentId  String?
+  parent    Organizacion?  @relation("Jerarquia", fields: [parentId], references: [id])
+  hijos     Organizacion[] @relation("Jerarquia")
+  path      String         @default("")  // Ruta materializada para consultas por subárbol
+  codigoSie String?                       // Código SIE de la U.E. (Bolivia), opcional
+  activo    Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  membresias   Membership[]
+  estudiantes  Estudiante[] @relation("UEEstudiantes")
+  evaluaciones Evaluacion[] @relation("UEEvaluaciones")
+
+  @@index([parentId])
+  @@index([tipo])
+  @@index([path])
+}
+
+/// Relación usuario ↔ organización con un rol de scope. El rol efectivo de un
+/// usuario es por-organización: docente/director de su U.E., distrital de su
+/// distrito, departamental de su departamento.
+model Membership {
+  id             String       @id @default(cuid())
+  usuarioId      String
+  organizacionId String
+  organizacion   Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
+  rol            String       // DOCENTE | DIRECTOR | DISTRITAL | DEPARTAMENTAL
+  createdAt      DateTime     @default(now())
+
+  @@unique([usuarioId, organizacionId])
+  @@index([usuarioId])
+  @@index([organizacionId])
 }
