@@ -18,11 +18,23 @@ export async function GET(req: NextRequest) {
 
   // Acción: limpiar los contadores de rate-limit del login (destraba el bloqueo por muchos intentos)
   if (url.searchParams.get("action") === "clear-login") {
-    const { redis } = await import("@/lib/ratelimit")
-    if (!redis) return NextResponse.json({ cleared: false, reason: "sin redis" })
-    const keys = await redis.keys("rl:login:*")
-    if (keys.length) await redis.del(...keys)
-    return NextResponse.json({ cleared: true, keysDeleted: keys.length })
+    try {
+      const { redis } = await import("@/lib/ratelimit")
+      if (!redis) return NextResponse.json({ cleared: false, reason: "sin redis" })
+      let keys: string[] = []
+      try {
+        keys = await redis.keys("rl:login:*")
+      } catch (e) {
+        return NextResponse.json({ cleared: false, step: "keys", error: (e as Error).message })
+      }
+      let deleted = 0
+      for (const k of keys) {
+        try { await redis.del(k); deleted++ } catch { /* seguir con las demás */ }
+      }
+      return NextResponse.json({ cleared: true, encontradas: keys.length, borradas: deleted })
+    } catch (e) {
+      return NextResponse.json({ cleared: false, error: (e as Error).message })
+    }
   }
 
   const out: Record<string, unknown> = {}
