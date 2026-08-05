@@ -10,9 +10,19 @@ export const dynamic = "force-dynamic"
  * BORRAR después de diagnosticar.
  */
 export async function GET(req: NextRequest) {
-  const token = new URL(req.url).searchParams.get("token")
+  const url = new URL(req.url)
+  const token = url.searchParams.get("token")
   if (token !== "diag-3f9a2c-temporal") {
     return NextResponse.json({ error: "no autorizado" }, { status: 403 })
+  }
+
+  // Acción: limpiar los contadores de rate-limit del login (destraba el bloqueo por muchos intentos)
+  if (url.searchParams.get("action") === "clear-login") {
+    const { redis } = await import("@/lib/ratelimit")
+    if (!redis) return NextResponse.json({ cleared: false, reason: "sin redis" })
+    const keys = await redis.keys("rl:login:*")
+    if (keys.length) await redis.del(...keys)
+    return NextResponse.json({ cleared: true, keysDeleted: keys.length })
   }
 
   const out: Record<string, unknown> = {}
