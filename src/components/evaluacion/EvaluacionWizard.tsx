@@ -126,6 +126,15 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
 
   const isLast = step === STEPS.length - 1
   const progress = ((step + 1) / STEPS.length) * 100
+  const pct = (step + 1) / STEPS.length
+  const animo = isLast
+    ? "¡Último paso! 🎉 Al guardar, VirIA prepara el informe."
+    : step === 0
+      ? "¡Empecemos! 🌟 Cada respuesta ayuda a conocer mejor al/la estudiante."
+      : pct < 0.25 ? "¡Vamos muy bien! 💪"
+        : pct < 0.5 ? "¡Buen ritmo! 🚀"
+          : pct < 0.75 ? "¡Ya pasamos la mitad! 🎯"
+            : "¡Ya casi terminamos! 🌈"
 
   return (
     <div className="space-y-6">
@@ -160,6 +169,11 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Ánimo dinámico — solo mejora la experiencia, no cambia el instrumento */}
+      <div className="flex items-center justify-center text-center text-sm font-medium text-viria-700 bg-viria-50 border border-viria-100 rounded-lg py-2 px-3 transition-all">
+        {animo}
       </div>
 
       {/* Step content */}
