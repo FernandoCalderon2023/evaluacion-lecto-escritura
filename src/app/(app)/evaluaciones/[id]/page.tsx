@@ -82,6 +82,12 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
           </Link>
           <PrintButton />
           <Link
+            href={`/evaluaciones/${ev.id}/padres`}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-viria-700 border border-viria-200 rounded-lg hover:bg-viria-50"
+          >
+            Ver para padres
+          </Link>
+          <Link
             href={`/evaluaciones/nueva?estudianteId=${est.id}`}
             className="text-sm bg-viria-600 text-white px-3 py-2 rounded-lg hover:bg-viria-700"
           >

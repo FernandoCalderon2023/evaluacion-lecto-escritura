@@ -1,5 +1,6 @@
 import { Estudiante, Evaluacion } from "@prisma/client"
 import { AllScores } from "@/types/scoring"
+import { getExpectativasCurriculares } from "@/lib/ai/curriculo"
 
 /**
  * Sistema cacheable: parte FIJA del prompt que no cambia entre evaluaciones.
@@ -133,19 +134,8 @@ function perfilLabel(p: string) {
   }[p] ?? p
 }
 
-function getExpectativasCurriculares(anio: number): string {
-  if (anio === 0) return "Año de escolaridad no identificado."
-  const edadEsperada = 5 + anio
-  const expectativas: Record<number, string> = {
-    1: `PRIMER AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Expresa experiencias y emociones usando normas de cortesía.\nLectura: Comprende textos literarios y no literarios relacionándolos con experiencias propias.\nEscritura: Escribe textos usando código alfabético considerando destinatario y propósito.\nCognitivo esperado: Nombra y describe objetos, sigue instrucciones simples, clasifica por categorías, orientación espacial básica, secuencias temporales.\nLéxico esperado: Identifica sonidos iniciales, produce rimas simples, reconoce patrones sonoros.`,
-    2: `SEGUNDO AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Interactúa expresando ideas, respetando turnos.\nLectura: Lee 60-84 palabras/min con precisión y expresividad. Comprende textos con oraciones simples.\nEscritura: Escribe textos literarios y no literarios de manera organizada.\nCognitivo esperado: Nombra y explica uso de objetos, instrucciones de dos pasos, clasifica imágenes, asociaciones verbo-objeto, secuencias temporales.\nLéxico esperado: Produce y reconoce rimas, sustituye fonemas simples, identifica omisiones.`,
-    3: `TERCER AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Expresa ideas de manera coherente y articulada según propósito y contexto.\nLectura: Lee con fluidez. Interpreta textos determinando consecuencias, comparando personajes, reconociendo problema/solución.\nEscritura: Escribe con secuencia lógica, estructura, conectores, descripciones y diálogo.\nCognitivo esperado: Análisis y síntesis concretos, inferencias básicas, causa-consecuencia.\nLéxico esperado: Rimas con fluidez, sustitución y omisión de fonemas con precisión, inversiones silábicas.`,
-    4: `CUARTO AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Interactúa fundamentando ideas con respeto.\nLectura: Hace inferencias, identifica acciones principales, describe ambiente, relaciona intención del autor, compara textos.\nEscritura: Secuencia lógica (inicio-desarrollo-desenlace), conectores, vocabulario pertinente.\nCognitivo esperado: Abstracción y generalización, lenguaje figurado, razonamiento lógico, inferencias complejas.\nLéxico esperado: Conciencia fonológica avanzada: sustitución, omisión e inversión con precisión.`,
-    5: `QUINTO AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Fundamenta ideas desde escucha activa y empatía.\nLectura: Identifica idea central, interpreta lenguaje figurado, deduce características de personajes, compara textos.\nEscritura: Estructura con idea central por párrafo, vocabulario pertinente.\nCognitivo esperado: Pensamiento abstracto consolidado, razonamiento hipotético, análisis crítico.\nLéxico esperado: Conciencia fonológica y morfológica consolidada, vocabulario amplio.`,
-    6: `SEXTO AÑO (edad esperada: ~${edadEsperada} años)\nComunicación oral: Fundamenta ideas, regula participación, crea consensos.\nLectura: Inferencias complejas, idea central, lenguaje figurado, conclusiones sustentadas.\nEscritura: Idea central por párrafo, vocabulario pertinente, investigación propia.\nCognitivo esperado: Pensamiento crítico complejo, argumentación con evidencia, metacognición.\nLéxico esperado: Dominio fonológico completo, vocabulario activo y pasivo amplio.`,
-  }
-  return expectativas[anio] ?? "Año de escolaridad fuera del rango primario (1-6)."
-}
+// getExpectativasCurriculares se movió a "@/lib/ai/curriculo" (currículo data-driven:
+// primaria R.M. 1040 + secundaria ESCP). Se importa al inicio del archivo.
 
 /**
  * Construye SOLO la parte dinámica del prompt (datos del estudiante + resultados).

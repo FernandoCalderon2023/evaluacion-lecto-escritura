@@ -4,6 +4,7 @@ import { anthropic } from "@/lib/anthropic"
 import { calcularScores } from "@/lib/scoring"
 import { SYSTEM_PROMPT_CACHEABLE, buildUserMessage } from "@/lib/ai/promptBuilder"
 import { ANALYSIS_TOOL } from "@/lib/ai/analysisSchema"
+import { deepseekEnabled, generarInformeDeepseek } from "@/lib/ai/deepseek"
 import { verifySignatureAppRouter } from "@upstash/qstash/nextjs"
 import * as Sentry from "@sentry/nextjs"
 import type { AnalisisIA } from "@/types/ai"
@@ -39,46 +40,45 @@ async function handler(req: NextRequest) {
     const scores = calcularScores(ev as any)
     const userMessage = buildUserMessage(ev.estudiante, ev, scores)
 
-    // Tool use con prompt caching para máxima eficiencia
-    const stream = anthropic.messages.stream({
-      model: "claude-sonnet-4-6",
-      max_tokens: 16000,
-      system: [
-        {
-          type: "text",
-          text: SYSTEM_PROMPT_CACHEABLE,
-          cache_control: { type: "ephemeral" },
-        },
-      ],
-      tools: [ANALYSIS_TOOL],
-      tool_choice: { type: "tool", name: ANALYSIS_TOOL.name },
-      messages: [{ role: "user", content: userMessage }],
-    })
+    let analisis: AnalisisIA
 
-    const message = await stream.finalMessage()
-    const usage = (message as any).usage
-    console.log(
-      "[process-analysis] stop_reason:",
-      message.stop_reason,
-      "usage:",
-      JSON.stringify(usage)
-    )
+    if (deepseekEnabled()) {
+      // Proveedor DeepSeek (activo si DEEPSEEK_API_KEY está en el entorno de Vercel)
+      analisis = await generarInformeDeepseek(SYSTEM_PROMPT_CACHEABLE, userMessage)
+      console.log("[process-analysis] proveedor: DeepSeek")
+    } else {
+      // Proveedor Anthropic (por defecto): tool_use con prompt caching
+      const stream = anthropic.messages.stream({
+        model: "claude-sonnet-4-6",
+        max_tokens: 16000,
+        system: [
+          {
+            type: "text",
+            text: SYSTEM_PROMPT_CACHEABLE,
+            cache_control: { type: "ephemeral" },
+          },
+        ],
+        tools: [ANALYSIS_TOOL],
+        tool_choice: { type: "tool", name: ANALYSIS_TOOL.name },
+        messages: [{ role: "user", content: userMessage }],
+      })
 
-    // Buscar el tool_use block (Claude lo devuelve directamente, sin parsear texto)
-    const toolUseBlock = message.content.find(
-      (block) => block.type === "tool_use"
-    ) as { type: "tool_use"; name: string; input: AnalisisIA } | undefined
+      const message = await stream.finalMessage()
+      console.log("[process-analysis] proveedor: Anthropic, stop_reason:", message.stop_reason)
 
-    if (!toolUseBlock) {
-      // Fallback: si por algún motivo no hay tool_use, intentar parsear texto
-      const textBlock = message.content.find((b) => b.type === "text")
-      const textContent = textBlock?.type === "text" ? textBlock.text : ""
-      throw new Error(
-        `Claude no devolvió tool_use. Stop reason: ${message.stop_reason}. Content: ${textContent.slice(0, 200)}`
-      )
+      const toolUseBlock = message.content.find(
+        (block) => block.type === "tool_use"
+      ) as { type: "tool_use"; name: string; input: AnalisisIA } | undefined
+
+      if (!toolUseBlock) {
+        const textBlock = message.content.find((b) => b.type === "text")
+        const textContent = textBlock?.type === "text" ? textBlock.text : ""
+        throw new Error(
+          `Claude no devolvió tool_use. Stop reason: ${message.stop_reason}. Content: ${textContent.slice(0, 200)}`
+        )
+      }
+      analisis = toolUseBlock.input
     }
-
-    const analisis = toolUseBlock.input
 
     // Validación mínima
     if (!analisis.perfilDAE?.nivelDificultad) {
