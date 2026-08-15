@@ -24,20 +24,9 @@ export const authOptions: NextAuthOptions = {
           ?? (req?.headers as any)?.["x-real-ip"]
           ?? "unknown"
 
-        const [emailRl, ipRl] = await Promise.all([
-          checkRateLimit(loginRateLimit, `login:email:${email}`),
-          checkRateLimit(loginRateLimit, `login:ip:${ip}`),
-        ])
-
-        if (!emailRl.allowed || !ipRl.allowed) {
-          // Audit del intento bloqueado
-          logAudit({
-            actorEmail: email,
-            action: "login_rate_limited",
-            metadata: { reason: !emailRl.allowed ? "email" : "ip", ip },
-          })
-          throw new Error("Demasiados intentos. Intenta en unos minutos.")
-        }
+        // TEMPORAL: rate limit del login DESACTIVADO para destrabar el acceso tras
+        // el bloqueo por muchos intentos. RESTAURAR este bloque después de entrar.
+        // (ip se sigue usando en los audit logs de abajo)
 
         const user = await prisma.usuario.findUnique({ where: { email } })
         if (!user) {
