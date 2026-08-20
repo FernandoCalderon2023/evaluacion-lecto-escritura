@@ -96,4 +96,49 @@ export async function checkRateLimit(
   return { allowed: false, retryAfterSeconds, remaining }
 }
 
+/* ------------------------------------------------------------------ *
+ * Protección de login por intentos FALLIDOS (robusta y a prueba de
+ * auto-bloqueo). A diferencia del sliding window, aquí:
+ *   - solo cuentan los intentos FALLIDOS (el login exitoso no consume);
+ *   - un login correcto LIMPIA el contador;
+ *   - falla ABIERTO: si Redis no está o da error, NUNCA bloquea.
+ * Umbral generoso: 10 fallos en 15 min por (email + IP).
+ * ------------------------------------------------------------------ */
+const LOGIN_FAIL_MAX = 10
+const LOGIN_FAIL_WINDOW_S = 15 * 60
+const loginFailKey = (id: string) => `login:fail:${id}`
+
+/** ¿El identificador superó el máximo de intentos fallidos? Fail-open. */
+export async function isLoginBlocked(identifier: string): Promise<boolean> {
+  if (!redis) return false
+  try {
+    const n = await redis.get<number>(loginFailKey(identifier))
+    return typeof n === "number" && n >= LOGIN_FAIL_MAX
+  } catch {
+    return false // nunca bloquear por un fallo de infraestructura
+  }
+}
+
+/** Registra un intento fallido (incrementa + fija TTL la primera vez). */
+export async function registerFailedLogin(identifier: string): Promise<void> {
+  if (!redis) return
+  try {
+    const key = loginFailKey(identifier)
+    const n = await redis.incr(key)
+    if (n === 1) await redis.expire(key, LOGIN_FAIL_WINDOW_S)
+  } catch {
+    /* silencioso: la protección es best-effort */
+  }
+}
+
+/** Limpia el contador de fallos (llamar tras un login exitoso). */
+export async function clearFailedLogins(identifier: string): Promise<void> {
+  if (!redis) return
+  try {
+    await redis.del(loginFailKey(identifier))
+  } catch {
+    /* silencioso */
+  }
+}
+
 export { redis }

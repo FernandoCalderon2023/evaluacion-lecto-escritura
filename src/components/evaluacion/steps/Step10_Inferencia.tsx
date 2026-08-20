@@ -7,7 +7,11 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step10Inferencia({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle title="Ejercicio 10: Inferencia" subtitle="El estudiante debe inferir la respuesta a partir de la situación" />
+      <SectionTitle
+        title="Ejercicio 10: Inferencia"
+        subtitle="El estudiante debe inferir la respuesta a partir de la situación"
+        evalua="La comprensión inferencial: deducir información que no está dicha explícitamente a partir de la situación. Es el nivel de comprensión que va más allá de lo literal."
+      />
       <BoolItems state={state} set={set} items={[
         { field: "ej10a", label: "a) El niño tomó leche y se quemó. ¿Cómo estaba la leche?", description: "Respuesta: caliente / muy caliente" },
         { field: "ej10b", label: "b) Tomaste agua y se te enfriaron los labios. ¿Cómo estaba el agua?", description: "Respuesta: fría / muy fría" },

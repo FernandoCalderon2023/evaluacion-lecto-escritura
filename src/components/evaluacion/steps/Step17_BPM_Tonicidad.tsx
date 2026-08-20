@@ -8,7 +8,11 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step17BpmTonicidad({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle title="BPM — 1ª Unidad: Tonicidad" subtitle="Batería Psicomotora (Da Fonseca) — Control respiratorio y tonicidad" />
+      <SectionTitle
+        title="BPM — 1ª Unidad: Tonicidad"
+        subtitle="Batería Psicomotora (Da Fonseca) — Control respiratorio y tonicidad"
+        evalua="El tono muscular y su regulación (control respiratorio, extensibilidad, pasividad, paratonía, diadococinesias y sincinesias). Un tono bien regulado sostiene la postura y la relajación necesarias para escribir sin fatigarse."
+      />
 
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600">
         <p className="font-semibold mb-1">Escala de puntuación BPM</p>

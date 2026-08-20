@@ -7,7 +7,10 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step09Anagramas({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle title="Ejercicio 9: Ordena las letras para formar palabras" />
+      <SectionTitle
+        title="Ejercicio 9: Ordena las letras para formar palabras"
+        evalua="El análisis y la síntesis fonológica: separar las letras/sonidos y reordenarlos para reconstruir una palabra con sentido. Habilidad clave para leer y escribir palabras nuevas."
+      />
       <BoolItems state={state} set={set} items={[
         { field: "ej9a", label: "a) rañeba → bañera" },
         { field: "ej9b", label: "b) llónsi → sillón" },

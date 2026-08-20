@@ -15,6 +15,7 @@ export function Step15Escritura({ state, set }: Props) {
       <SectionTitle
         title="Ejercicios 15 y 16: Escritura"
         subtitle="Dictado y Composición libre — misma rúbrica de evaluación para ambos"
+        evalua="La producción escrita por dos rutas: al dictado (correspondencia sonido-grafía, ortografía y caligrafía) y en composición libre (planificar, organizar ideas, coherencia y cohesión). Es la contraparte productiva de la lectura."
       />
 
       <div className="flex gap-1 bg-slate-100 rounded-lg p-1">

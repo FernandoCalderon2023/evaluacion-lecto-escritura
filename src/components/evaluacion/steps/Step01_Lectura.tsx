@@ -2,6 +2,7 @@
 import { EvaluacionFormData, TonoVoz } from "@/types/evaluacion"
 import { ScaleSelector } from "@/components/shared/ScaleSelector"
 import { PositionSelector } from "@/components/shared/PositionSelector"
+import { SectionTitle } from "./StepUtils"
 import { cn } from "@/lib/utils"
 
 interface Props {
@@ -18,8 +19,11 @@ const TONOS: { value: TonoVoz; label: string }[] = [
 export function Step01Lectura({ state, set }: Props) {
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-slate-800">Ejercicio 1: Lectura en Voz Alta</h2>
-      <p className="text-sm text-slate-500">Texto: &quot;El Pajarito Intoxicado&quot;</p>
+      <SectionTitle
+        title="Ejercicio 1: Lectura en Voz Alta"
+        subtitle={'Texto: "El Pajarito Intoxicado"'}
+        evalua="El núcleo del proceso lector: la fluidez y expresividad (velocidad, prosodia, tipo de lectura), los errores específicos de decodificación (cambios, omisiones, inversiones) y la comprensión por niveles (memoriza, ideas centrales, valora, interpreta, asocia)."
+      />
 
       {/* Palabras leídas */}
       <div className="border border-slate-200 rounded-lg p-4 space-y-2">

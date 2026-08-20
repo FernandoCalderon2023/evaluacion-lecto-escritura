@@ -7,7 +7,10 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step12Sustitucion({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle title="Ejercicio 12: Sustitución de fonemas" />
+      <SectionTitle
+        title="Ejercicio 12: Sustitución de fonemas"
+        evalua="La conciencia fonémica: manipular los sonidos de una palabra quitando un fonema y colocando otro. Es la habilidad fonológica más fina y la que más se relaciona con leer y escribir bien."
+      />
       <BoolItems state={state} set={set} items={[
         { field: "ej12a", label: 'En "mesa" quita la "e" y pon "i" → misa' },
         { field: "ej12b", label: 'En "casa" quita la primera "a" y pon "o" → cosa' },

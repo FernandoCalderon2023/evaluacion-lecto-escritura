@@ -7,7 +7,11 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step04Instrucciones({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle title="Ejercicio 4: Sigue instrucciones escritas" subtitle="Lee la oración y realiza la acción indicada" />
+      <SectionTitle
+        title="Ejercicio 4: Sigue instrucciones escritas"
+        subtitle="Lee la oración y realiza la acción indicada"
+        evalua="La comprensión de instrucciones escritas y el manejo de nociones de tamaño (mayor/menor) aplicadas a una consigna: leer para actuar, no solo para decodificar."
+      />
       <BoolItems state={state} set={set} items={[
         { field: "ej4a", label: "a) Encierra en un círculo al de mayor tamaño", description: "El pájaro (azul) es más grande que el conejo → debe encerrar el pájaro" },
         { field: "ej4b", label: "b) Subraya el más pequeño", description: "El gato es más pequeño que la vaca → debe subrayar el gato" },

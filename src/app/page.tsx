@@ -37,8 +37,9 @@ export default function LandingPage() {
           </p>
           <p className="text-base lg:text-lg text-viria-200/90 max-w-3xl mx-auto mb-10 leading-relaxed">
             Plataforma psicopedagógica que automatiza la detección y evaluación de dificultades
-            en lecto-escritura y desarrollo psicomotor, generando informes integrales para
-            docentes de educación primaria en Bolivia.
+            en lecto-escritura y desarrollo psicomotor, y genera informes integrales con
+            recomendaciones para el aula y la familia. Pensada para docentes de primaria y
+            secundaria en Bolivia.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -93,11 +94,11 @@ export default function LandingPage() {
             <div className="bg-viria-700 text-white rounded-xl w-12 h-12 flex items-center justify-center mb-4 shadow-md">
               <Shield className="h-6 w-6" />
             </div>
-            <h3 className="font-bold text-slate-900 mb-2">Currículo R.M. 1040/2022</h3>
+            <h3 className="font-bold text-slate-900 mb-2">Currículo oficial por grado</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Los resultados se cruzan con las expectativas del currículo oficial boliviano
-              (Planes y Programas EPCV) para determinar el nivel de desfase del estudiante
-              respecto al perfil de salida de su grado.
+              Los resultados se cruzan con las expectativas del currículo boliviano —primaria
+              (R.M. 1040/2022) y secundaria (Planes y Programas ESCP)— para determinar el nivel
+              de desfase del estudiante respecto al perfil de salida de su grado.
             </p>
           </div>
         </div>
@@ -122,7 +123,7 @@ export default function LandingPage() {
                 step: "2",
                 icon: BarChart3,
                 title: "Completar evaluación",
-                desc: "Llene los 16 ejercicios del instrumento de lecto-escritura y los 7 factores de la BPM según los resultados del cuadernillo físico. El sistema calcula los puntajes automáticamente.",
+                desc: "Llene los 16 ejercicios del instrumento de lecto-escritura y los 7 factores de la BPM —cada ejercicio explica qué evalúa— según el cuadernillo físico. El sistema calcula los puntajes automáticamente.",
               },
               {
                 step: "3",

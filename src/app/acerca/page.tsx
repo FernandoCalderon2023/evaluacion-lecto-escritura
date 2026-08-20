@@ -28,7 +28,7 @@ export default function AcercaPage() {
         <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-3">Acerca de SIDEDA</h1>
         <p className="text-lg text-slate-600 mb-10 leading-relaxed">
           Sistema de Evaluación de Dificultades de Aprendizaje — Plataforma psicopedagógica
-          asistida con Inteligencia Artificial para la educación primaria en Bolivia.
+          asistida con Inteligencia Artificial para primaria y secundaria en Bolivia.
         </p>
 
         <section className="mb-10">
@@ -37,7 +37,7 @@ export default function AcercaPage() {
           </h2>
           <p className="text-slate-700 leading-relaxed">
             SIDEDA automatiza el proceso de detección y evaluación de dificultades en el aprendizaje
-            de lecto-escritura y desarrollo psicomotor en estudiantes de educación primaria. La
+            de lecto-escritura y desarrollo psicomotor en estudiantes de primaria y secundaria. La
             plataforma permite a docentes y especialistas registrar los resultados de instrumentos
             estandarizados, generar análisis cruzados con el currículo oficial boliviano, y producir
             informes psicopedagógicos integrales con recomendaciones prácticas para el aula.
@@ -65,10 +65,10 @@ export default function AcercaPage() {
               </p>
             </div>
             <div className="border-2 border-green-100 rounded-xl p-4 bg-green-50/50">
-              <h3 className="font-bold text-slate-900 mb-1">R.M. 1040/2022</h3>
+              <h3 className="font-bold text-slate-900 mb-1">Currículo oficial</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Currículo oficial — Planes y Programas de Educación Primaria Comunitaria Vocacional.
-                Expectativas curriculares por grado para evaluar desfase respecto al perfil de salida.
+                Expectativas por grado del currículo boliviano: primaria (R.M. 1040/2022) y
+                secundaria (Planes y Programas ESCP), para evaluar el desfase respecto al perfil de salida.
               </p>
             </div>
           </div>

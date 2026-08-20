@@ -50,6 +50,7 @@ export function Step02Letras({ state, set }: Props) {
       <SectionTitle
         title="Ejercicio 2: Completar Letras"
         subtitle="Calificar por cada letra correcta que completó el estudiante"
+        evalua="El reconocimiento de la forma global de la palabra y la memoria visual ortográfica: recuperar las letras que faltan apoyándose en el contexto de la palabra."
       />
 
       <LetterScore

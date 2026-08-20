@@ -8,7 +8,11 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step18BpmEquilibrio({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle title="BPM — 1ª Unidad: Equilibrio" subtitle="Batería Psicomotora (Da Fonseca) — Inmovilidad, equilibrio estático y dinámico" />
+      <SectionTitle
+        title="BPM — 1ª Unidad: Equilibrio"
+        subtitle="Batería Psicomotora (Da Fonseca) — Inmovilidad, equilibrio estático y dinámico"
+        evalua="El equilibrio estático y dinámico y la seguridad gravitatoria. Cuando el cuerpo se sostiene sin esfuerzo, se libera atención y energía para concentrarse en el aprendizaje."
+      />
 
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600">
         <p className="font-semibold mb-1">Escala de puntuación BPM</p>

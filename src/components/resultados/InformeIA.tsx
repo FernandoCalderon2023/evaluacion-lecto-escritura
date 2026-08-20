@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { AnalisisIA } from "@/types/ai"
 import { useToast } from "@/hooks/use-toast"
-import { Sparkles, CheckCircle, AlertTriangle, Users, BookOpen, Calendar, Brain, Activity, Puzzle } from "lucide-react"
+import { Sparkles, CheckCircle, AlertTriangle, Users, BookOpen, Calendar, Brain, Activity, Puzzle, Layers, ListChecks, Package } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface Props {
@@ -15,6 +15,19 @@ const PRIORIDAD_COLOR = {
   alta:  "bg-red-100 text-red-700 border-red-200",
   media: "bg-yellow-100 text-yellow-700 border-yellow-200",
   baja:  "bg-green-100 text-green-700 border-green-200",
+}
+
+const NIVEL_COLOR: Record<string, string> = {
+  "Consolidado":   "bg-green-100 text-green-700 border-green-200",
+  "En desarrollo": "bg-yellow-100 text-yellow-700 border-yellow-200",
+  "Inicial":       "bg-orange-100 text-orange-700 border-orange-200",
+  "No evaluado":   "bg-slate-100 text-slate-500 border-slate-200",
+}
+
+const RESULTADO_COLOR: Record<string, string> = {
+  "Logrado":    "bg-green-100 text-green-700 border-green-200",
+  "Parcial":    "bg-yellow-100 text-yellow-700 border-yellow-200",
+  "No logrado": "bg-red-100 text-red-700 border-red-200",
 }
 
 const PM_LABELS: Record<string, string> = {
@@ -201,6 +214,18 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
         </button>
       </div>
 
+      {/* SÍNTESIS EJECUTIVA */}
+      {analisis.sintesisEjecutiva && (
+        <Card className="border-viria-300 bg-viria-50/50">
+          <CardContent className="py-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-viria-700 mb-1 flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5" /> Síntesis ejecutiva
+            </p>
+            <p className="text-sm text-slate-800 leading-relaxed">{analisis.sintesisEjecutiva}</p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* PERFIL DAE */}
       {perfilDAE && (
         <Card className="border-viria-200">
@@ -275,6 +300,63 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
                   </div>
                 )
               })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ANÁLISIS POR PROCESO */}
+      {Array.isArray(analisis.analisisPorProceso) && analisis.analisisPorProceso.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2 text-slate-700">
+              <Layers className="h-4 w-4" /> Análisis por proceso
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {analisis.analisisPorProceso.map((p, i) => (
+                <div key={i} className="border border-slate-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="text-sm font-semibold text-slate-800">{p.proceso}</p>
+                    <span className={`text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 ${NIVEL_COLOR[p.nivel] ?? "bg-slate-100 text-slate-600 border-slate-200"}`}>
+                      {p.nivel}
+                    </span>
+                  </div>
+                  {p.datoClave && (
+                    <p className="text-xs text-slate-500 mb-1">
+                      Dato clave: <span className="font-mono text-slate-700">{p.datoClave}</span>
+                    </p>
+                  )}
+                  <p className="text-xs text-slate-600 leading-relaxed">{p.interpretacion}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* INTERPRETACIÓN ÍTEM POR ÍTEM */}
+      {Array.isArray(analisis.hallazgosPorEjercicio) && analisis.hallazgosPorEjercicio.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2 text-slate-700">
+              <ListChecks className="h-4 w-4" /> Interpretación ítem por ítem
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {analisis.hallazgosPorEjercicio.map((h, i) => (
+                <div key={i} className="flex items-start gap-2.5">
+                  <span className={`text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 mt-0.5 ${RESULTADO_COLOR[h.resultado] ?? "bg-slate-100 text-slate-600 border-slate-200"}`}>
+                    {h.resultado}
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-slate-800">{h.ejercicio}</p>
+                    <p className="text-xs text-slate-600 leading-relaxed">{h.queRevela}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -359,6 +441,20 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
               </div>
             ))}
           </div>
+          {Array.isArray(analisis.recomendaciones?.recursosSugeridos) && analisis.recomendaciones.recursosSugeridos.length > 0 && (
+            <div className="mt-4 pt-3 border-t border-slate-100">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                <Package className="h-3.5 w-3.5" /> Recursos sugeridos
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {analisis.recomendaciones.recursosSugeridos.map((r, i) => (
+                  <span key={i} className="text-xs bg-viria-50 border border-viria-100 text-viria-700 rounded-full px-2.5 py-1">
+                    {r}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -8,7 +8,11 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step20BpmPraxiasET({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle title="BPM — 2ª/3ª Unidad: Estructuración E-T y Praxias" subtitle="Batería Psicomotora (Da Fonseca) — Espacio-temporal, praxia global y fina" />
+      <SectionTitle
+        title="BPM — 2ª/3ª Unidad: Estructuración E-T y Praxias"
+        subtitle="Batería Psicomotora (Da Fonseca) — Espacio-temporal, praxia global y fina"
+        evalua="La estructuración espacio-temporal (ritmo, secuencia y organización en el espacio) y las praxias global y fina (coordinación amplia y micromotricidad del trazo). Son el sostén directo de la grafía y de la correspondencia grafema-fonema."
+      />
 
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600">
         <p className="font-semibold mb-1">Escala de puntuación BPM</p>

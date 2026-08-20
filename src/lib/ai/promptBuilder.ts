@@ -13,51 +13,7 @@ Tu función es analizar resultados de evaluaciones realizadas con:
 1. El "Instrumento para la Detección y Evaluación de las Dificultades en el Aprendizaje de Lecto-Escritura" del Ministerio de Educación del Estado Plurinacional de Bolivia (2012)
 2. La Batería Psicomotora (BPM) de Víctor da Fonseca (1975) — cuando se haya aplicado
 
-Cruzas siempre los resultados con las expectativas del currículo oficial boliviano (Planes y Programas EPCV, R.M. 1040/2022).
-
-## EXPECTATIVAS CURRICULARES POR AÑO (R.M. 1040/2022)
-
-PRIMER AÑO (~6 años)
-Comunicación oral: Expresa experiencias y emociones usando normas de cortesía.
-Lectura: Comprende textos literarios y no literarios relacionándolos con experiencias propias.
-Escritura: Escribe textos usando código alfabético considerando destinatario y propósito.
-Cognitivo: Nombra y describe objetos, instrucciones simples, clasifica por categorías, orientación espacial básica, secuencias temporales.
-Léxico: Identifica sonidos iniciales, produce rimas simples, reconoce patrones sonoros.
-
-SEGUNDO AÑO (~7 años)
-Comunicación oral: Interactúa expresando ideas, respetando turnos.
-Lectura: Lee 60-84 palabras/min con precisión y expresividad.
-Escritura: Escribe textos literarios y no literarios de manera organizada.
-Cognitivo: Nombra y explica uso de objetos, instrucciones de dos pasos, clasifica imágenes, asociaciones verbo-objeto, secuencias temporales.
-Léxico: Produce y reconoce rimas, sustituye fonemas simples, identifica omisiones.
-
-TERCER AÑO (~8 años)
-Comunicación oral: Expresa ideas de manera coherente y articulada según propósito y contexto.
-Lectura: Lee con fluidez. Interpreta textos, compara personajes, reconoce problema/solución.
-Escritura: Escribe con secuencia lógica, estructura, conectores, descripciones y diálogo.
-Cognitivo: Análisis y síntesis concretos, inferencias básicas, causa-consecuencia.
-Léxico: Rimas con fluidez, sustitución y omisión de fonemas con precisión, inversiones silábicas.
-
-CUARTO AÑO (~9 años)
-Comunicación oral: Interactúa fundamentando ideas con respeto.
-Lectura: Hace inferencias, identifica acciones principales, describe ambiente, relaciona intención del autor.
-Escritura: Secuencia lógica (inicio-desarrollo-desenlace), conectores, vocabulario pertinente.
-Cognitivo: Abstracción y generalización, lenguaje figurado, razonamiento lógico, inferencias complejas.
-Léxico: Conciencia fonológica avanzada: sustitución, omisión e inversión con precisión.
-
-QUINTO AÑO (~10 años)
-Comunicación oral: Fundamenta ideas desde escucha activa y empatía.
-Lectura: Identifica idea central, interpreta lenguaje figurado, deduce características.
-Escritura: Estructura con idea central por párrafo, vocabulario pertinente.
-Cognitivo: Pensamiento abstracto consolidado, razonamiento hipotético, análisis crítico.
-Léxico: Conciencia fonológica y morfológica consolidada, vocabulario amplio.
-
-SEXTO AÑO (~11 años)
-Comunicación oral: Fundamenta ideas, regula participación, crea consensos.
-Lectura: Inferencias complejas, idea central, lenguaje figurado, conclusiones sustentadas.
-Escritura: Idea central por párrafo, vocabulario pertinente, investigación propia.
-Cognitivo: Pensamiento crítico complejo, argumentación con evidencia, metacognición.
-Léxico: Dominio fonológico completo, vocabulario amplio.
+Cruzas siempre los resultados con las expectativas del currículo oficial boliviano SEGÚN EL NIVEL del/la estudiante: primaria (R.M. 1040/2022) o secundaria (Planes y Programas ESCP). Las expectativas del grado exacto se te entregan en CADA evaluación, en la sección «EXPECTATIVAS CURRICULARES DE SU GRADO»: úsalas como referencia para juzgar el desfase. NUNCA asumas primaria por defecto — respeta el año escolar informado.
 
 ## MARCO TEÓRICO DE REFERENCIA (úsalo para dar profundidad, sin citarlo textual)
 
@@ -101,18 +57,29 @@ Cada campo de texto: **2–3 oraciones máximo**, pero con contenido sustantivo.
 - **dificultad-moderada:** cálido pero claro + plan estructurado de apoyo.
 - **dificultad-severa:** SERENO Y ESPERANZADOR (jamás dramático) + derivación sugerida con suavidad.
 
+## SECCIONES DE ANÁLISIS DETALLADO (dan profundidad — complétalas siempre)
+
+- **sintesisEjecutiva**: 3-4 oraciones que ABREN el informe — estado general, fortaleza principal, área prioritaria y cierre esperanzador.
+- **analisisPorProceso**: UN objeto por cada proceso evaluado (Lectura y fluidez, Comprensión lectora, Procesos cognitivos, Procesos léxicos/conciencia fonológica, Escritura; y Psicomotricidad SOLO si se aplicó BPM). En "interpretacion" explica el PORQUÉ del desempeño, sin repetir el número del "datoClave".
+- **hallazgosPorEjercicio**: interpreta los ejercicios MÁS informativos (los de mayor logro y los de mayor dificultad). En "queRevela" nombra la habilidad subyacente que ese resultado pone en evidencia.
+- **recomendaciones.recursosSugeridos**: materiales concretos y de bajo costo, realistas para una U.E. boliviana.
+
 ## INSTRUCCIONES DE FORMATO
 
-- Si se aplicó BPM → integra ambos instrumentos (DAE + Psicomotor + Integrado).
-- Si NO se aplicó BPM → perfilPsicomotor y perfilIntegrado deben ser null.
+- Si se aplicó BPM → integra ambos instrumentos (DAE + Psicomotor + Integrado) y agrega "Psicomotricidad (BPM)" en analisisPorProceso.
+- Si NO se aplicó BPM → perfilPsicomotor y perfilIntegrado deben ser null (y no incluyas el proceso de psicomotricidad).
 - Lenguaje inclusivo según sexo (el/la estudiante).
-- Informe completo cabe en 1-2 páginas impresas.
+- El informe es completo pero legible (2-4 páginas impresas). Cada campo de texto sigue siendo conciso (2-3 oraciones).
 
-LÍMITES estrictos:
-- Máx. 3 fortalezas concretas, basadas en lo observado.
-- Máx. 3 áreas de mejora (cada una con descripción + brecha curricular específica).
-- Máx. 5 recomendaciones aula categorizadas, aplicables ya.
-- Máx. 3 recomendaciones familia en lenguaje accesible para padres.
+LÍMITES:
+- sintesisEjecutiva: 3-4 oraciones.
+- analisisPorProceso: uno por proceso evaluado.
+- hallazgosPorEjercicio: máx. 8 (los más informativos).
+- Máx. 4 fortalezas concretas, basadas en lo observado.
+- Máx. 4 áreas de mejora (cada una con descripción + brecha curricular específica).
+- Máx. 8 recomendaciones aula categorizadas, aplicables ya, cubriendo los procesos con dificultad.
+- Máx. 5 recomendaciones familia en lenguaje accesible para padres.
+- Máx. 5 recursos sugeridos.
 - Máx. 3 indicadores de seguimiento medibles con horizonte temporal.
 
 Para entregar el informe, invoca la herramienta \`generar_informe_psicopedagogico\` con los campos correspondientes. NO escribas texto adicional fuera de la invocación del tool.`
@@ -164,6 +131,9 @@ export function buildUserMessage(
           ? `${edad} años — ${diferenciaEdad} año(s) mayor de lo esperado`
           : `${edad} años — ${Math.abs(diferenciaEdad)} año(s) menor de lo esperado`
 
+  // Expectativas del grado EXACTO (primaria R.M. 1040 o secundaria ESCP) — data-driven, cubre 1º–12º.
+  const expectativas = anioEscolar > 0 ? getExpectativasCurriculares(anioEscolar) : ""
+
   let bpmSection = ""
   if (scores.bpm.applied) {
     const b = scores.bpm
@@ -192,7 +162,7 @@ export function buildUserMessage(
 - Evaluador: ${ev.evaluador}
 ${(ev as any).observaciones ? `\nOBSERVACIONES DEL EVALUADOR (importante):\n${(ev as any).observaciones}` : ""}
 ${(ev as any).palabrasLeidas != null ? `\nPalabras leídas en 4 minutos: ${(ev as any).palabrasLeidas}` : ""}
-
+${expectativas ? `\n## EXPECTATIVAS CURRICULARES DE SU GRADO\n${expectativas}\n` : ""}
 ## RESULTADOS LECTO-ESCRITURA (MINEDU 2012)
 
 ### Lectura en voz alta

@@ -13,6 +13,11 @@ export const ANALYSIS_TOOL: Tool = {
   input_schema: {
     type: "object",
     properties: {
+      sintesisEjecutiva: {
+        type: "string",
+        description:
+          "Resumen ejecutivo de 3-4 oraciones que ABRE el informe: estado general del/la estudiante, la fortaleza principal en la que apoyarse, el área prioritaria a trabajar y un cierre esperanzador. Es lo primero que lee el/la docente.",
+      },
       perfilDAE: {
         type: "object",
         properties: {
@@ -121,10 +126,58 @@ export const ANALYSIS_TOOL: Tool = {
           },
         },
       },
+      analisisPorProceso: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            proceso: {
+              type: "string",
+              description: "Nombre del proceso: 'Lectura y fluidez' | 'Comprensión lectora' | 'Procesos cognitivos' | 'Procesos léxicos (conciencia fonológica)' | 'Escritura' | 'Psicomotricidad (BPM)' (este último SOLO si se aplicó BPM).",
+            },
+            nivel: {
+              type: "string",
+              enum: ["Consolidado", "En desarrollo", "Inicial", "No evaluado"],
+            },
+            datoClave: {
+              type: "string",
+              description: "Dato concreto que ancla el análisis (ej: '5/27', 'comprensión 33%', 'lectura silábica'). Breve.",
+            },
+            interpretacion: {
+              type: "string",
+              description: "2-3 oraciones que INTERPRETAN qué significa ese desempeño para el aprendizaje (NO repitas el número): qué habilidad subyacente está en juego y cómo se relaciona con lo esperado para su grado.",
+            },
+          },
+          required: ["proceso", "nivel", "datoClave", "interpretacion"],
+        },
+        description: "Un objeto por CADA proceso evaluado (lectura, comprensión, cognitivo, léxico, escritura; y psicomotricidad si se aplicó BPM). Da profundidad explicando el porqué de cada resultado.",
+      },
+      hallazgosPorEjercicio: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            ejercicio: {
+              type: "string",
+              description: "Ejercicio del instrumento (ej: 'Ej. 12 — Sustitución de fonemas', 'Ej. 1 — Comprensión lectora').",
+            },
+            resultado: {
+              type: "string",
+              enum: ["Logrado", "Parcial", "No logrado"],
+            },
+            queRevela: {
+              type: "string",
+              description: "1-2 oraciones sobre qué habilidad subyacente revela ese resultado específico y por qué importa para leer/escribir.",
+            },
+          },
+          required: ["ejercicio", "resultado", "queRevela"],
+        },
+        description: "Interpretación ítem por ítem de los ejercicios MÁS informativos: los de mayor logro (fortalezas) y los de mayor dificultad. Máx. 8. Ayuda al/la docente a saber exactamente dónde intervenir.",
+      },
       fortalezas: {
         type: "array",
         items: { type: "string" },
-        description: "Máx. 3 fortalezas CONCRETAS observadas (no genéricas). Cada una empieza con verbo activo: 'Lee con...', 'Comprende...', 'Demuestra...'. Tono celebrador.",
+        description: "Máx. 4 fortalezas CONCRETAS observadas (no genéricas). Cada una empieza con verbo activo: 'Lee con...', 'Comprende...', 'Demuestra...'. Tono celebrador.",
       },
       areasDeMejora: {
         type: "array",
@@ -150,7 +203,7 @@ export const ANALYSIS_TOOL: Tool = {
           },
           required: ["area", "descripcion", "brechaConCurriculo", "prioridad"],
         },
-        description: "Máx. 3 áreas en construcción",
+        description: "Máx. 4 áreas en construcción",
       },
       recomendaciones: {
         type: "object",
@@ -179,7 +232,7 @@ export const ANALYSIS_TOOL: Tool = {
               },
               required: ["categoria", "titulo", "descripcion"],
             },
-            description: "Máx. 5 estrategias aplicables ya. Concretas, no genéricas.",
+            description: "Máx. 8 estrategias aplicables ya. Concretas, no genéricas. Cubre los distintos procesos con dificultad.",
           },
           paraLaFamilia: {
             type: "array",
@@ -197,7 +250,7 @@ export const ANALYSIS_TOOL: Tool = {
               },
               required: ["titulo", "descripcion"],
             },
-            description: "Máx. 3 sugerencias para casa, en lenguaje accesible para padres.",
+            description: "Máx. 5 sugerencias para casa, en lenguaje accesible para padres.",
           },
           derivacion: {
             type: "object",
@@ -214,8 +267,14 @@ export const ANALYSIS_TOOL: Tool = {
             },
             required: ["necesaria", "especialista", "justificacion"],
           },
+          recursosSugeridos: {
+            type: "array",
+            items: { type: "string" },
+            description:
+              "Máx. 5 recursos y materiales concretos y de bajo costo para implementar las estrategias (juegos, tarjetas, láminas, apps, textos, canciones). Realistas para una U.E. boliviana.",
+          },
         },
-        required: ["paraElAula", "paraLaFamilia", "derivacion"],
+        required: ["paraElAula", "paraLaFamilia", "derivacion", "recursosSugeridos"],
       },
       planSeguimiento: {
         type: "object",
@@ -234,7 +293,10 @@ export const ANALYSIS_TOOL: Tool = {
       },
     },
     required: [
+      "sintesisEjecutiva",
       "perfilDAE",
+      "analisisPorProceso",
+      "hallazgosPorEjercicio",
       "perfilPsicomotor",
       "perfilIntegrado",
       "fortalezas",

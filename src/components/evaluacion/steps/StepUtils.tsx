@@ -25,11 +25,31 @@ export function BoolItems({ items, state, set }: BoolItemsProps) {
   )
 }
 
-export function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
+export function SectionTitle({
+  title,
+  subtitle,
+  evalua,
+}: {
+  title: string
+  subtitle?: string
+  /** Qué habilidad mide el ejercicio (propósito pedagógico, para el/la docente). */
+  evalua?: string
+}) {
   return (
-    <div>
-      <h2 className="text-lg font-semibold text-slate-800">{title}</h2>
-      {subtitle && <p className="text-sm text-slate-500 mt-1">{subtitle}</p>}
+    <div className="space-y-2">
+      <div>
+        <h2 className="text-lg font-semibold text-slate-800">{title}</h2>
+        {subtitle && <p className="text-sm text-slate-500 mt-1">{subtitle}</p>}
+      </div>
+      {evalua && (
+        <div className="flex gap-2 items-start bg-viria-50 border border-viria-100 rounded-lg px-3 py-2">
+          <span className="text-sm shrink-0" aria-hidden>🎯</span>
+          <p className="text-xs text-viria-800 leading-relaxed">
+            <span className="font-semibold">¿Qué evalúa? </span>
+            {evalua}
+          </p>
+        </div>
+      )}
     </div>
   )
 }

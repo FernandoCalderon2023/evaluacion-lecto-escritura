@@ -8,7 +8,11 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step19BpmLateralidadCuerpo({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle title="BPM — 2ª Unidad: Lateralidad y Noción del Cuerpo" subtitle="Batería Psicomotora (Da Fonseca)" />
+      <SectionTitle
+        title="BPM — 2ª Unidad: Lateralidad y Noción del Cuerpo"
+        subtitle="Batería Psicomotora (Da Fonseca)"
+        evalua="La lateralidad (ojo, oído, mano, pie) y el esquema corporal (reconocer y representar el propio cuerpo). Es la base para orientar el cuerpo en el espacio y diferenciar izquierda-derecha al leer y escribir."
+      />
 
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600">
         <p className="font-semibold mb-1">Escala de puntuación BPM</p>

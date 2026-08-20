@@ -2,7 +2,7 @@ import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
-import { loginRateLimit, checkRateLimit } from "@/lib/ratelimit"
+import { isLoginBlocked, registerFailedLogin, clearFailedLogins } from "@/lib/ratelimit"
 import { logAudit } from "@/lib/audit"
 
 export const authOptions: NextAuthOptions = {
@@ -24,12 +24,19 @@ export const authOptions: NextAuthOptions = {
           ?? (req?.headers as any)?.["x-real-ip"]
           ?? "unknown"
 
-        // TEMPORAL: rate limit del login DESACTIVADO para destrabar el acceso tras
-        // el bloqueo por muchos intentos. RESTAURAR este bloque después de entrar.
-        // (ip se sigue usando en los audit logs de abajo)
+        const rlKey = `${email}:${ip}`
+
+        // Protección contra fuerza bruta: bloquea SOLO si se acumularon muchos
+        // intentos fallidos (los logins correctos no consumen), se limpia al entrar
+        // bien y falla ABIERTO si Redis no responde (nunca bloquea por infraestructura).
+        if (await isLoginBlocked(rlKey)) {
+          logAudit({ actorEmail: email, action: "login_blocked_ratelimit", metadata: { ip } })
+          throw new Error("Demasiados intentos fallidos. Espera unos minutos e intenta de nuevo.")
+        }
 
         const user = await prisma.usuario.findUnique({ where: { email } })
         if (!user) {
+          await registerFailedLogin(rlKey)
           logAudit({
             actorEmail: email,
             action: "login_failed_no_user",
@@ -50,6 +57,7 @@ export const authOptions: NextAuthOptions = {
 
         const valid = await bcrypt.compare(credentials.password, user.passwordHash)
         if (!valid) {
+          await registerFailedLogin(rlKey)
           logAudit({
             actorId: user.id,
             actorEmail: email,
@@ -59,7 +67,8 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        // Login exitoso
+        // Login exitoso — limpia el contador de intentos fallidos
+        await clearFailedLogins(rlKey)
         logAudit({
           actorId: user.id,
           actorEmail: email,
