@@ -89,11 +89,19 @@ export async function checkRateLimit(
 ): Promise<{ allowed: true } | { allowed: false; retryAfterSeconds: number; remaining: number }> {
   if (!limiter) return { allowed: true }
 
-  const { success, reset, remaining } = await limiter.limit(identifier)
-  if (success) return { allowed: true }
+  try {
+    const { success, reset, remaining } = await limiter.limit(identifier)
+    if (success) return { allowed: true }
 
-  const retryAfterSeconds = Math.ceil((reset - Date.now()) / 1000)
-  return { allowed: false, retryAfterSeconds, remaining }
+    const retryAfterSeconds = Math.ceil((reset - Date.now()) / 1000)
+    return { allowed: false, retryAfterSeconds, remaining }
+  } catch (err) {
+    // FAIL-OPEN: si Redis/Upstash no responde (base pausada, credenciales vencidas,
+    // "r.map is not a function"), NO bloqueamos la operación del usuario.
+    // El rate limit es una protección best-effort, nunca un punto único de falla.
+    console.warn("[ratelimit] Redis no disponible; se permite la operación:", err instanceof Error ? err.message : String(err))
+    return { allowed: true }
+  }
 }
 
 /* ------------------------------------------------------------------ *
