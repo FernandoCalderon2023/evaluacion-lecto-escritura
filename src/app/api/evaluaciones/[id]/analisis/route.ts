@@ -4,8 +4,11 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { aiRateLimit, checkRateLimit } from "@/lib/ratelimit"
 import { getQStash, getAppUrl } from "@/lib/qstash"
+import { procesarAnalisis } from "@/lib/ai/procesarAnalisis"
 
-export const maxDuration = 30 // ahora solo encolamos, no procesamos
+// Normalmente solo encolamos (rápido). Pero si la cola no está disponible,
+// procesamos inline (~40 s), por eso el tope alto.
+export const maxDuration = 300
 
 /**
  * POST /api/evaluaciones/[id]/analisis
@@ -74,8 +77,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           url: targetUrl,
           body: { jobId: job.id, evaluacionId: params.id },
           retries: 2,
-          // FlowControl: máximo 5 jobs procesando en paralelo a Anthropic
-          // Esto previene errores 429 (rate limit) y mantiene la cola ordenada
+          // FlowControl: máximo 5 jobs procesando en paralelo al proveedor de IA.
+          // Previene 429 (rate limit) y mantiene la cola ordenada.
           flowControl: {
             key: "ai-analysis",
             parallelism: 5,
@@ -83,20 +86,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         })
         return NextResponse.json({ jobId: job.id, status: "queued", queued: true })
       } catch (err) {
-        // Si QStash falla, fallback a procesamiento inmediato vía API interna
-        console.error("[analisis] QStash publish failed, fallback inline:", err)
-        await prisma.analysisJob.update({
-          where: { id: job.id },
-          data: { status: "failed", error: "Cola no disponible. Reintenta." },
-        })
-        return NextResponse.json({
-          error: "Cola de procesamiento no disponible. Intenta en unos segundos.",
-        }, { status: 503 })
+        // RESPALDO: si la cola no está disponible (p. ej. cuota diaria de QStash
+        // agotada → "daily ratelimit exceeded"), NO abortamos: procesamos inline.
+        // Tarda ~40 s (maxDuration lo cubre) y la UI recibe el análisis directo
+        // en la respuesta, sin necesidad de polling.
+        console.error("[analisis] QStash no disponible, procesando inline:", err instanceof Error ? err.message : err)
+        const analisis = await procesarAnalisis(job.id, params.id)
+        return NextResponse.json({ jobId: job.id, status: "done", analisis, inline: true })
       }
     } else {
-      // Sin QStash: marcamos como queued y el worker manual se encarga.
-      // Esto NO debería pasar en producción.
-      return NextResponse.json({ jobId: job.id, status: "queued", queued: true })
+      // Sin QStash configurado: procesar inline (nunca dejar un job "queued" para siempre).
+      const analisis = await procesarAnalisis(job.id, params.id)
+      return NextResponse.json({ jobId: job.id, status: "done", analisis, inline: true })
     }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
