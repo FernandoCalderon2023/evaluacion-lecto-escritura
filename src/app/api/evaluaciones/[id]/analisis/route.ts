@@ -68,9 +68,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       },
     })
 
-    const qstash = getQStash()
+    // Modo de procesamiento del informe:
+    //  - "inline" (POR DEFECTO): el sistema lo procesa por sí mismo en este mismo pedido,
+    //    sin depender de servicios externos (QStash del plan gratuito permite ~1 msg/día).
+    //  - "qstash": solo si AI_QUEUE_MODE=qstash y hay token — encola en QStash (con
+    //    respaldo inline si el publish falla).
+    const queueMode = (process.env.AI_QUEUE_MODE?.trim() || "inline").toLowerCase()
+    const qstash = queueMode === "qstash" ? getQStash() : null
     if (qstash) {
-      // Encolar con QStash
+      // Encolar con QStash (solo en modo qstash)
       const targetUrl = `${getAppUrl()}/api/jobs/process-analysis`
       try {
         await qstash.publishJSON({
@@ -95,7 +101,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         return NextResponse.json({ jobId: job.id, status: "done", analisis, inline: true })
       }
     } else {
-      // Sin QStash configurado: procesar inline (nunca dejar un job "queued" para siempre).
+      // Modo inline (por defecto) o QStash no configurado: el sistema procesa aquí mismo.
+      // Nunca deja un job "queued" para siempre; la UI recibe el análisis en la respuesta.
       const analisis = await procesarAnalisis(job.id, params.id)
       return NextResponse.json({ jobId: job.id, status: "done", analisis, inline: true })
     }

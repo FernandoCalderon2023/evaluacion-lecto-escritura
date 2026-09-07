@@ -103,7 +103,9 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
   async function generarAnalisis() {
     setLoading(true)
     setProgress(5)
-    setStepMsg("Encolando trabajo...")
+    setStepMsg("Generando el informe con IA… suele tardar 30–60 s")
+    // El informe se genera en el mismo pedido: la barra avanza sola mientras se procesa.
+    const creep = setInterval(() => setProgress((p) => Math.min(p + 2, 90)), 1500)
 
     try {
       const res = await fetch(`/api/evaluaciones/${evaluacionId}/analisis`, { method: "POST" })
@@ -140,6 +142,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
       const msg = err instanceof Error ? err.message : "Error al generar el análisis"
       toast({ title: msg, variant: "destructive" })
     } finally {
+      clearInterval(creep)
       setLoading(false)
     }
   }
@@ -164,7 +167,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
               />
             </div>
             <p className="text-xs text-viria-600 font-medium animate-pulse">{stepMsg}</p>
-            <p className="text-xs text-slate-400">{progress}% — esto puede tomar 20-40 segundos</p>
+            <p className="text-xs text-slate-400">{progress}% — suele tardar entre 30 y 60 segundos</p>
           </div>
         ) : (
           <button
