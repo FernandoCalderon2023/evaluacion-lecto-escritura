@@ -126,6 +126,44 @@ export const ANALYSIS_TOOL: Tool = {
           },
         },
       },
+      correlacionNeuropsicomotora: {
+        type: ["object", "null"],
+        description: "Solo si se aplicó BPM. Cruce entre el perfil psicomotor (BPM) y los indicadores de lecto-escritura (MINEDU) según el ANEXO 3. null si NO se aplicó BPM.",
+        properties: {
+          origenProbable: {
+            type: "string",
+            enum: ["neuro-psicomotor", "cognitivo-pedagogico", "riesgo-psicomotor-sin-manifestacion", "sin-indicios"],
+            description: "Respeta EXACTAMENTE el ORIGEN PROBABLE que se te entrega ya calculado en la matriz.",
+          },
+          resumen: {
+            type: "string",
+            description: "3-4 oraciones que explican, con lenguaje cálido y profesional, por qué el perfil psicomotor se relaciona (o no) con lo observado en lecto-escritura. Describe perfiles funcionales, NUNCA diagnostica.",
+          },
+          areasImplicadas: {
+            type: "array",
+            items: { type: "string" },
+            description: "Áreas psicomotoras implicadas (ej: 'Lateralidad', 'Estructuración espacio-temporal', 'Praxia fina'). Vacío si no hay.",
+          },
+          evidencia: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                areaBPM: { type: "string", description: "Área psicomotora observada." },
+                manifestacion: { type: "string", description: "Cómo se manifiesta en la lecto-escritura del/la estudiante." },
+                itemsMinedu: { type: "string", description: "Ítems o indicadores concretos del MINEDU que lo evidencian." },
+              },
+              required: ["areaBPM", "manifestacion", "itemsMinedu"],
+            },
+            description: "Máx. 4 pares evidencia (área psicomotora ↔ manifestación observada). Solo lo que la matriz confirma.",
+          },
+          implicanciaPedagogica: {
+            type: "string",
+            description: "1-2 oraciones: qué implica esto para el apoyo. Si el origen es neuro-psicomotor, el apoyo debe incluir la dimensión corporal además de lo pedagógico.",
+          },
+        },
+        required: ["origenProbable", "resumen", "areasImplicadas", "evidencia", "implicanciaPedagogica"],
+      },
       analisisPorProceso: {
         type: "array",
         items: {
@@ -299,6 +337,7 @@ export const ANALYSIS_TOOL: Tool = {
       "hallazgosPorEjercicio",
       "perfilPsicomotor",
       "perfilIntegrado",
+      "correlacionNeuropsicomotora",
       "fortalezas",
       "areasDeMejora",
       "recomendaciones",

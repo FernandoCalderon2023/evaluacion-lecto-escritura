@@ -10,6 +10,14 @@ export interface AnalisisIA {
     relacionEdadGrado: string
     desfaseAnios: number | null
   }
+  /** Correlación neuro-psicomotora BPM × MINEDU (ANEXO 3). null si no se aplicó BPM. */
+  correlacionNeuropsicomotora?: {
+    origenProbable: string
+    resumen: string
+    areasImplicadas: string[]
+    evidencia: Array<{ areaBPM: string; manifestacion: string; itemsMinedu: string }>
+    implicanciaPedagogica: string
+  } | null
   /** Análisis por cada proceso evaluado (nuevo). */
   analisisPorProceso?: Array<{
     proceso: string

@@ -17,6 +17,13 @@ const PRIORIDAD_COLOR = {
   baja:  "bg-green-100 text-green-700 border-green-200",
 }
 
+const ORIGEN_CORRELACION: Record<string, { label: string; cls: string }> = {
+  "neuro-psicomotor": { label: "Base neuro-psicomotora", cls: "bg-purple-100 text-purple-700 border-purple-200" },
+  "cognitivo-pedagogico": { label: "Origen cognitivo-pedagógico", cls: "bg-blue-100 text-blue-700 border-blue-200" },
+  "riesgo-psicomotor-sin-manifestacion": { label: "Riesgo psicomotor sin manifestación", cls: "bg-yellow-100 text-yellow-700 border-yellow-200" },
+  "sin-indicios": { label: "Sin indicios psicomotores", cls: "bg-green-100 text-green-700 border-green-200" },
+}
+
 const NIVEL_COLOR: Record<string, string> = {
   "Consolidado":   "bg-green-100 text-green-700 border-green-200",
   "En desarrollo": "bg-yellow-100 text-yellow-700 border-yellow-200",
@@ -304,6 +311,54 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
                 )
               })}
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* CORRELACIÓN NEURO-PSICOMOTORA (ANEXO 3 · BPM × MINEDU) */}
+      {analisis.correlacionNeuropsicomotora && (
+        <Card className="border-purple-200 bg-purple-50/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2 text-purple-700">
+              <Puzzle className="h-4 w-4" /> Correlación neuro-psicomotora (BPM × MINEDU)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {(() => {
+              const c = analisis.correlacionNeuropsicomotora!
+              const o = ORIGEN_CORRELACION[c.origenProbable] ?? { label: c.origenProbable, cls: "bg-slate-100 text-slate-700 border-slate-200" }
+              return (
+                <>
+                  <span className={`inline-block text-xs px-2.5 py-1 rounded-full border font-semibold ${o.cls}`}>
+                    {o.label}
+                  </span>
+                  <p className="text-sm text-slate-800 leading-relaxed">{c.resumen}</p>
+                  {Array.isArray(c.areasImplicadas) && c.areasImplicadas.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {c.areasImplicadas.map((a, i) => (
+                        <span key={i} className="text-xs bg-white border border-purple-200 text-purple-700 rounded-full px-2.5 py-1">{a}</span>
+                      ))}
+                    </div>
+                  )}
+                  {Array.isArray(c.evidencia) && c.evidencia.length > 0 && (
+                    <div className="space-y-2">
+                      {c.evidencia.map((e, i) => (
+                        <div key={i} className="border border-purple-200 bg-white rounded-lg p-2.5">
+                          <p className="text-xs font-semibold text-purple-700">{e.areaBPM}</p>
+                          <p className="text-xs text-slate-700 mt-0.5">{e.manifestacion}</p>
+                          <p className="text-xs text-slate-500 mt-1">Evidencia MINEDU: {e.itemsMinedu}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {c.implicanciaPedagogica && (
+                    <div className="bg-white border border-purple-200 rounded-lg p-2.5">
+                      <p className="text-xs text-slate-700"><span className="font-semibold text-purple-700">Implicancia para el apoyo: </span>{c.implicanciaPedagogica}</p>
+                    </div>
+                  )}
+                </>
+              )
+            })()}
           </CardContent>
         </Card>
       )}

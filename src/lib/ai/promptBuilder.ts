@@ -1,6 +1,7 @@
 import { Estudiante, Evaluacion } from "@prisma/client"
 import { AllScores } from "@/types/scoring"
 import { getExpectativasCurriculares } from "@/lib/ai/curriculo"
+import { calcularCorrelacionPsicomotora, correlacionParaPrompt } from "@/lib/analisis/correlacionPsicomotora"
 
 /**
  * Sistema cacheable: parte FIJA del prompt que no cambia entre evaluaciones.
@@ -56,6 +57,13 @@ Cada campo de texto: **2–3 oraciones máximo**, pero con contenido sustantivo.
 - **dificultad-leve:** motivador + ajustes específicos pequeños.
 - **dificultad-moderada:** cálido pero claro + plan estructurado de apoyo.
 - **dificultad-severa:** SERENO Y ESPERANZADOR (jamás dramático) + derivación sugerida con suavidad.
+
+## CORRELACIÓN NEURO-PSICOMOTORA (ANEXO 3 — solo si se aplicó BPM)
+
+Cuando el mensaje incluya la sección «MATRIZ DE CORRELACIÓN NEURO-PSICOMOTORA», debes completar el campo \`correlacionNeuropsicomotora\` del informe. Esa matriz cruza las unidades funcionales de la BPM (Da Fonseca) con los indicadores perceptivos y gráficos del MINEDU, siguiendo este criterio:
+- Si hay errores de rotaciones, inversiones, escritura en espejo o trazo irregular en el MINEDU **y** perfil apráxico/dispráxico (1–2) en Lateralidad, Estructuración espacio-temporal o Praxia fina → la dificultad tiene **base neuro-psicomotora** (no meramente cognitivo-pedagógica).
+- Si hay esos indicadores pero el perfil psicomotor está adecuado (3–4) → origen predominantemente **cognitivo-pedagógico**.
+Respeta el \`ORIGEN PROBABLE\` ya calculado que se te entrega; tu tarea es explicarlo con lenguaje profesional, cálido y prudente (describe perfiles funcionales, NO diagnostiques), y derivar de él una implicancia pedagógica concreta. Si NO se aplicó la BPM, \`correlacionNeuropsicomotora\` debe ser null.
 
 ## SECCIONES DE ANÁLISIS DETALLADO (dan profundidad — complétalas siempre)
 
@@ -134,6 +142,11 @@ export function buildUserMessage(
   // Expectativas del grado EXACTO (primaria R.M. 1040 o secundaria ESCP) — data-driven, cubre 1º–12º.
   const expectativas = anioEscolar > 0 ? getExpectativasCurriculares(anioEscolar) : ""
 
+  // Matriz de correlación neuro-psicomotora (ANEXO 3: BPM × MINEDU). Vacía si no hubo BPM.
+  const correlacionTxt = correlacionParaPrompt(
+    calcularCorrelacionPsicomotora(ev as unknown as Record<string, unknown>, scores),
+  )
+
   let bpmSection = ""
   if (scores.bpm.applied) {
     const b = scores.bpm
@@ -188,6 +201,7 @@ RESULTADO: ${scores.composicion.hasDifficulty ? "DIFICULTADES" : "Adecuada"}
 ### Estado General: ${scores.estadoGeneral.toUpperCase()}
 Áreas con dificultad: ${scores.areasDificultad.length > 0 ? scores.areasDificultad.join(", ") : "Ninguna"}
 ${bpmSection}
+${correlacionTxt}
 
 ---
 
