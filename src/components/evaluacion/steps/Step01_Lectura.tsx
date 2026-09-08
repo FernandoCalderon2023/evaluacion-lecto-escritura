@@ -1,5 +1,5 @@
 "use client"
-import { EvaluacionFormData, TonoVoz } from "@/types/evaluacion"
+import { EvaluacionFormData } from "@/types/evaluacion"
 import { ScaleSelector } from "@/components/shared/ScaleSelector"
 import { PositionSelector } from "@/components/shared/PositionSelector"
 import { SectionTitle } from "./StepUtils"
@@ -10,11 +10,6 @@ interface Props {
   set: (field: keyof EvaluacionFormData) => (v: unknown) => void
 }
 
-const TONOS: { value: TonoVoz; label: string }[] = [
-  { value: "grave", label: "Grave" },
-  { value: "medio", label: "Medio" },
-  { value: "agudo", label: "Agudo" },
-]
 
 export function Step01Lectura({ state, set }: Props) {
   return (
@@ -22,7 +17,7 @@ export function Step01Lectura({ state, set }: Props) {
       <SectionTitle
         title="Ejercicio 1: Lectura en Voz Alta"
         subtitle={'Texto: "El Pajarito Intoxicado"'}
-        evalua="El núcleo del proceso lector: la fluidez y expresividad (velocidad, prosodia, tipo de lectura), los errores específicos de decodificación (cambios, omisiones, inversiones) y la comprensión por niveles (memoriza, ideas centrales, valora, interpreta, asocia)."
+        evalua="El núcleo del proceso lector: la fluidez lectora (velocidad y tipo de lectura), los errores específicos de decodificación (cambios, omisiones, inversiones) y la comprensión por niveles (memoriza, ideas centrales, valora, interpreta, asocia)."
       />
 
       {/* Palabras leídas */}
@@ -45,33 +40,11 @@ export function Step01Lectura({ state, set }: Props) {
       <div className="border border-slate-200 rounded-lg p-4 space-y-4">
         <h3 className="font-medium text-slate-700 text-sm uppercase tracking-wide">Expresividad</h3>
 
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-700">Tono de voz</label>
-          <div className="flex gap-2">
-            {TONOS.map((t) => (
-              <button
-                key={t.value}
-                type="button"
-                onClick={() => set("tonoVoz")(state.tonoVoz === t.value ? "" : t.value)}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm border font-medium transition-colors",
-                  state.tonoVoz === t.value
-                    ? "bg-viria-600 border-viria-600 text-white"
-                    : "bg-white border-slate-300 text-slate-600 hover:border-viria-400"
-                )}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
         <div className="bg-viria-50 border border-viria-200 rounded-lg p-3">
           <p className="text-xs font-semibold text-viria-700 mb-1">Expresión de matices emocionales</p>
-          <p className="text-xs text-viria-600">Se evalúa a través de los 4 indicadores siguientes. Puede dejar en blanco si no aplica.</p>
+          <p className="text-xs text-viria-600">Se evalúa a través de los 3 indicadores siguientes. Puede dejar en blanco si no aplica.</p>
         </div>
 
-        <ScaleSelector label="Respeta los signos de puntuación" value={state.respetaSignosPunt} onChange={(v) => set("respetaSignosPunt")(v)} />
         <ScaleSelector label="Lectura vacilante" value={state.lecturaVacilante} onChange={(v) => set("lecturaVacilante")(v)} />
         <ScaleSelector label="Lectura silábica" value={state.lecturaSilabica} onChange={(v) => set("lecturaSilabica")(v)} />
         <ScaleSelector label="Lectura corriente (fluida)" value={state.lecturaCorriente} onChange={(v) => set("lecturaCorriente")(v)} />

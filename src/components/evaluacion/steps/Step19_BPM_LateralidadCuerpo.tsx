@@ -30,8 +30,6 @@ export function Step19BpmLateralidadCuerpo({ state, set }: Props) {
         <BpmLateralityInput label="Auditiva" value={state.bpm_latAuditiva as string | null} onChange={set("bpm_latAuditiva")} />
         <BpmLateralityInput label="Manual" value={state.bpm_latManual as string | null} onChange={set("bpm_latManual")} />
         <BpmLateralityInput label="Podal" value={state.bpm_latPodal as string | null} onChange={set("bpm_latPodal")} />
-        <BpmLateralityInput label="Innata" value={state.bpm_latInnata as string | null} onChange={set("bpm_latInnata")} />
-        <BpmLateralityInput label="Adquirida" value={state.bpm_latAdquirida as string | null} onChange={set("bpm_latAdquirida")} />
           <BpmScoreInput
             label="Puntaje general de lateralidad"
             value={state.bpm_latScore}
@@ -41,9 +39,7 @@ export function Step19BpmLateralidadCuerpo({ state, set }: Props) {
 
       <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
         <h3 className="text-sm font-semibold text-slate-600 mb-2">Noción del Cuerpo</h3>
-        <BpmScoreInput label="Sentido kinestésico" value={state.bpm_sentidoKinest as number | null} onChange={set("bpm_sentidoKinest")} />
         <BpmScoreInput label="Reconocimiento I/D" value={state.bpm_reconocimientoID as number | null} onChange={set("bpm_reconocimientoID")} />
-        <BpmScoreInput label="Autoimagen - Cara" value={state.bpm_autoimagenCara as number | null} onChange={set("bpm_autoimagenCara")} />
         <BpmScoreInput label="Imitación de gestos" value={state.bpm_imitacionGestos as number | null} onChange={set("bpm_imitacionGestos")} />
         <BpmScoreInput label="Dibujo del cuerpo" value={state.bpm_dibujoCuerpo as number | null} onChange={set("bpm_dibujoCuerpo")} />
       </div>

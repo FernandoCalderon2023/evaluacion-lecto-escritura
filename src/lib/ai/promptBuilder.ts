@@ -179,8 +179,7 @@ ${expectativas ? `\n## EXPECTATIVAS CURRICULARES DE SU GRADO\n${expectativas}\n`
 ## RESULTADOS LECTO-ESCRITURA (MINEDU 2012)
 
 ### Lectura en voz alta
-- Tono: ${ev.tonoVoz || "—"}
-- Expresividad: signos puntuación ${scaleName(ev.respetaSignosPunt)} | vacilante ${scaleName(ev.lecturaVacilante)} | silábica ${scaleName(ev.lecturaSilabica)} | corriente ${scaleName(ev.lecturaCorriente)}
+- Expresividad: vacilante ${scaleName(ev.lecturaVacilante)} | silábica ${scaleName(ev.lecturaSilabica)} | corriente ${scaleName(ev.lecturaCorriente)}
 - Tipo lectura: ${scores.lectura.tipoLectura}
 - Errores (${scores.lectura.erroresCount}/8): ${scores.lectura.erroresPresentes.join(", ") || "Ninguno"}
 - Comprensión: ${pct(scores.lectura.comprensionTotal, 15)}
@@ -262,7 +261,6 @@ export function buildAnalysisPrompt(
 ### 2ª UNIDAD FUNCIONAL
 - **Lateralidad**: ${b.lateralidad.tipo} (${b.lateralidad.definida ? "definida" : "no definida"})
   Ocular: ${b.lateralidad.ocular ?? "—"}, Auditiva: ${b.lateralidad.auditiva ?? "—"}, Manual: ${b.lateralidad.manual ?? "—"}, Podal: ${b.lateralidad.podal ?? "—"}
-  Innata: ${b.lateralidad.innata ?? "—"}, Adquirida: ${b.lateralidad.adquirida ?? "—"}
 
 - **Noción del Cuerpo**: ${b.nocionCuerpo.score.toFixed(1)}/4 — Perfil ${perfilLabel(b.nocionCuerpo.perfil)}
   Sentido kinestésico: ${b.nocionCuerpo.items.sentidoKinest ?? "—"}, Reconocimiento I/D: ${b.nocionCuerpo.items.reconocimientoID ?? "—"}
@@ -329,8 +327,7 @@ ${expectativas}
 ## RESULTADOS DEL INSTRUMENTO DE LECTO-ESCRITURA (MINEDU 2012)
 
 ### 1. LECTURA EN VOZ ALTA
-- Tono de voz: ${ev.tonoVoz || "no registrado"}
-- Expresividad — Signos de puntuación: ${scaleName(ev.respetaSignosPunt)} | Vacilante: ${scaleName(ev.lecturaVacilante)} | Silábica: ${scaleName(ev.lecturaSilabica)} | Corriente: ${scaleName(ev.lecturaCorriente)}
+- Expresividad — Vacilante: ${scaleName(ev.lecturaVacilante)} | Silábica: ${scaleName(ev.lecturaSilabica)} | Corriente: ${scaleName(ev.lecturaCorriente)}
 - Tipo de lectura: ${scores.lectura.tipoLectura}
 - Errores (${scores.lectura.erroresCount}/8): ${scores.lectura.erroresPresentes.join(", ") || "Ninguno"}
 - Comprensión lectora: ${pct(scores.lectura.comprensionTotal, 15)}

@@ -55,8 +55,6 @@ export interface BpmResult {
     auditiva: string | null
     manual: string | null
     podal: string | null
-    innata: string | null
-    adquirida: string | null
     definida: boolean
     tipo: string  // "diestro", "zurdo", "cruzada", "no definida"
     score: number

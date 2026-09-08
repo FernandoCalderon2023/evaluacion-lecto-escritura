@@ -81,3 +81,53 @@ test("integración: evaluación vacía marca múltiples áreas con dificultad", 
   assert.equal(s.lexical.hasDifficulty, true)
   assert.ok(["dificultad-moderada", "dificultad-severa"].includes(s.estadoGeneral))
 })
+
+/* ────────────────────────────────────────────────────────────────
+ * INSTRUMENTO DEPURADO (doc "Ítems que se deben eliminar")
+ * Los ítems retirados NO deben influir en los puntajes de la BPM.
+ * Estrategia: se cargan los ELIMINADOS con 1 (débil) y los VIGENTES
+ * con 4 (excelente). Si la depuración está bien aplicada, cada unidad
+ * debe puntuar 4 — es decir, los eliminados se ignoran por completo.
+ * ──────────────────────────────────────────────────────────────── */
+test("BPM depurada: los ítems eliminados no afectan los puntajes", () => {
+  const ev: any = {
+    // — ELIMINADOS (deben ser ignorados) —
+    bpm_inspiracion: 1, bpm_espiracion: 1, bpm_apnea: 1, bpm_fatigabilidad: 1,
+    bpm_extensibilidadMI: 1, bpm_extensibilidadMS: 1, bpm_pasividad: 1,
+    bpm_paratoniaMI: 1, bpm_paratoniaMS: 1, bpm_diadocMD: 1, bpm_diadocMI: 1,
+    bpm_sincinContralat: 1,
+    bpm_inamovilidad: 1, bpm_eqApoyoRect: 1, bpm_eqPuntaPies: 1, bpm_eqApoyoUnPie: 1,
+    bpm_eqMarchaControl: 1, bpm_eqBancoAdelante: 1, bpm_eqBancoAtras: 1,
+    bpm_eqBancoDerecho: 1, bpm_eqBancoIzquierdo: 1,
+    bpm_sentidoKinest: 1, bpm_autoimagenCara: 1, bpm_etRepTopografica: 1,
+    bpm_pgCoordOculoPodal: 1, bpm_pgDismetria: 1, bpm_pgMS: 1, bpm_pgMI: 1, bpm_pgAgilidades: 1,
+    // — VIGENTES —
+    bpm_sincinBucales: 4,
+    bpm_eqPieCojoIzq: 4, bpm_eqPieCojoDer: 4, bpm_eqPiesJuntosAdel: 4,
+    bpm_eqPiesJuntosAtras: 4, bpm_eqPiesJuntosOjosCerr: 4,
+    bpm_reconocimientoID: 4, bpm_imitacionGestos: 4, bpm_dibujoCuerpo: 4,
+    bpm_etOrganizacion: 4, bpm_etEstructDinamica: 4, bpm_etEstructRitmica: 4,
+    bpm_pgCoordOculoManual: 4, bpm_pgDisociacion: 4,
+    bpm_pfCoordDinamManual: 4, bpm_pfTamborilear: 4, bpm_pfVelocidadPrecision: 4,
+  }
+  const b = calcularScores(ev).bpm
+  assert.equal(b.applied, true)
+  assert.equal(b.tonicidad.score, 4, "tonicidad = solo sincinesias bucales")
+  assert.equal(b.equilibrio.score, 4, "equilibrio = solo saltos")
+  assert.equal(b.nocionCuerpo.score, 4, "noción del cuerpo sin sentido kinestésico ni autoimagen")
+  assert.equal(b.estructuracionET.score, 4, "estructuración E-T sin representación topográfica")
+  assert.equal(b.praxiaGlobal.score, 4, "praxia global = óculo-manual + disociación")
+  assert.equal(b.praxiaFina.score, 4, "praxia fina completa")
+})
+
+test("BPM depurada: lateralidad se define con las 4 pruebas vigentes", () => {
+  const ev: any = {
+    bpm_latOcular: "D", bpm_latAuditiva: "D", bpm_latManual: "D", bpm_latPodal: "D",
+    // eliminados: aunque fueran contradictorios, no deben contar
+    bpm_latInnata: "I", bpm_latAdquirida: "I",
+  }
+  const lat = calcularScores(ev).bpm.lateralidad
+  assert.equal(lat.tipo, "diestro", "4 pruebas coincidentes = lateralidad definida")
+  assert.equal(lat.definida, true)
+  assert.equal(lat.score, 4)
+})

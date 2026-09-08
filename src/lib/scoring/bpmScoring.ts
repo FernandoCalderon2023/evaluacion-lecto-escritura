@@ -33,32 +33,13 @@ export function scoreBpm(ev: Partial<EvaluacionFormData>): BpmResult {
     return val != null && val !== ""
   })
 
+  // Instrumento depurado: de Tonicidad solo se aplica Sincinesias bucales.
   const tonicidad = makeUnitScore({
-    inspiracion: ev.bpm_inspiracion,
-    espiracion: ev.bpm_espiracion,
-    apnea: ev.bpm_apnea,
-    fatigabilidad: ev.bpm_fatigabilidad,
-    extensibilidadMI: ev.bpm_extensibilidadMI,
-    extensibilidadMS: ev.bpm_extensibilidadMS,
-    pasividad: ev.bpm_pasividad,
-    paratoniaMI: ev.bpm_paratoniaMI,
-    paratoniaMS: ev.bpm_paratoniaMS,
-    diadocMD: ev.bpm_diadocMD,
-    diadocMI: ev.bpm_diadocMI,
     sincinBucales: ev.bpm_sincinBucales,
-    sincinContralat: ev.bpm_sincinContralat,
   })
 
+  // Instrumento depurado: de Equilibrio solo se aplican los saltos.
   const equilibrio = makeUnitScore({
-    inamovilidad: ev.bpm_inamovilidad,
-    apoyoRect: ev.bpm_eqApoyoRect,
-    puntaPies: ev.bpm_eqPuntaPies,
-    apoyoUnPie: ev.bpm_eqApoyoUnPie,
-    marchaControl: ev.bpm_eqMarchaControl,
-    bancoAdelante: ev.bpm_eqBancoAdelante,
-    bancoAtras: ev.bpm_eqBancoAtras,
-    bancoDerecho: ev.bpm_eqBancoDerecho,
-    bancoIzquierdo: ev.bpm_eqBancoIzquierdo,
     pieCojoIzq: ev.bpm_eqPieCojoIzq,
     piecojoDer: ev.bpm_eqPieCojoDer,
     piesJuntosAdel: ev.bpm_eqPiesJuntosAdel,
@@ -72,13 +53,11 @@ export function scoreBpm(ev: Partial<EvaluacionFormData>): BpmResult {
     auditiva: ev.bpm_latAuditiva ?? null,
     manual: ev.bpm_latManual ?? null,
     podal: ev.bpm_latPodal ?? null,
-    innata: ev.bpm_latInnata ?? null,
-    adquirida: ev.bpm_latAdquirida ?? null,
   }
   const latValues = Object.values(latFields).filter((v): v is string => v != null)
   const allD = latValues.every(v => v === "D")
   const allI = latValues.every(v => v === "I")
-  const definida = latValues.length >= 4 && (allD || allI)
+  const definida = latValues.length >= 3 && (allD || allI)  // depurado: 4 pruebas de lateralidad
   let tipo = "no definida"
   let latScore = 1
   if (latValues.length === 0) {
@@ -107,9 +86,7 @@ export function scoreBpm(ev: Partial<EvaluacionFormData>): BpmResult {
   }
 
   const nocionCuerpo = makeUnitScore({
-    sentidoKinest: ev.bpm_sentidoKinest,
     reconocimientoID: ev.bpm_reconocimientoID,
-    autoimagenCara: ev.bpm_autoimagenCara,
     imitacionGestos: ev.bpm_imitacionGestos,
     dibujoCuerpo: ev.bpm_dibujoCuerpo,
   })
@@ -117,18 +94,13 @@ export function scoreBpm(ev: Partial<EvaluacionFormData>): BpmResult {
   const estructuracionET = makeUnitScore({
     organizacion: ev.bpm_etOrganizacion,
     estructDinamica: ev.bpm_etEstructDinamica,
-    repTopografica: ev.bpm_etRepTopografica,
     estructRitmica: ev.bpm_etEstructRitmica,
   })
 
+  // Instrumento depurado: de Praxia global solo óculo-manual y disociación.
   const praxiaGlobal = makeUnitScore({
     coordOculoManual: ev.bpm_pgCoordOculoManual,
-    coordOculoPodal: ev.bpm_pgCoordOculoPodal,
-    dismetria: ev.bpm_pgDismetria,
     disociacion: ev.bpm_pgDisociacion,
-    ms: ev.bpm_pgMS,
-    mi: ev.bpm_pgMI,
-    agilidades: ev.bpm_pgAgilidades,
   })
 
   const praxiaFina = makeUnitScore({

@@ -28,19 +28,13 @@ export function Step20BpmPraxiasET({ state, set }: Props) {
         <h3 className="text-sm font-semibold text-slate-600 mb-2">Estructuración Espacio-Temporal</h3>
         <BpmScoreInput label="Organización" value={state.bpm_etOrganizacion as number | null} onChange={set("bpm_etOrganizacion")} />
         <BpmScoreInput label="Estructuración dinámica" value={state.bpm_etEstructDinamica as number | null} onChange={set("bpm_etEstructDinamica")} />
-        <BpmScoreInput label="Representación topográfica" value={state.bpm_etRepTopografica as number | null} onChange={set("bpm_etRepTopografica")} />
         <BpmScoreInput label="Estructuración rítmica" value={state.bpm_etEstructRitmica as number | null} onChange={set("bpm_etEstructRitmica")} />
       </div>
 
       <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
         <h3 className="text-sm font-semibold text-slate-600 mb-2">Praxia Global</h3>
         <BpmScoreInput label="Coordinación óculo-manual" value={state.bpm_pgCoordOculoManual as number | null} onChange={set("bpm_pgCoordOculoManual")} />
-        <BpmScoreInput label="Coordinación óculo-podal" value={state.bpm_pgCoordOculoPodal as number | null} onChange={set("bpm_pgCoordOculoPodal")} />
-        <BpmScoreInput label="Dismetría" value={state.bpm_pgDismetria as number | null} onChange={set("bpm_pgDismetria")} />
         <BpmScoreInput label="Disociación" value={state.bpm_pgDisociacion as number | null} onChange={set("bpm_pgDisociacion")} />
-        <BpmScoreInput label="Miembros superiores" value={state.bpm_pgMS as number | null} onChange={set("bpm_pgMS")} />
-        <BpmScoreInput label="Miembros inferiores" value={state.bpm_pgMI as number | null} onChange={set("bpm_pgMI")} />
-        <BpmScoreInput label="Agilidades" value={state.bpm_pgAgilidades as number | null} onChange={set("bpm_pgAgilidades")} />
       </div>
 
       <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
