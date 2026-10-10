@@ -79,7 +79,7 @@ async function main() {
       check((expectAuth?'Sesión ':'Acceso rechazado ')+email, expectAuth?identity===email:!identity)
       return request
     }
-    for (const [route, expected] of [["/", "Comprende mejor"], ["/demo", "familia"], ["/login", "Contraseña"]]) {
+    for (const [route, expected] of [["/", "Acompañar su aprendizaje"], ["/demo", "familia"], ["/login", "Contraseña"]]) {
       const page = await fetch(base+route)
       check('Página pública '+route, page.status===200 && (await page.text()).includes(expected))
     }
@@ -93,7 +93,12 @@ async function main() {
     check('Validación de estado de cuenta', (await admin('/api/admin/usuarios/missing',json('PATCH',{activo:"false"}))).status===400)
     check('Cuenta inexistente devuelve 404', (await admin('/api/admin/usuarios/missing',json('PATCH',{activo:false}))).status===404)
     check('Docente no administra cuentas', (await one('/api/admin/usuarios/missing',json('PATCH',{activo:false}))).status===403)
-    check('Panel administrativo renderizado', (await (await admin('/admin')).text()).includes('Accesos del equipo'))
+    for (const route of ['/admin', '/admin/usuarios', '/admin/solicitudes', '/admin/organizaciones', '/admin/avisos']) {
+      check('Administrador puede abrir '+route, (await admin(route)).status===200)
+      const denied = await one(route, {redirect:'manual'})
+      check('Docente no abre '+route, denied.status===307 && denied.headers.get('location')==='/dashboard')
+    }
+    check('Panel administrativo renderizado', (await (await admin('/admin/usuarios')).text()).includes('Accesos del equipo'))
     const studentResponse=await one('/api/estudiantes',json('POST',{nombre:'QA',apellido1:'Sintetico',fechaNac:'2018-01-01',grado:'3º de Primaria',unidadEducativa:'QA local',gestion:2026,docente:'QA',sexo:'F'}))
     check('Crear estudiante sintético',studentResponse.status===201)
     const student=await studentResponse.json()
@@ -209,7 +214,7 @@ async function main() {
     check('Solicitud repetida no duplica',repeat.alreadyRequested===true)
     await waitFor(()=>mails.some(m=>m.payload.subject.includes('Solicitud de suscripción')))
     check('Una notificación de solicitud, sin duplicados',mails.filter(m=>m.payload.subject.includes('Solicitud de suscripción')).length===1)
-    const adminHtml=await (await admin('/admin')).text()
+    const adminHtml=await (await admin('/admin/solicitudes')).text()
     check('Solicitud llega a administración',adminHtml.includes(trialEmail)&&adminHtml.includes('Solicitud QA'))
     check('Solicitar no activa el plan',(await trial('/api/evaluaciones/'+te.id+'/analisis',{method:'POST'})).status===403)
     await trial('/api/evaluaciones/'+te.id,{method:'DELETE'})

@@ -15,6 +15,15 @@ const nav = [
   { href: "/guia", label: "Guía de uso", icon: BookOpen },
 ]
 
+const adminNav = [
+  { href: "/admin", label: "Resumen", icon: LayoutDashboard },
+  { href: "/admin/usuarios", label: "Usuarios", icon: Users },
+  { href: "/admin/solicitudes", label: "Solicitudes", icon: ClipboardList },
+  { href: "/admin/organizaciones", label: "Organizaciones", icon: BookOpen },
+  { href: "/admin/avisos", label: "Avisos", icon: Settings },
+]
+const isActive = (path: string, href: string) => path === href || (href !== "/admin" && path.startsWith(href + "/"))
+
 const LS_KEY = "sideda-sidebar-collapsed"
 
 export function Sidebar() {
@@ -25,9 +34,9 @@ export function Sidebar() {
   const isAdmin = (session?.user as any)?.role === "ADMIN"
 
   const isFamily = (session?.user as any)?.role === "FAMILIA"
-  const fullNav = isFamily ? [{ href: "/familia", label: "Mi familia", icon: Users }, { href: "/suscripcion", label: "Mi acceso", icon: BookOpen }, { href: "/cuenta", label: "Cuenta", icon: Settings }] : isAdmin
-    ? [...nav, { href: "/admin", label: "Administración", icon: Settings }]
-    : nav
+  const administration = isAdmin && (path === "/admin" || path.startsWith("/admin/"))
+  const home = isFamily ? "/familia" : administration ? "/admin" : "/dashboard"
+  const fullNav = isFamily ? [{ href: "/familia", label: "Mi familia", icon: Users }, { href: "/suscripcion", label: "Mi acceso", icon: BookOpen }, { href: "/cuenta", label: "Cuenta", icon: Settings }] : administration ? adminNav : nav
 
   // Cerrar sidebar al navegar (móvil)
   useEffect(() => { setOpen(false) }, [path])
@@ -44,13 +53,14 @@ export function Sidebar() {
     <>
       {/* === HEADER MÓVIL === */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-gradient-to-r from-viria-900 to-orchid-800 text-white flex items-center justify-between px-4 py-3 shadow-md print:hidden">
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href={home} className="flex items-center gap-2">
           <Logo variant="white" size={22} showText={false} />
           <span className="font-extrabold text-sm tracking-tight">SIDEDA</span>
         </Link>
         <button
           onClick={() => setOpen(!open)}
           className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+          aria-expanded={open}
           aria-label={open ? "Cerrar menú" : "Abrir menú"}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -88,14 +98,22 @@ export function Sidebar() {
           </div>
         </div>
 
+        {isAdmin && <div className={cn("border-b border-white/10", collapsed ? "p-2" : "p-3")}>
+          {!collapsed && <p className="mb-2 px-2 text-[10px] uppercase tracking-widest text-viria-200">{administration ? "Administración" : "Evaluación y resultados"}</p>}
+          <Link href={administration ? "/dashboard" : "/admin"} title={administration ? "Ir a evaluaciones" : "Ir a administración"} className="flex items-center gap-2 rounded-lg border border-white/20 p-2 text-xs hover:bg-white/10">
+            {administration ? <ClipboardList className="h-4 w-4 shrink-0"/> : <Settings className="h-4 w-4 shrink-0"/>}
+            <span className={collapsed ? "lg:sr-only" : ""}>{administration ? "Ir a evaluaciones" : "Ir a administración"}</span>
+          </Link>
+        </div>}
         {/* Nav */}
         <nav className={cn("flex-1 space-y-1 overflow-y-auto", collapsed ? "p-2" : "p-3")}>
           {fullNav.map(({ href, label, icon: Icon }) => {
-            const active = path.startsWith(href)
+            const active = isActive(path, href)
             return (
               <Link
                 key={href}
                 href={href}
+                aria-current={active ? "page" : undefined}
                 title={collapsed ? label : undefined}
                 className={cn(
                   "group relative flex items-center rounded-xl transition-all",
@@ -155,11 +173,12 @@ export function Sidebar() {
       {/* === BOTTOM NAV MÓVIL === */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 flex justify-around py-2 px-1 safe-area-pb shadow-[0_-2px_10px_rgba(0,0,0,0.04)] print:hidden">
         {fullNav.map(({ href, label, icon: Icon }) => {
-          const active = path.startsWith(href)
+          const active = isActive(path, href)
           return (
             <Link
               key={href}
               href={href}
+              aria-current={active ? "page" : undefined}
               className={cn(
                 "flex flex-col items-center gap-0.5 px-1 py-1.5 rounded-lg transition-all",
                 active ? "text-viria-600" : "text-slate-400 hover:text-slate-600"

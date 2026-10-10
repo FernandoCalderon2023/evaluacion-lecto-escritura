@@ -1,50 +1,19 @@
-import { NotificationStatus } from "@/components/admin/NotificationStatus"
-import { emailConfigured, NOTIFICATION_EMAIL } from "@/lib/notifications"
-import { SubscriptionRequests } from "@/components/admin/SubscriptionRequests"
-export const dynamic = "force-dynamic"
-
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { redirect } from "next/navigation"
+import Link from "next/link"
 import { prisma } from "@/lib/prisma"
-import { AdminPanel } from "@/components/admin/AdminPanel"
-import { RolesPanel } from "@/components/admin/RolesPanel"
-
+import { requireAdmin } from "@/lib/apiAuth"
+import { redirect } from "next/navigation"
+export const dynamic = "force-dynamic"
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions)
-  if ((session?.user as any)?.role !== "ADMIN") redirect("/dashboard")
-
-  const usuarios = await prisma.usuario.findMany({
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      email: true,
-      nombre: true,
-      rol: true,
-      activo: true,
-      createdAt: true,
-    },
-  })
-
-  const requests = await prisma.accesoComercial.findMany({ where: { solicitadoEn: { not: null } }, orderBy: { solicitadoEn: "desc" }, include: { usuario: { select: { nombre: true, email: true } } } })
-  const [pending, sent] = await Promise.all([prisma.avisoSistema.count({where:{estado:{not:"ENVIADO"}}}),prisma.avisoSistema.count({where:{estado:"ENVIADO"}})])
-  return (
-    <div className="p-4 lg:p-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Administración de Usuarios</h1>
-        <p className="text-slate-500 text-sm mt-1">Crear, activar y desactivar cuentas de docentes</p>
-      </div>
-      <NotificationStatus configured={emailConfigured()} pending={pending} sent={sent} email={NOTIFICATION_EMAIL}/>
-      <SubscriptionRequests requests={requests.map(r=>({...r, solicitadoEn:r.solicitadoEn?.toISOString()??null}))}/>
-      <AdminPanel usuarios={usuarios} currentUserId={(session!.user as any).id} />
-
-      <div className="pt-4 border-t border-slate-200">
-        <h2 className="text-xl font-bold text-slate-900">Organizaciones y roles</h2>
-        <p className="text-slate-500 text-sm mt-1 mb-4">
-          Creá la estructura (departamentos, distritos, unidades educativas) y asigná directores/as y distritales.
-        </p>
-        <RolesPanel usuarios={usuarios.map((u) => ({ id: u.id, nombre: u.nombre, email: u.email }))} />
-      </div>
-    </div>
-  )
+  if (!(await requireAdmin()).ok) redirect("/dashboard")
+  const [usuarios, solicitudes, avisos] = await Promise.all([
+    prisma.usuario.count(),
+    prisma.accesoComercial.count({ where: { solicitadoEn: { not: null }, estado: "PRUEBA" } }),
+    prisma.avisoSistema.count({ where: { estado: { not: "ENVIADO" } } }),
+  ])
+  return <><h1 className="text-3xl font-semibold text-slate-900">Administración</h1><div className="grid gap-4 sm:grid-cols-2">{[
+    { href: "/admin/usuarios", title: "Usuarios", detail: `${usuarios} cuentas registradas`, text: "Crea cuentas y gestiona su acceso a la plataforma." },
+    { href: "/admin/solicitudes", title: "Solicitudes", detail: `${solicitudes} pendientes de contacto`, text: "Consulta las solicitudes de suscripción y habilita los accesos acordados." },
+    { href: "/admin/organizaciones", title: "Organizaciones y roles", detail: "Estructura institucional", text: "Organiza unidades educativas, distritos y responsables." },
+    { href: "/admin/avisos", title: "Avisos del sistema", detail: `${avisos} pendientes de envío`, text: "Revisa el estado del correo y reintenta los avisos pendientes." },
+  ].map(item => <Link key={item.href} href={item.href} className="rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-viria-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-viria-600"><p className="text-sm font-medium text-viria-700">{item.detail}</p><h2 className="mt-3 text-xl font-semibold">{item.title}</h2><p className="mt-2 text-sm text-slate-500">{item.text}</p><span className="mt-5 block text-sm font-semibold text-viria-700">Abrir sección →</span></Link>)}</div></>
 }
