@@ -1,3 +1,4 @@
+import { isTrial, subscriptionRequired } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
@@ -19,6 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   const isAdmin = (session.user as any).role === "ADMIN"
   const docenteId = (session.user as any).id
+    if (await isTrial(docenteId)) return subscriptionRequired()
 
   const ev = await prisma.evaluacion.findUnique({ where: { id: params.id } })
   if (!ev) return NextResponse.json({ error: "Evaluación no encontrada" }, { status: 404 })

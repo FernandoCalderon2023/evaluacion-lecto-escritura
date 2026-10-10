@@ -1,3 +1,4 @@
+import { isTrial } from "@/lib/commercial"
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
@@ -20,6 +21,7 @@ export default async function InformePadresPage({ params }: { params: { id: stri
     notFound()
   }
 
+  if (await isTrial(auth.userId)) redirect("/suscripcion")
   const analisis = ev.analisisIA ? JSON.parse(ev.analisisIA) : null
 
   return (

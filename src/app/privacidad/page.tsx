@@ -36,7 +36,8 @@ export default function PrivacidadPage() {
             <h2 className="text-xl font-bold text-slate-900 mb-2">1. Datos que recopilamos</h2>
             <p>SIDEDA recopila únicamente los datos estrictamente necesarios para realizar evaluaciones psicopedagógicas:</p>
             <ul className="list-disc pl-5 space-y-1 text-sm">
-              <li><strong>Del docente evaluador:</strong> nombre, correo electrónico, contraseña (cifrada con bcrypt).</li>
+              <li><strong>Del docente evaluador:</strong> nombre, correo electrónico, contraseña (almacenada como hash con bcrypt).</li>
+              <li><strong>De la prueba y solicitud comercial:</strong> cupos utilizados, fecha de registro, teléfono, institución y mensaje proporcionados al solicitar la suscripción. El equipo administrativo usa estos datos para atender tu solicitud; el envío no activa un pago ni una suscripción automáticamente.</li>
               <li><strong>Del estudiante (menor de edad):</strong> nombre y apellidos, fecha de nacimiento, sexo, grado, Unidad Educativa, código RUDE opcional, domicilio opcional.</li>
               <li><strong>Resultados de evaluación:</strong> puntuaciones por ejercicio del instrumento MINEDU 2012 y de la Batería Psicomotora (BPM).</li>
               <li><strong>Datos técnicos:</strong> dirección IP, navegador y momento de cada acción sensible (para auditoría).</li>
@@ -44,28 +45,28 @@ export default function PrivacidadPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-slate-900 mb-2">2. Anonimización de menores</h2>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">2. Identificación mediante códigos</h2>
             <p>
               Al registrar un estudiante, la plataforma genera automáticamente un{" "}
-              <strong>código anónimo</strong> (formato: iniciales + sufijo, ej. <code>QMM-A1B2</code>).
+              <strong>código de identificación</strong> (formato: iniciales + sufijo, ej. <code>QMM-A1B2</code>).
             </p>
             <ul className="list-disc pl-5 space-y-1 text-sm">
               <li>En todos los listados, dashboards y reportes se muestra <strong>únicamente el código</strong>.</li>
-              <li>El nombre completo solo es visible para el docente que registró al estudiante.</li>
-              <li>El prompt enviado a la inteligencia artificial recibe <strong>solo el código</strong> — nunca el nombre real.</li>
+              <li>El acceso a los datos se controla por propietario y roles de administración u organización. El código no convierte los datos almacenados en anónimos.</li>
+              <li>El campo de identificación utilizado para generar el informe es el código. Evita incorporar datos identificativos en las observaciones.</li>
             </ul>
           </div>
 
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">3. Inteligencia Artificial</h2>
             <p>
-              Los reportes psicopedagógicos se generan utilizando <strong>Claude (Anthropic)</strong>.
-              El proveedor de IA recibe únicamente los puntajes numéricos, el código anónimo y los datos
-              demográficos básicos (sexo, edad, grado). Nunca recibe el nombre del estudiante.
+              Los informes se generan con el proveedor configurado por el sistema: DeepSeek o Anthropic.
+              Se envían los resultados, datos de contexto y observaciones necesarios para la interpretación.
+              No incluyas nombres ni información personal innecesaria en los campos de texto libre.
+              La prueba gratuita muestra puntajes calculados sin generar un informe de IA.
             </p>
             <p className="text-sm text-slate-600">
-              Anthropic mantiene logs operativos por 30 días para fines de seguridad, pero no entrena
-              sus modelos con datos del API. Más información: <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer" className="text-viria-600 hover:underline">anthropic.com/privacy</a>.
+              El profesional debe revisar el informe antes de compartirlo con la familia.
             </p>
           </div>
 

@@ -23,10 +23,10 @@ export default function LandingPage() {
           <h1 className="max-w-2xl text-4xl font-semibold leading-[1.08] tracking-[-0.045em] sm:text-5xl lg:text-[64px]">Comprende mejor.<br /><span className="text-viria-700">Acompaña mejor.</span></h1>
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-slate-600">De las observaciones del aula a un informe claro. SIDEDA reúne evaluación, orientación con IA y seguimiento del estudiante en un mismo lugar.</p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <Link href="/demo" className="inline-flex items-center gap-3 rounded-full bg-viria-900 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-viria-800">Explorar un ejemplo <ArrowRight size={18} /></Link>
+            <Link href="/registro" className="inline-flex items-center gap-3 rounded-full bg-viria-900 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-viria-800">Comenzar prueba gratuita <ArrowRight size={18} /></Link>
             <Link href="/login" className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-6 py-3.5 text-sm font-semibold transition hover:bg-white">Ya tengo una cuenta <ArrowUpRight size={17} /></Link>
           </div>
-          <p className="mt-4 text-xs text-slate-500">El ejemplo es público y ficticio. No necesitas registrarte.</p>
+          <p className="mt-4 text-xs text-slate-500">1 estudiante · 1 evaluación · Resumen de resultados · Sin tarjeta.</p>
           <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 border-t border-slate-200 pt-6 text-xs text-slate-600">
             <span className="flex items-center gap-2"><Check size={15} className="text-viria-700" /> Contexto educativo boliviano</span>
             <span className="flex items-center gap-2"><Check size={15} className="text-viria-700" /> Informes para aula y familia</span>
@@ -54,7 +54,7 @@ export default function LandingPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-viria-700">Distintos equipos. Un propósito compartido.</p>
         <h2 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">Una herramienta que acompaña<br className="hidden sm:block" /> tu forma de trabajar.</h2>
         <div className="mt-10 grid gap-5 md:grid-cols-3">{audiences.map(({icon: Icon,title,subtitle,items}) => <article key={title} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-7"><Icon size={25} strokeWidth={1.5} className="text-viria-700" /><h3 className="mt-6 text-xl font-semibold">{title}</h3><p className="mt-2 text-sm leading-relaxed text-slate-500">{subtitle}</p><ul className="mt-6 space-y-4">{items.map(item => <li key={item} className="flex gap-3 text-sm leading-relaxed text-slate-700"><Check size={17} className="mt-1 shrink-0 text-viria-700" />{item}</li>)}</ul></article>)}</div>
-        <p className="mt-5 max-w-3xl text-sm leading-relaxed text-slate-500">Las familias reciben orientación a través del informe compartido por su docente o profesional. El acceso al sistema se habilita con una cuenta asignada.</p>
+        <p className="mt-5 max-w-3xl text-sm leading-relaxed text-slate-500">Las familias reciben orientación a través del informe compartido por su docente o profesional. Puedes crear tu cuenta e iniciar una prueba gratuita con acceso limitado.</p>
       </section>
 
       <section id="como-funciona" className="bg-viria-900 px-5 py-16 text-white lg:px-8">
@@ -77,7 +77,7 @@ export default function LandingPage() {
           ["¿Puedo entregar el informe a una familia?", "La evaluación tiene una vista para familias y opciones de impresión. El profesional revisa el contenido antes de compartirlo."],
         ].map(([q,a]) => <details key={q} className="group rounded-xl border border-slate-200 bg-white px-5 py-4"><summary className="cursor-pointer text-sm font-semibold text-slate-800">{q}</summary><p className="mt-3 text-sm leading-relaxed text-slate-600">{a}</p></details>)}</div>
       </section>
-      <section className="mx-auto max-w-7xl px-5 pb-20 lg:px-8"><div className="flex flex-col items-start justify-between gap-7 rounded-2xl border border-slate-200 bg-white p-8 sm:flex-row sm:items-center lg:p-10"><div><h2 className="text-2xl font-semibold tracking-tight">Mira lo que puedes entregar.</h2><p className="mt-2 text-sm text-slate-500">Explora una muestra y conoce el recorrido de SIDEDA.</p></div><Link href="/demo" className="inline-flex shrink-0 items-center gap-3 rounded-full bg-viria-900 px-6 py-3 text-sm font-semibold text-white hover:bg-viria-800">Ver ejemplo de informe <ArrowRight size={18} /></Link></div></section>
+      <section className="mx-auto max-w-7xl px-5 pb-20 lg:px-8"><div className="flex flex-col items-start justify-between gap-7 rounded-2xl border border-slate-200 bg-white p-8 sm:flex-row sm:items-center lg:p-10"><div><h2 className="text-2xl font-semibold tracking-tight">Empieza con una prueba gratuita.</h2><p className="mt-2 text-sm text-slate-500">Regístrate, completa una evaluación y solicita la suscripción cuando quieras ampliar tu acceso.</p></div><Link href="/registro" className="inline-flex shrink-0 items-center gap-3 rounded-full bg-viria-900 px-6 py-3 text-sm font-semibold text-white hover:bg-viria-800">Crear mi cuenta <ArrowRight size={18} /></Link></div></section>
     </main>
     <ProductFooter />
   </div>

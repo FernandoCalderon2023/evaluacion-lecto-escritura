@@ -8,6 +8,7 @@ datasource db {
 }
 
 model Usuario {
+  accesoComercial AccesoComercial?
   id           String   @id @default(cuid())
   email        String   @unique
   passwordHash String
@@ -413,4 +414,41 @@ model Membership {
   @@unique([usuarioId, organizacionId])
   @@index([usuarioId])
   @@index([organizacionId])
+}
+
+// Missing record means an existing, administrator-managed account: preserve access.
+model AccesoComercial {
+  usuarioId String @id
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  estado String @default("PRUEBA")
+  estudiantesUsados Int @default(0)
+  evaluacionesUsadas Int @default(0)
+  solicitadoEn DateTime?
+  telefono String?
+  organizacion String?
+  mensaje String?
+  activadoEn DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RegistroVentana {
+  id String @id
+  intentos Int @default(1)
+  createdAt DateTime @default(now())
+}
+
+model AvisoSistema {
+  id String @id
+  destinatario String
+  asunto String
+  texto String
+  estado String @default("PENDIENTE")
+  intentos Int @default(0)
+  bloqueoHasta DateTime?
+  enviadoEn DateTime?
+  proveedorId String?
+  ultimoError String?
+  createdAt DateTime @default(now())
+  @@index([estado, createdAt])
 }

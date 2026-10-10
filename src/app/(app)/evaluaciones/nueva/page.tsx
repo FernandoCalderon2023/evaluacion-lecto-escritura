@@ -1,3 +1,4 @@
+import { trialAccess } from "@/lib/commercial"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
@@ -19,6 +20,8 @@ export default async function NuevaEvaluacionPage({
   const isAdmin = (session?.user as any)?.role === "ADMIN"
   const docenteId = (session?.user as any)?.id
 
+  const access = await trialAccess(docenteId)
+  if (access?.estado === "PRUEBA" && access.evaluacionesUsadas >= 1) redirect("/suscripcion")
   const estudiantes = await prisma.estudiante.findMany({
     where: isAdmin ? {} : { docenteId },
     orderBy: { codigo: "asc" },

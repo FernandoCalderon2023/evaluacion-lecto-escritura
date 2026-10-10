@@ -34,26 +34,32 @@ async function runBackup() {
   const startedAt = Date.now()
 
   // Exportar todas las tablas
-  const [usuarios, estudiantes, evaluaciones, analysisJobs] = await Promise.all([
+  const [usuarios, estudiantes, evaluaciones, analysisJobs, accesosComerciales, avisosSistema] = await Promise.all([
     prisma.usuario.findMany(),
     prisma.estudiante.findMany(),
     prisma.evaluacion.findMany(),
     prisma.analysisJob.findMany(),
+    prisma.accesoComercial.findMany(),
+    prisma.avisoSistema.findMany(),
   ])
 
   const data = {
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     counts: {
       usuarios: usuarios.length,
       estudiantes: estudiantes.length,
       evaluaciones: evaluaciones.length,
       analysisJobs: analysisJobs.length,
+      accesosComerciales: accesosComerciales.length,
+      avisosSistema: avisosSistema.length,
     },
     usuarios: usuarios.map((u) => ({ ...u, passwordHash: "***REDACTED***" })),
     estudiantes,
     evaluaciones,
     analysisJobs,
+    accesosComerciales,
+    avisosSistema,
   }
 
   const json = JSON.stringify(data, null, 0)

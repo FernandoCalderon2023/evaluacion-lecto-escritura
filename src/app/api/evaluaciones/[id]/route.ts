@@ -1,3 +1,4 @@
+import { isTrial, withoutReport } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { calcularScores } from "@/lib/scoring"
@@ -18,7 +19,7 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   if (!(await canViewInScope(auth, { docenteId: ev.docenteId, unidadEducativaId: ev.estudiante?.unidadEducativaId ?? null }))) {
     return forbiddenResponse()
   }
-  return NextResponse.json(ev)
+  return NextResponse.json(await isTrial(auth.userId) ? withoutReport(ev) : ev)
 }
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
@@ -67,7 +68,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         analisisGeneradoEn: null,
       },
     })
-    return NextResponse.json(ev)
+    return NextResponse.json(await isTrial(auth.userId) ? withoutReport(ev) : ev)
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error("[evaluaciones/[id]/PUT]", msg)

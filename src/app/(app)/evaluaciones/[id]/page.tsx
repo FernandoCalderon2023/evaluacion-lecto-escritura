@@ -1,3 +1,5 @@
+import { isTrial } from "@/lib/commercial"
+import { TrialResult } from "@/components/resultados/TrialResult"
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
@@ -45,6 +47,7 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const scores = calcularScores(ev as any)
+  if (await isTrial(auth.userId)) return <TrialResult id={ev.id} codigo={ev.estudiante.codigo} scores={scores}/>
   const analisis = ev.analisisIA ? (JSON.parse(ev.analisisIA) as AnalisisIA) : null
   const est = ev.estudiante
 

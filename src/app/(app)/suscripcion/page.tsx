@@ -1,0 +1,10 @@
+import Link from "next/link"
+import { getAuthContext } from "@/lib/apiAuth"
+import { trialAccess } from "@/lib/commercial"
+import { redirect } from "next/navigation"
+import { SubscriptionForm } from "@/components/marketing/SubscriptionForm"
+export default async function SubscriptionPage(){
+ const auth=await getAuthContext();if(!auth)redirect("/login")
+ const access=await trialAccess(auth.userId)
+ return <main className="mx-auto max-w-4xl space-y-8 p-5 lg:p-8"><div><p className="text-xs font-semibold uppercase tracking-widest text-viria-700">Tu cuenta SIDEDA</p><h1 className="mt-3 text-3xl font-semibold">{access?.estado==="PRUEBA"?"De la prueba al acompañamiento continuo.":"Tu acceso está habilitado."}</h1></div>{access?.estado==="PRUEBA"?<><div className="grid gap-4 sm:grid-cols-2"><section className="rounded-xl border bg-white p-6"><h2 className="font-semibold">Tu prueba gratuita</h2><p className="mt-3 text-sm text-slate-600">Estudiantes registrados: {access.estudiantesUsados} / 1<br/>Evaluaciones creadas: {access.evaluacionesUsadas} / 1</p><p className="mt-3 text-xs text-slate-500">Incluye el resumen. Puedes editar y completar tu evaluación. Eliminar registros no restablece el cupo.</p></section><section className="rounded-xl border border-viria-200 bg-viria-50 p-6"><h2 className="font-semibold">Con acceso completo</h2><ul className="mt-3 list-disc space-y-2 pl-4 text-sm text-slate-600"><li>Más estudiantes y evaluaciones.</li><li>Interpretación y recomendaciones con IA.</li><li>Informe para familias e impresión.</li></ul></section></div><section className="rounded-2xl border bg-white p-6"><SubscriptionForm requested={!!access.solicitadoEn}/></section></>:<p className="text-slate-600">Puedes seguir usando las funciones habilitadas para tu cuenta. No tienes un cobro automático asociado a esta página.</p>}<p className="text-sm text-slate-500">Contacto comercial: Fernando Calderon · <a href="mailto:fcalderon@vir-ia.com" className="underline">fcalderon@vir-ia.com</a></p><Link href="/dashboard" className="inline-block text-sm font-semibold text-viria-700">Volver a mi espacio</Link></main>
+}

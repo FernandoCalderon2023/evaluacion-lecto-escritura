@@ -128,6 +128,7 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
       })
       if (!res.ok) {
         const error = await res.json().catch(() => ({}))
+        if (error.code === "SUBSCRIPTION_REQUIRED") { router.push("/suscripcion"); return }
         throw new Error(error.error || "No se pudo guardar la evaluación")
       }
       const ev = await res.json()
@@ -135,6 +136,7 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
       try { sessionStorage.removeItem(storageKey) } catch {}
       toast({ title: editMode ? "Evaluación actualizada" : "Evaluación guardada correctamente" })
       router.push(`/evaluaciones/${ev.id}`)
+      router.refresh()
     } catch (error) {
       toast({ title: error instanceof Error ? error.message : "Error al guardar la evaluación", variant: "destructive" })
     } finally {

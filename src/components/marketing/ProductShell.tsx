@@ -8,6 +8,7 @@ export function ProductHeader() {
       <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600 sm:gap-7">
         <Link href="/#soluciones" className="hover:text-viria-700">Soluciones</Link>
         <Link href="/demo" className="hover:text-viria-700">Ver ejemplo</Link>
+        <Link href="/registro" className="font-semibold text-viria-700">Prueba gratis</Link>
         <Link href="/login" className="rounded-full bg-viria-900 px-5 py-2.5 text-white hover:bg-viria-800">Ingresar</Link>
       </div>
     </nav>
@@ -18,7 +19,7 @@ export function ProductFooter() {
   return <footer className="border-t border-slate-200 bg-[#fafaf7] px-5 py-9 print:hidden">
     <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 sm:flex-row">
       <div><p className="font-bold text-viria-900">SIDEDA · por VirIA</p><p className="mt-1 max-w-sm text-xs leading-relaxed text-slate-500">Evaluación y acompañamiento del aprendizaje.<br />Una herramienta de apoyo al criterio profesional.</p></div>
-      <nav aria-label="Información del producto" className="flex flex-wrap gap-5 text-xs text-slate-600"><Link href="/acerca">Acerca de</Link><Link href="/privacidad">Privacidad</Link><Link href="/terminos">Términos de uso</Link><Link href="/demo">Ejemplo de informe</Link></nav>
+      <nav aria-label="Información del producto" className="flex flex-wrap gap-5 text-xs text-slate-600"><a href="mailto:fcalderon@vir-ia.com">Contacto</a><Link href="/acerca">Acerca de</Link><Link href="/privacidad">Privacidad</Link><Link href="/terminos">Términos de uso</Link><Link href="/demo">Ejemplo de informe</Link></nav>
     </div>
   </footer>
 }

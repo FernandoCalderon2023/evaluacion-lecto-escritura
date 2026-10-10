@@ -1,3 +1,4 @@
+import { consumeTrial, TrialLimitError, subscriptionRequired, isTrial, withoutReport } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { EVALUACION_DEFAULTS } from "@/types/evaluacion"
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
       },
     },
   })
-  return NextResponse.json(evaluaciones)
+  return NextResponse.json(await isTrial(auth.userId) ? evaluaciones.map(withoutReport) : evaluaciones)
 }
 
 export async function POST(req: NextRequest) {
@@ -69,7 +70,9 @@ export async function POST(req: NextRequest) {
       bpmPerfilGeneral: scores.bpm.perfilGeneral,
     } : {}
 
-    const evaluacion = await prisma.evaluacion.create({
+    const evaluacion = await prisma.$transaction(async tx => {
+      await consumeTrial(tx, auth.userId, "evaluacionesUsadas")
+      return tx.evaluacion.create({
       data: {
         ...clean,
         fecha,
@@ -83,8 +86,10 @@ export async function POST(req: NextRequest) {
         ...bpmScores,
       },
     })
+    })
     return NextResponse.json(evaluacion, { status: 201 })
   } catch (err: unknown) {
+    if (err instanceof TrialLimitError) return subscriptionRequired()
     if (err instanceof ZodError) {
       return NextResponse.json(validationError(err), { status: 400 })
     }

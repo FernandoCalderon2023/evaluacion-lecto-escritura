@@ -1,3 +1,4 @@
+import { isTrial, subscriptionRequired } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
     const isAdmin = (session.user as any).role === "ADMIN"
     const docenteId = (session.user as any).id
+    if (await isTrial(docenteId)) return subscriptionRequired()
 
     // Rate limit: 20 IA por hora por usuario
     const rl = await checkRateLimit(aiRateLimit, `user:${docenteId}`)
@@ -126,6 +128,7 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 
   const isAdmin = (session.user as any).role === "ADMIN"
   const docenteId = (session.user as any).id
+    if (await isTrial(docenteId)) return subscriptionRequired()
   if (!isAdmin && ev.docenteId !== docenteId) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 })
   }

@@ -1,3 +1,4 @@
+import { isTrial, withoutReport } from "@/lib/commercial"
 export const dynamic = "force-dynamic"
 
 import { calcularScores } from "@/lib/scoring"
@@ -36,6 +37,7 @@ export default async function PortafolioEstudiantePage({ params }: { params: { i
   if (!(await canViewInScope(auth, est))) notFound()
 
   const edad = Math.floor((Date.now() - new Date(est.fechaNac).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
+  if (await isTrial(auth.userId)) est.evaluaciones = est.evaluaciones.map(withoutReport)
   const evals = est.evaluaciones.map(ev => ({ ...ev, estadoAprendizaje: calcularScores(ev as any).estadoGeneral }))
   const ultima = evals[0] ?? null
   const cfgUltima = ultima ? ESTADO_CONFIG[ultima.estadoAprendizaje ?? ""] : null

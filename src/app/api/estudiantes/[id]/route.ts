@@ -1,3 +1,4 @@
+import { isTrial } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getAuthContext, unauthorizedResponse, forbiddenResponse, canAccessResource, canViewInScope } from "@/lib/apiAuth"
@@ -37,7 +38,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const patch: any = { ...data }
     if (typeof data.fechaNac === "string") patch.fechaNac = new Date(data.fechaNac)
     // Si cambió el nombre de la U.E., re-resolver su FK (find-or-create normalizado).
-    if (typeof data.unidadEducativa === "string" && data.unidadEducativa.trim()) {
+    if (!(await isTrial(auth.userId)) && typeof data.unidadEducativa === "string" && data.unidadEducativa.trim()) {
       try { patch.unidadEducativaId = await findOrCreateUE(data.unidadEducativa) }
       catch (e) { console.error("[estudiantes/[id]/PUT] resolver U.E.:", e) }
     }

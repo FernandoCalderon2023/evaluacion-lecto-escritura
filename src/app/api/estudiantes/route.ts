@@ -1,3 +1,4 @@
+import { consumeTrial, TrialLimitError, subscriptionRequired, isTrial, withoutReport } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
@@ -78,10 +79,12 @@ export async function POST(req: NextRequest) {
     // Enlazar a su Unidad Educativa (find-or-create normalizado, sin duplicados).
     // Best-effort: nunca rompe la creación del estudiante si esto falla.
     let unidadEducativaId: string | null = null
-    try { unidadEducativaId = await findOrCreateUE(data.unidadEducativa) }
+    try { if (!(await isTrial(docenteId))) unidadEducativaId = await findOrCreateUE(data.unidadEducativa) }
     catch (e) { console.error("[estudiantes/POST] resolver U.E.:", e) }
 
-    const estudiante = await prisma.estudiante.create({
+    const estudiante = await prisma.$transaction(async tx => {
+      await consumeTrial(tx, docenteId, "estudiantesUsados")
+      return tx.estudiante.create({
       data: {
         ...data,
         fechaNac: typeof data.fechaNac === "string" ? new Date(data.fechaNac) : data.fechaNac,
@@ -90,8 +93,10 @@ export async function POST(req: NextRequest) {
         unidadEducativaId,
       },
     })
+    })
     return NextResponse.json(estudiante, { status: 201 })
   } catch (err: unknown) {
+    if (err instanceof TrialLimitError) return subscriptionRequired()
     if (err instanceof ZodError) {
       return NextResponse.json(validationError(err), { status: 400 })
     }

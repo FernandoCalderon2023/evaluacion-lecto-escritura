@@ -40,11 +40,13 @@ export default function TerminosPage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-slate-900 mb-2">2. Acceso restringido</h2>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">2. Cuentas, prueba gratuita y suscripción</h2>
             <p className="text-sm">
-              El acceso a SIDEDA es <strong>solo por invitación</strong>. Las cuentas son creadas
-              por el administrador del sistema. No existe registro público auto-servicio. Las
-              credenciales son personales e intransferibles.
+              Puedes crear una cuenta de prueba gratuita: incluye 1 estudiante, 1 evaluación y un resumen de resultados.
+              Eliminar registros no restablece el cupo. El informe con IA y la versión para familias requieren acceso completo.
+              Puedes solicitar la suscripción desde tu cuenta; nuestro equipo recibe tus datos para acordar precio y condiciones antes de activar el acceso.
+              No se solicita tarjeta ni se realizan cobros automáticos. Las cuentas habilitadas previamente por administración conservan su acceso.
+              Las credenciales son personales e intransferibles.
             </p>
           </div>
 
@@ -63,7 +65,7 @@ export default function TerminosPage() {
             <p className="text-sm">El docente se compromete a NO:</p>
             <ul className="list-disc pl-5 space-y-1 text-sm">
               <li>Compartir su contraseña con terceros.</li>
-              <li>Ingresar datos falsos o de estudiantes que no haya evaluado personalmente.</li>
+              <li>Presentar datos ficticios como una evaluación real. Puedes utilizar datos ficticios, claramente identificados, para explorar la prueba.</li>
               <li>Utilizar los reportes generados como diagnóstico clínico definitivo.</li>
               <li>Hacer scraping, ingeniería inversa o reproducir la plataforma.</li>
               <li>Compartir reportes con personas no autorizadas (padres exceptuados, dentro del contexto del estudiante).</li>

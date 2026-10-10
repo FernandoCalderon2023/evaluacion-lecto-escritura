@@ -13,5 +13,6 @@ export const config = {
     "/evaluaciones/:path*",
     "/admin/:path*",
     "/guia/:path*",
+    "/suscripcion/:path*",
   ],
 }

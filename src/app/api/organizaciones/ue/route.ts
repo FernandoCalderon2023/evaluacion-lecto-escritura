@@ -1,3 +1,4 @@
+import { isTrial } from "@/lib/commercial"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getAuthContext, unauthorizedResponse } from "@/lib/apiAuth"
@@ -13,6 +14,7 @@ export async function GET() {
   const auth = await getAuthContext()
   if (!auth) return unauthorizedResponse()
 
+  if (await isTrial(auth.userId)) return NextResponse.json([])
   const ues = await prisma.organizacion.findMany({
     where: { tipo: "UNIDAD_EDUCATIVA", activo: true },
     select: { id: true, nombre: true },
