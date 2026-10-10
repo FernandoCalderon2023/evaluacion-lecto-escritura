@@ -30,14 +30,24 @@ export function scoreWriting(ev: Partial<EvaluacionFormData>, prefix: Prefix): W
     qv("prodIdeas") + qv("prodTitulo") + qv("prodComas") +
     qv("prodPuntuacion") + qv("prodInterAdm") + qv("prodMayusc")  // max 18
 
+  const errors = ["invierte", "confOrden", "omite", "agrega", "dificConectar", "espejo"]
+  const qualities = ["caligUnif", "caligCoord", "caligLimp", "cohConcord", "cohSecuencia", "cohEnlace", "cohTema", "cohEstructura", "prodPresent", "prodExtension", "prodOrden", "prodIdeas", "prodTitulo", "prodComas", "prodPuntuacion", "prodInterAdm", "prodMayusc"]
+  const itemsRespondidos = errors.filter(k => ["S", "CS", "AV", "N"].includes(getField<string>(ev, prefix, k))).length
+    + qualities.filter(k => ["B", "R", "M"].includes(getField<string>(ev, prefix, k))).length
+  const itemsEsperados = errors.length + qualities.length
+  const registro = itemsRespondidos === 0 ? "no-evaluado" : itemsRespondidos === itemsEsperados ? "completo" : "incompleto"
+
   const positiveTotal = caligrafia + coherencia + produccion  // max 34
 
   return {
+    registro,
+    itemsRespondidos,
+    itemsEsperados,
     errorScore,
     caligrafia,
     coherencia,
     produccion,
     positiveTotal,
-    hasDifficulty: positiveTotal < 17 || errorScore > 9,
+    hasDifficulty: registro === "completo" && (positiveTotal < 17 || errorScore > 9),
   }
 }

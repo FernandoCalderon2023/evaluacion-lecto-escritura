@@ -5,12 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
+import { NIVELES, GRADOS_POR_NIVEL, gradoLabel, type Nivel } from "@/lib/grados"
 
 export default function NuevoEstudiantePage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [unidades, setUnidades] = useState<string[]>([])
+  const [nivel, setNivel] = useState<Nivel | "">("")
+  const [grado, setGrado] = useState<number | "">("")
 
   // Sugerencias de Unidad Educativa (para evitar duplicados de tipeo)
   useEffect(() => {
@@ -28,7 +31,10 @@ export default function NuevoEstudiantePage() {
       nombre: form.get("nombre"),
       apellido1: form.get("apellido1"),
       apellido2: form.get("apellido2") || null,
-      fechaNac: new Date(form.get("fechaNac") as string).toISOString(),
+      // Se envía tal cual («2005-03-14») y la valida el servidor. Antes se
+      // hacía `new Date(...).toISOString()` acá: con el campo vacío lanzaba
+      // RangeError y el formulario moría sin decir por qué.
+      fechaNac: form.get("fechaNac"),
       grado: form.get("grado"),
       unidadEducativa: form.get("unidadEducativa"),
       gestion: Number(form.get("gestion")),
@@ -99,10 +105,38 @@ export default function NuevoEstudiantePage() {
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="space-y-1">
-                <Label htmlFor="grado">Grado / Curso *</Label>
-                <Input id="grado" name="grado" placeholder="Ej: 3ro Primaria" required />
+                <Label htmlFor="nivel">Nivel *</Label>
+                <select
+                  id="nivel"
+                  value={nivel}
+                  onChange={(e) => setNivel(e.target.value as Nivel | "")}
+                  required
+                  className="w-full border border-slate-300 bg-white text-slate-900 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500"
+                >
+                  <option value="">Seleccionar</option>
+                  {NIVELES.map((n) => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="grado-sel">Grado *</Label>
+                <select
+                  id="grado-sel"
+                  value={grado}
+                  onChange={(e) => setGrado(e.target.value ? Number(e.target.value) : "")}
+                  required
+                  className="w-full border border-slate-300 bg-white text-slate-900 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500"
+                >
+                  <option value="">Seleccionar</option>
+                  {GRADOS_POR_NIVEL.map((g) => (
+                    <option key={g} value={g}>{g}º</option>
+                  ))}
+                </select>
+                {/* etiqueta canónica ("3º de Primaria") que se envía y luego permite autocompletar el año escolar */}
+                <input type="hidden" name="grado" value={nivel && grado ? gradoLabel(nivel as Nivel, grado as number) : ""} />
               </div>
               <div className="space-y-1">
                 <Label htmlFor="gestion">Gestión (año) *</Label>

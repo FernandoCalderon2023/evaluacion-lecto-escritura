@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
@@ -14,6 +15,7 @@ export default async function NuevaEvaluacionPage({
   searchParams: { estudianteId?: string }
 }) {
   const session = await getServerSession(authOptions)
+  if (!(session?.user as any)?.id) redirect("/login")
   const isAdmin = (session?.user as any)?.role === "ADMIN"
   const docenteId = (session?.user as any)?.id
 
@@ -55,6 +57,7 @@ export default async function NuevaEvaluacionPage({
       <Card>
         <CardContent className="p-6">
           <EvaluacionWizard
+            draftOwner={docenteId}
             estudianteId={searchParams.estudianteId}
             estudiantes={estudiantes}
           />

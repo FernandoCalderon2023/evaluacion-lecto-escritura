@@ -29,6 +29,7 @@ export const ANALYSIS_TOOL: Tool = {
           nivelDificultad: {
             type: "string",
             enum: [
+              "evaluacion-incompleta",
               "sin-dificultades",
               "dificultad-leve",
               "dificultad-moderada",

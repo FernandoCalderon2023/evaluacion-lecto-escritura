@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic"
 
+import { calcularScores } from "@/lib/scoring"
 import { prisma } from "@/lib/prisma"
 import { getAuthContext, resolveScope } from "@/lib/apiAuth"
 import { redirect } from "next/navigation"
@@ -8,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Plus } from "lucide-react"
 
 const ESTADO_CONFIG = {
+  "evaluacion-incompleta": { label: "Evaluación incompleta", color: "bg-slate-100 text-slate-700" },
   "sin-dificultades":    { label: "Sin Dificultades",    color: "bg-green-100 text-green-800" },
   "dificultad-leve":     { label: "Dificultad Leve",     color: "bg-yellow-100 text-yellow-800" },
   "dificultad-moderada": { label: "Dificultad Moderada", color: "bg-orange-100 text-orange-800" },
@@ -19,15 +21,18 @@ export default async function EvaluacionesPage({ searchParams }: { searchParams:
   if (!auth) redirect("/login")
   const filtroEstado = searchParams.estado
   const scope = await resolveScope(auth, "individual")
-  const where: any = filtroEstado ? { AND: [scope, { estadoAprendizaje: filtroEstado }] } : scope
+  const where: any = { AND: [scope, { estudiante: scope }] }
 
-  const evaluaciones = await prisma.evaluacion.findMany({
+  const rows = await prisma.evaluacion.findMany({
     where,
     orderBy: { fecha: "desc" },
     include: {
       estudiante: { select: { codigo: true, grado: true, unidadEducativa: true } },
     },
   })
+
+  const evaluaciones = rows.map(ev => ({ ...ev, estadoAprendizaje: calcularScores(ev as any).estadoGeneral }))
+    .filter(ev => !filtroEstado || ev.estadoAprendizaje === filtroEstado)
 
   return (
     <div className="p-4 lg:p-8 space-y-6">

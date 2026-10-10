@@ -1,23 +1,23 @@
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
-import { notFound } from "next/navigation"
+import { getAuthContext, canAccessResource } from "@/lib/apiAuth"
+import { notFound, redirect } from "next/navigation"
 import { EvaluacionWizard } from "@/components/evaluacion/EvaluacionWizard"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 
 export default async function EditarEvaluacionPage({ params }: { params: { id: string } }) {
+  const auth = await getAuthContext()
+  if (!auth) redirect("/login")
   const ev = await prisma.evaluacion.findUnique({
     where: { id: params.id },
     include: { estudiante: true },
   })
-  if (!ev) notFound()
+  if (!ev || !canAccessResource(auth, ev.docenteId)) notFound()
 
-  const estudiantes = await prisma.estudiante.findMany({
-    orderBy: { codigo: "asc" },
-    select: { id: true, codigo: true, grado: true },
-  })
+  const estudiantes = [{ id: ev.estudiante.id, codigo: ev.estudiante.codigo, grado: ev.estudiante.grado }]
 
   // Convert DB record to form data (strip computed fields)
   const {
@@ -52,6 +52,8 @@ export default async function EditarEvaluacionPage({ params }: { params: { id: s
       <Card>
         <CardContent className="p-6">
           <EvaluacionWizard
+            draftOwner={auth.userId}
+            sourceRevision={ev.updatedAt.toISOString()}
             estudianteId={ev.estudianteId}
             estudiantes={estudiantes}
             editMode={params.id}

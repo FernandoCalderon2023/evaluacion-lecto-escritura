@@ -1,5 +1,6 @@
 "use client"
 import { EvaluacionFormData, ScaleValue, QualityValue } from "@/types/evaluacion"
+import { scoreWriting } from "@/lib/scoring/writingScoring"
 import { ScaleSelector } from "@/components/shared/ScaleSelector"
 import { QualitySelector } from "@/components/shared/QualitySelector"
 
@@ -16,11 +17,14 @@ function key(prefix: Prefix, suffix: string): keyof EvaluacionFormData {
 }
 
 export function WritingRubric({ prefix, state, set }: Props) {
-  const sv = (suffix: string) => (state[key(prefix, suffix)] ?? "N") as ScaleValue
-  const qv = (suffix: string) => (state[key(prefix, suffix)] ?? "B") as QualityValue
+  const sv = (suffix: string) => (state[key(prefix, suffix)] ?? "") as ScaleValue
+  const qv = (suffix: string) => (state[key(prefix, suffix)] ?? "") as QualityValue
+
+  const registro = scoreWriting(state, prefix)
 
   return (
     <div className="space-y-6">
+      <p role="status" className="text-sm text-slate-600">{registro.itemsRespondidos} de {registro.itemsEsperados} criterios registrados. Los campos vacíos quedan pendientes.</p>
       {/* Expresión escrita — errores */}
       <div className="border border-orange-200 rounded-lg p-4 space-y-3 bg-orange-50">
         <h3 className="font-medium text-orange-800 text-sm uppercase tracking-wide">

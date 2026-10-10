@@ -75,11 +75,13 @@ test("léxico: umbral exacto — 8 = dificultad, 9 = sin dificultad", () => {
   assert.equal(scoreLexical(con9 as never).hasDifficulty, false)
 })
 
-test("integración: evaluación vacía marca múltiples áreas con dificultad", () => {
+test("integración: evaluación vacía no emite clasificación general", () => {
   const s = calcularScores({} as never)
   assert.equal(s.cognitivo.hasDifficulty, true)
   assert.equal(s.lexical.hasDifficulty, true)
-  assert.ok(["dificultad-moderada", "dificultad-severa"].includes(s.estadoGeneral))
+  assert.equal(s.estadoGeneral, "evaluacion-incompleta")
+  assert.equal(s.dictado.hasDifficulty, false)
+  assert.equal(s.composicion.hasDifficulty, false)
 })
 
 /* ────────────────────────────────────────────────────────────────

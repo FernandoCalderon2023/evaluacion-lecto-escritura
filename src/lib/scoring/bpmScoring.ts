@@ -1,7 +1,8 @@
 import { EvaluacionFormData } from "@/types/evaluacion"
 import { BpmResult, BpmUnitScore } from "@/types/scoring"
 
-function perfilFromScore(score: number): "apráxico" | "dispráxico" | "eupráxico" | "hiperpráxico" {
+function perfilFromScore(score: number): BpmUnitScore["perfil"] {
+  if (score <= 0) return "no evaluado"
   if (score <= 1.5) return "apráxico"
   if (score <= 2.5) return "dispráxico"
   if (score <= 3.5) return "eupráxico"
@@ -9,7 +10,7 @@ function perfilFromScore(score: number): "apráxico" | "dispráxico" | "eupráxi
 }
 
 function avgNonNull(values: (number | null | undefined)[]): number {
-  const valid = values.filter((v): v is number => v != null && v > 0)
+  const valid = values.filter((v): v is number => v != null && v >= 1 && v <= 4)
   if (valid.length === 0) return 0
   return valid.reduce((a, b) => a + b, 0) / valid.length
 }
@@ -26,13 +27,6 @@ function makeUnitScore(items: Record<string, number | null | undefined>): BpmUni
 }
 
 export function scoreBpm(ev: Partial<EvaluacionFormData>): BpmResult {
-  // Check if BPM was applied (at least one field has a value)
-  const bpmFields = Object.keys(ev).filter(k => k.startsWith("bpm_"))
-  const applied = bpmFields.some(k => {
-    const val = ev[k as keyof EvaluacionFormData]
-    return val != null && val !== ""
-  })
-
   // Instrumento depurado: de Tonicidad solo se aplica Sincinesias bucales.
   const tonicidad = makeUnitScore({
     sincinBucales: ev.bpm_sincinBucales,
@@ -54,14 +48,17 @@ export function scoreBpm(ev: Partial<EvaluacionFormData>): BpmResult {
     manual: ev.bpm_latManual ?? null,
     podal: ev.bpm_latPodal ?? null,
   }
-  const latValues = Object.values(latFields).filter((v): v is string => v != null)
+  const latValues = Object.values(latFields).filter((v): v is string => v === "D" || v === "I")
   const allD = latValues.every(v => v === "D")
   const allI = latValues.every(v => v === "I")
-  const definida = latValues.length >= 3 && (allD || allI)  // depurado: 4 pruebas de lateralidad
+  const definida = latValues.length === 4 && (allD || allI)  // depurado: 4 pruebas de lateralidad
   let tipo = "no definida"
   let latScore = 1
   if (latValues.length === 0) {
     tipo = "no evaluada"
+    latScore = 0
+  } else if (latValues.length < 4) {
+    tipo = "incompleta"
     latScore = 0
   } else if (allD) {
     tipo = "diestro"
@@ -121,7 +118,7 @@ export function scoreBpm(ev: Partial<EvaluacionFormData>): BpmResult {
     : 0
 
   return {
-    applied,
+    applied: unitScores.length > 0 || latValues.length > 0,
     tonicidad,
     equilibrio,
     lateralidad: {

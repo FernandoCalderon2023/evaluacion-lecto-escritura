@@ -35,6 +35,9 @@ export function scoreLectura(ev: Partial<EvaluacionFormData>): LecturaResult {
     return sum + (SCALE_VALUE[val] ?? 0)
   }, 0)
 
+  const answered = compFields.filter(f => ["S", "CS", "AV", "N"].includes(String(ev[f]))).length
+  const registro = answered === 0 ? "no-evaluado" : answered === compFields.length ? "completo" : "incompleto"
+
   const comprensionPct = (comprensionTotal / 15) * 100
 
   const tipoLectura =
@@ -45,6 +48,7 @@ export function scoreLectura(ev: Partial<EvaluacionFormData>): LecturaResult {
       : "Vacilante"
 
   return {
+    registro,
     erroresPresentes,
     erroresCount: erroresPresentes.length,
     comprensionTotal,
@@ -52,7 +56,7 @@ export function scoreLectura(ev: Partial<EvaluacionFormData>): LecturaResult {
     comprensionPct,
     tipoLectura,
     hasDifficulty:
-      comprensionPct < COMPRENSION_THRESHOLD_PCT ||
-      erroresPresentes.length > ERRORES_LECTURA_THRESHOLD,
+      registro === "completo" && (comprensionPct < COMPRENSION_THRESHOLD_PCT ||
+      erroresPresentes.length > ERRORES_LECTURA_THRESHOLD),
   }
 }

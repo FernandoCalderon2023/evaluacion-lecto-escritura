@@ -1,7 +1,8 @@
 "use client"
-import { useReducer, useState } from "react"
+import { useEffect, useReducer, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { EvaluacionFormData, EVALUACION_DEFAULTS } from "@/types/evaluacion"
+import { draftKey, readDraft, EvaluationDraft } from "@/lib/evaluationDraft"
 import { useToast } from "@/hooks/use-toast"
 import { ChevronLeft, ChevronRight, Save } from "lucide-react"
 
@@ -50,20 +51,22 @@ const STEPS = [
   { label: "BPM — Praxias y E-T" },
 ]
 
-type Action = { type: "SET"; field: keyof EvaluacionFormData; value: unknown }
+type Action = { type: "SET"; field: keyof EvaluacionFormData; value: unknown } | { type: "RESTORE"; data: Partial<EvaluacionFormData> }
 
 function reducer(state: Partial<EvaluacionFormData>, action: Action): Partial<EvaluacionFormData> {
-  return { ...state, [action.field]: action.value }
+  return action.type === "RESTORE" ? action.data : { ...state, [action.field]: action.value }
 }
 
 interface Props {
+  draftOwner: string
+  sourceRevision?: string
   estudianteId?: string
   estudiantes: Array<{ id: string; codigo: string; grado: string }>
   editMode?: string  // evaluacion ID if editing
   initialData?: Partial<EvaluacionFormData>
 }
 
-export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialData }: Props) {
+export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, estudiantes, editMode, initialData }: Props) {
   const router = useRouter()
   const { toast } = useToast()
   const [step, setStep] = useState(0)
@@ -75,10 +78,45 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
     fecha: new Date().toISOString().split("T")[0],
   })
 
-  const set = (field: keyof EvaluacionFormData) => (value: unknown) =>
+  const storageKey = draftKey(draftOwner, editMode, estudianteId, sourceRevision)
+  const [pendingDraft, setPendingDraft] = useState<EvaluationDraft | null>(null)
+  const [draftReady, setDraftReady] = useState(false)
+  const [dirty, setDirty] = useState(false)
+  const [draftMessage, setDraftMessage] = useState("")
+  const submitted = useRef(false)
+  const studentIds = estudiantes.map(e => e.id).join(",")
+
+  useEffect(() => {
+    try {
+      const draft = readDraft(sessionStorage.getItem(storageKey), studentIds.split(","))
+      setPendingDraft(draft)
+      if (!draft) sessionStorage.removeItem(storageKey)
+    } catch { setDraftMessage("La recuperación automática no está disponible en este navegador. Guarda la evaluación antes de salir.") }
+    setDraftReady(true)
+  }, [storageKey, studentIds])
+
+  useEffect(() => {
+    if (!draftReady || pendingDraft || !dirty || submitted.current) return
+    try {
+      // Only form fields, never IDs of owners, computed scores or server metadata.
+      const keys = new Set([...Object.keys(EVALUACION_DEFAULTS), "estudianteId", "evaluador", "fecha"])
+      const data = Object.fromEntries(Object.entries(state).filter(([key]) => keys.has(key)))
+      sessionStorage.setItem(storageKey, JSON.stringify({ version: 1, savedAt: Date.now(), step, data }))
+      setDraftMessage("Avance recuperable en esta pestaña durante 24 horas. Para conservarlo al cerrar, guarda la evaluación.")
+    } catch { setDraftMessage("No se pudo guardar el avance en esta pestaña. Guarda la evaluación antes de salir.") }
+  }, [state, step, storageKey, draftReady, pendingDraft, dirty])
+
+  const set = (field: keyof EvaluacionFormData) => (value: unknown) => {
+    setDirty(true)
     dispatch({ type: "SET", field, value })
+  }
 
   async function handleSubmit() {
+    if (!state.estudianteId || !estudiantes.some(e => e.id === state.estudianteId)) {
+      setStep(0)
+      toast({ title: "Selecciona un estudiante antes de guardar", variant: "destructive" })
+      return
+    }
     setSaving(true)
     try {
       const url = editMode ? `/api/evaluaciones/${editMode}` : "/api/evaluaciones"
@@ -88,12 +126,17 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(state),
       })
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}))
+        throw new Error(error.error || "No se pudo guardar la evaluación")
+      }
       const ev = await res.json()
+      submitted.current = true
+      try { sessionStorage.removeItem(storageKey) } catch {}
       toast({ title: editMode ? "Evaluación actualizada" : "Evaluación guardada correctamente" })
       router.push(`/evaluaciones/${ev.id}`)
-    } catch {
-      toast({ title: "Error al guardar la evaluación", variant: "destructive" })
+    } catch (error) {
+      toast({ title: error instanceof Error ? error.message : "Error al guardar la evaluación", variant: "destructive" })
     } finally {
       setSaving(false)
     }
@@ -128,7 +171,7 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
   const progress = ((step + 1) / STEPS.length) * 100
   const pct = (step + 1) / STEPS.length
   const animo = isLast
-    ? "¡Último paso! 🎉 Al guardar, VirIA prepara el informe."
+    ? "Último paso. Guarda y revisa los resultados antes de generar el informe."
     : step === 0
       ? "¡Empecemos! 🌟 Cada respuesta ayuda a conocer mejor al/la estudiante."
       : pct < 0.25 ? "¡Vamos muy bien! 💪"
@@ -138,6 +181,23 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
 
   return (
     <div className="space-y-6">
+      {pendingDraft && (
+        <div role="status" className="rounded-xl border border-viria-200 bg-viria-50 p-4 space-y-3">
+          <p className="text-sm font-semibold">Tienes una evaluación en curso en esta pestaña.</p>
+          <p className="text-xs text-slate-600">Último avance: {new Date(pendingDraft.savedAt).toLocaleString("es-BO")}. Puedes recuperarlo o descartarlo.</p>
+          <div className="flex gap-3">
+            <button type="button" className="rounded-lg bg-viria-600 px-3 py-2 text-sm text-white" onClick={() => {
+              dispatch({ type: "RESTORE", data: pendingDraft.data }); setStep(pendingDraft.step); setDirty(true); setPendingDraft(null)
+            }}>Recuperar avance</button>
+            <button type="button" className="rounded-lg border px-3 py-2 text-sm" onClick={() => {
+              try { sessionStorage.removeItem(storageKey) } catch {}
+              setPendingDraft(null)
+            }}>Descartar avance</button>
+          </div>
+        </div>
+      )}
+      {draftMessage && <p role="status" className="text-xs text-slate-500">{draftMessage}</p>}
+      <fieldset disabled={!!pendingDraft || !draftReady || saving} className="space-y-6 disabled:opacity-60">
       {/* Progress bar */}
       <div>
         <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
@@ -156,12 +216,12 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
             <button
               key={i}
               type="button"
+              aria-label={s.label}
+              aria-current={i === step ? "step" : undefined}
               onClick={() => setStep(i)}
               className={`shrink-0 px-2 py-1 rounded text-xs transition-colors ${
                 i === step
                   ? "bg-viria-600 text-white"
-                  : i < step
-                  ? "bg-green-100 text-green-700"
                   : "bg-slate-100 text-slate-500"
               }`}
             >
@@ -180,7 +240,7 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
       <div className="min-h-[400px]">{stepComponents[step]}</div>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between pt-4 border-t">
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t">
         <button
           type="button"
           onClick={() => setStep((s) => Math.max(0, s - 1))}
@@ -191,7 +251,8 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
           Anterior
         </button>
 
-        {isLast ? (
+        <div className="flex flex-wrap gap-2">
+
           <button
             type="button"
             onClick={handleSubmit}
@@ -201,7 +262,8 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
             <Save className="h-4 w-4" />
             {saving ? "Guardando..." : editMode ? "Actualizar evaluación" : "Guardar evaluación"}
           </button>
-        ) : (
+
+        {!isLast && (
           <button
             type="button"
             onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
@@ -211,7 +273,9 @@ export function EvaluacionWizard({ estudianteId, estudiantes, editMode, initialD
             <ChevronRight className="h-4 w-4" />
           </button>
         )}
+        </div>
       </div>
+      </fieldset>
     </div>
   )
 }

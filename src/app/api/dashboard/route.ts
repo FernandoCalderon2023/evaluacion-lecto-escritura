@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { summarizeStudents } from "@/lib/dashboardSummary"
 import { prisma } from "@/lib/prisma"
 import { getAuthContext, unauthorizedResponse, resolveScope } from "@/lib/apiAuth"
 
@@ -11,20 +12,12 @@ export async function GET() {
   // Scope jerárquico agregado (docente / director / distrital / departamental / admin).
   const scope = await resolveScope(auth, "aggregate")
 
-  const [totalEstudiantes, totalEvaluaciones, porEstado] = await Promise.all([
-    prisma.estudiante.count({ where: scope }),
-    prisma.evaluacion.count({ where: scope }),
-    prisma.evaluacion.groupBy({
-      by: ["estadoAprendizaje"],
+  const [students, totalEvaluaciones] = await Promise.all([
+    prisma.estudiante.findMany({
       where: scope,
-      _count: { _all: true },
+      select: { evaluaciones: { where: scope, orderBy: [{ fecha: "desc" }, { createdAt: "desc" }, { id: "desc" }], take: 1 } },
     }),
+    prisma.evaluacion.count({ where: { AND: [scope, { estudiante: scope }] } }),
   ])
-
-  const estadoMap: Record<string, number> = {}
-  for (const row of porEstado) {
-    estadoMap[row.estadoAprendizaje ?? "sin-evaluar"] = row._count._all
-  }
-
-  return NextResponse.json({ totalEstudiantes, totalEvaluaciones, porEstado: estadoMap })
+  return NextResponse.json({ totalEstudiantes: students.length, totalEvaluaciones, porEstado: summarizeStudents(students as any) })
 }

@@ -2,7 +2,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Users, ClipboardList, LayoutDashboard, Menu, X, LogOut, Settings, ChevronLeft } from "lucide-react"
+import { Users, ClipboardList, LayoutDashboard, Menu, X, LogOut, Settings, ChevronLeft, BookOpen } from "lucide-react"
 import { Logo } from "@/components/branding/Logo"
 import { useState, useEffect } from "react"
 import { useSession, signOut } from "next-auth/react"
@@ -11,6 +11,7 @@ const nav = [
   { href: "/dashboard", label: "Panel Principal", icon: LayoutDashboard },
   { href: "/estudiantes", label: "Estudiantes", icon: Users },
   { href: "/evaluaciones", label: "Evaluaciones", icon: ClipboardList },
+  { href: "/guia", label: "Guía de uso", icon: BookOpen },
 ]
 
 const LS_KEY = "sideda-sidebar-collapsed"
@@ -159,7 +160,7 @@ export function Sidebar() {
               key={href}
               href={href}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all",
+                "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-all",
                 active ? "text-viria-600" : "text-slate-400 hover:text-slate-600"
               )}
             >

@@ -3,6 +3,7 @@ export type QualityValue = "B" | "R" | "M" | ""
 export type PositionValue = "I" | "M" | "F" | "N" | ""
 export type TonoVoz = "grave" | "agudo" | "medio" | ""
 export type EstadoAprendizaje =
+  | "evaluacion-incompleta"
   | "sin-dificultades"
   | "dificultad-leve"
   | "dificultad-moderada"
@@ -188,18 +189,18 @@ export const EVALUACION_DEFAULTS: Omit<EvaluacionFormData, "estudianteId" | "eva
   ej12a: false, ej12b: false, ej12c: false,
   ej13a: false, ej13b: false, ej13c: false,
   ej14a: false, ej14b: false, ej14c: false,
-  dict_invierte: "N", dict_confOrden: "N", dict_omite: "N", dict_agrega: "N",
-  dict_dificConectar: "N", dict_espejo: "N",
-  dict_caligUnif: "B", dict_caligCoord: "B", dict_caligLimp: "B",
-  dict_cohConcord: "B", dict_cohSecuencia: "B", dict_cohEnlace: "B", dict_cohTema: "B", dict_cohEstructura: "B",
-  dict_prodPresent: "B", dict_prodExtension: "B", dict_prodOrden: "B", dict_prodIdeas: "B",
-  dict_prodTitulo: "B", dict_prodComas: "B", dict_prodPuntuacion: "B", dict_prodInterAdm: "B", dict_prodMayusc: "B",
-  comp_invierte: "N", comp_confOrden: "N", comp_omite: "N", comp_agrega: "N",
-  comp_dificConectar: "N", comp_espejo: "N",
-  comp_caligUnif: "B", comp_caligCoord: "B", comp_caligLimp: "B",
-  comp_cohConcord: "B", comp_cohSecuencia: "B", comp_cohEnlace: "B", comp_cohTema: "B", comp_cohEstructura: "B",
-  comp_prodPresent: "B", comp_prodExtension: "B", comp_prodOrden: "B", comp_prodIdeas: "B",
-  comp_prodTitulo: "B", comp_prodComas: "B", comp_prodPuntuacion: "B", comp_prodInterAdm: "B", comp_prodMayusc: "B",
+  dict_invierte: "", dict_confOrden: "", dict_omite: "", dict_agrega: "",
+  dict_dificConectar: "", dict_espejo: "",
+  dict_caligUnif: "", dict_caligCoord: "", dict_caligLimp: "",
+  dict_cohConcord: "", dict_cohSecuencia: "", dict_cohEnlace: "", dict_cohTema: "", dict_cohEstructura: "",
+  dict_prodPresent: "", dict_prodExtension: "", dict_prodOrden: "", dict_prodIdeas: "",
+  dict_prodTitulo: "", dict_prodComas: "", dict_prodPuntuacion: "", dict_prodInterAdm: "", dict_prodMayusc: "",
+  comp_invierte: "", comp_confOrden: "", comp_omite: "", comp_agrega: "",
+  comp_dificConectar: "", comp_espejo: "",
+  comp_caligUnif: "", comp_caligCoord: "", comp_caligLimp: "",
+  comp_cohConcord: "", comp_cohSecuencia: "", comp_cohEnlace: "", comp_cohTema: "", comp_cohEstructura: "",
+  comp_prodPresent: "", comp_prodExtension: "", comp_prodOrden: "", comp_prodIdeas: "",
+  comp_prodTitulo: "", comp_prodComas: "", comp_prodPuntuacion: "", comp_prodInterAdm: "", comp_prodMayusc: "",
   // BPM defaults
   bpm_tipoSomatico: null, bpm_desviacionesPosturales: null, bpm_tonicidadTipo: null,
   bpm_inspiracion: null, bpm_espiracion: null, bpm_apnea: null, bpm_apneaDuracion: null,

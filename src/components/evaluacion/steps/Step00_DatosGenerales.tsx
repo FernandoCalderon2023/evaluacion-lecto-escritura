@@ -2,6 +2,7 @@
 import { EvaluacionFormData } from "@/types/evaluacion"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { GRADOS, anioFromGradoLabel } from "@/lib/grados"
 
 interface Props {
   state: Partial<EvaluacionFormData>
@@ -18,7 +19,14 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
         <Label>Estudiante *</Label>
         <select
           value={state.estudianteId ?? ""}
-          onChange={(e) => set("estudianteId")(e.target.value)}
+          onChange={(e) => {
+            const id = e.target.value
+            set("estudianteId")(id)
+            // Autocompleta el año escolar desde el grado del/la estudiante (ajustable).
+            const est = estudiantes.find((s) => s.id === id)
+            const anio = anioFromGradoLabel(est?.grado)
+            if (anio) set("anioEscolar")(anio)
+          }}
           className="w-full border border-slate-300 bg-white text-slate-900 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500"
           required
         >
@@ -56,7 +64,8 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
         <p className="text-sm font-semibold text-slate-700">Datos para la evaluación integral</p>
         <p className="text-xs text-slate-500">
           Estos datos se usan para comparar el desempeño con las expectativas del currículo oficial
-          boliviano (R.M. 1040/2022) según el año escolar del estudiante.
+          boliviano —primaria (R.M. 1040/2022) o secundaria (ESCP)— según el año escolar del/la estudiante.
+          Al elegir al/la estudiante, el año se autocompleta desde su grado (podés ajustarlo).
         </p>
 
         <div className="grid grid-cols-2 gap-4">
@@ -83,12 +92,9 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
               className="w-full border border-slate-300 bg-white text-slate-900 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-viria-500"
             >
               <option value="">— Seleccionar —</option>
-              <option value={1}>1° año (1ro Primaria)</option>
-              <option value={2}>2° año (2do Primaria)</option>
-              <option value={3}>3° año (3ro Primaria)</option>
-              <option value={4}>4° año (4to Primaria)</option>
-              <option value={5}>5° año (5to Primaria)</option>
-              <option value={6}>6° año (6to Primaria)</option>
+              {GRADOS.map((g) => (
+                <option key={g.anio} value={g.anio}>{g.anioLabel}</option>
+              ))}
             </select>
           </div>
         </div>

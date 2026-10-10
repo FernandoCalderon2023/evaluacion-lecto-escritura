@@ -25,7 +25,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const auth = await getAuthContext()
   if (!auth) return unauthorizedResponse()
 
-  const existing = await prisma.evaluacion.findUnique({ where: { id: params.id }, select: { docenteId: true } })
+  const existing = await prisma.evaluacion.findUnique({ where: { id: params.id } })
   if (!existing) return NextResponse.json({ error: "No encontrado" }, { status: 404 })
   if (!canAccessResource(auth, existing.docenteId)) return forbiddenResponse()
 
@@ -35,8 +35,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     // El estudiante de una evaluación es inmutable: nunca se reasigna en una edición.
     // (Evita IDOR: reapuntar la evaluación al estudiante de otro docente y filtrar su PII.)
     delete (clean as any).estudianteId
-    const fecha = clean.fecha ? new Date(clean.fecha as string).toISOString() : new Date().toISOString()
-    const scores = calcularScores(clean)
+    const fecha = clean.fecha ? new Date(clean.fecha as string).toISOString() : existing.fecha.toISOString()
+    const scores = calcularScores({ ...existing, ...clean } as any)
 
     const bpmScores = scores.bpm.applied ? {
       bpmScoreTonicidad: scores.bpm.tonicidad.score,
@@ -47,7 +47,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       bpmScorePraxiaGlobal: scores.bpm.praxiaGlobal.score,
       bpmScorePraxiaFina: scores.bpm.praxiaFina.score,
       bpmPerfilGeneral: scores.bpm.perfilGeneral,
-    } : {}
+    } : {
+      bpmScoreTonicidad: null, bpmScoreEquilibrio: null, bpmScoreLateralidad: null,
+      bpmScoreNocionCuerpo: null, bpmScoreEstructuracionET: null,
+      bpmScorePraxiaGlobal: null, bpmScorePraxiaFina: null, bpmPerfilGeneral: null,
+    }
 
     const ev = await prisma.evaluacion.update({
       where: { id: params.id },

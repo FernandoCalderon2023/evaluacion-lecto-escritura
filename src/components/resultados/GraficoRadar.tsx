@@ -8,6 +8,7 @@ export function GraficoRadar({ scores }: Props) {
   const data = [
     {
       area: "Lectura",
+      complete: scores.lectura.registro === "completo",
       valor: Math.round(scores.lectura.comprensionPct),
     },
     {
@@ -20,15 +21,19 @@ export function GraficoRadar({ scores }: Props) {
     },
     {
       area: "Dictado",
+      complete: scores.dictado.registro === "completo",
       valor: Math.round((scores.dictado.positiveTotal / 34) * 100),
     },
     {
       area: "Composición",
+      complete: scores.composicion.registro === "completo",
       valor: Math.round((scores.composicion.positiveTotal / 34) * 100),
     },
-  ]
+  ].filter(item => item.complete !== false)
 
   return (
+    <div>
+    {data.length < 5 && <p className="text-xs text-slate-500">Gráfico parcial: se omiten las rúbricas incompletas.</p>}
     <ResponsiveContainer width="100%" height={260}>
       <RadarChart data={data}>
         <PolarGrid />
@@ -43,5 +48,6 @@ export function GraficoRadar({ scores }: Props) {
         <Legend />
       </RadarChart>
     </ResponsiveContainer>
+    </div>
   )
 }

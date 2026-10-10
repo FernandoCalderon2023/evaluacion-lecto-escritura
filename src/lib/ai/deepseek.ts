@@ -53,7 +53,7 @@ export async function generarInformeDeepseek(
 
   const body = JSON.stringify({
     model,
-    max_tokens: 8000,
+    max_tokens: 8192,
     // Temperatura baja → JSON estructurado mucho más fiable (menos malformación).
     temperature: 0.3,
     messages: [
@@ -99,6 +99,10 @@ export async function generarInformeDeepseek(
 
       if (!res.ok) {
         const errText = await res.text().catch(() => "")
+        if (res.status === 401 || res.status === 403) {
+          // Key inválida: reintentar no ayuda. Mensaje accionable.
+          throw new Error(`DEEPSEEK_KEY_INVALIDA (HTTP ${res.status}): revisá DEEPSEEK_API_KEY en Vercel. ${errText.slice(0, 150)}`)
+        }
         throw new Error(`DeepSeek HTTP ${res.status}: ${errText.slice(0, 300)}`)
       }
 
@@ -114,7 +118,8 @@ export async function generarInformeDeepseek(
       return deepParseNested(parsed) as AnalisisIA
     } catch (err) {
       lastErr = err instanceof Error ? err : new Error(String(err))
-      // Reintenta salvo en el último intento.
+      // No reintentar errores de autenticación: la key no va a volverse válida.
+      if (lastErr.message.startsWith("DEEPSEEK_KEY_INVALIDA")) break
     }
   }
   throw new Error(`DeepSeek falló tras 3 intentos: ${lastErr?.message ?? "error desconocido"}`)

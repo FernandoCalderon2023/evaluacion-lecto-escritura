@@ -18,6 +18,7 @@ const PRIORIDAD_COLOR = {
 }
 
 const ORIGEN_CORRELACION: Record<string, { label: string; cls: string }> = {
+  "no-determinable": { label: "Datos insuficientes para determinar el origen", cls: "bg-slate-100 text-slate-700 border-slate-200" },
   "neuro-psicomotor": { label: "Base neuro-psicomotora", cls: "bg-purple-100 text-purple-700 border-purple-200" },
   "cognitivo-pedagogico": { label: "Origen cognitivo-pedagógico", cls: "bg-blue-100 text-blue-700 border-blue-200" },
   "riesgo-psicomotor-sin-manifestacion": { label: "Riesgo psicomotor sin manifestación", cls: "bg-yellow-100 text-yellow-700 border-yellow-200" },

@@ -1,256 +1,84 @@
 import Link from "next/link"
-import { BookOpen, Brain, BarChart3, Users, Shield, ArrowRight } from "lucide-react"
-import { Logo } from "@/components/branding/Logo"
+import { ArrowRight, ArrowUpRight, BookOpen, Building2, Check, FileText, HeartHandshake, Layers3, Users } from "lucide-react"
+import { ProductHeader, ProductFooter } from "@/components/marketing/ProductShell"
+
+const benefits = [
+  { icon: BookOpen, title: "Evalúa con orden", text: "Registra las observaciones en un recorrido guiado y consulta qué evalúa cada ejercicio." },
+  { icon: FileText, title: "Convierte datos en orientación", text: "Revisa los resultados y genera un informe con fortalezas, áreas de apoyo y recomendaciones." },
+  { icon: HeartHandshake, title: "Acerca a la familia", text: "Comparte una versión del informe con sugerencias para acompañar el aprendizaje en casa." },
+]
+const audiences = [
+  { icon: Users, title: "Docentes", subtitle: "Una mirada más clara de cada estudiante.", items: ["Registro guiado de la evaluación", "Resultados y recomendaciones para el aula", "Historial de evaluaciones por estudiante"] },
+  { icon: Layers3, title: "Profesionales", subtitle: "La información reunida para tu valoración.", items: ["Lectoescritura y registro psicomotor opcional", "Informe integrado para revisar e imprimir", "Portafolio y comparación de puntajes"] },
+  { icon: Building2, title: "Unidades educativas", subtitle: "Organiza el trabajo de tu equipo.", items: ["Cuentas para docentes y roles por organización", "Panel de estudiantes según su última evaluación", "Información agregada según el alcance del usuario"] },
+]
 
 export default function LandingPage() {
-  return (
-    <div className="min-h-screen bg-white">
-      {/* Hero */}
-      <header className="bg-gradient-to-br from-viria-900 via-viria-800 to-orchid-800 text-white relative overflow-hidden">
-        {/* Decoración: nodos sutiles */}
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="absolute top-20 left-10 w-2 h-2 rounded-full bg-viria-300" />
-          <div className="absolute top-40 right-32 w-3 h-3 rounded-full bg-orchid-400" />
-          <div className="absolute bottom-32 left-1/3 w-2 h-2 rounded-full bg-viria-200" />
-        </div>
-
-        <nav className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between relative z-10">
-          <Logo variant="white" size={28} showTagline={false} />
-          <Link
-            href="/dashboard"
-            className="bg-white/95 text-viria-800 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-white transition-colors shadow-sm"
-          >
-            Ingresar al sistema
-          </Link>
-        </nav>
-
-        <div className="max-w-6xl mx-auto px-4 py-16 lg:py-24 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-xs font-medium text-viria-100 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-viria-300 animate-pulse" />
-            Plataforma con Inteligencia Artificial
+  return <div className="min-h-screen bg-[#fafaf7] text-slate-900">
+    <ProductHeader />
+    <main>
+      <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-14 lg:grid-cols-[1.12fr_1fr] lg:gap-16 lg:px-8 lg:pb-24 lg:pt-20">
+        <div>
+          <p className="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-viria-700"><span className="h-2 w-2 rounded-full bg-viria-600" /> Para quienes acompañan el aprendizaje</p>
+          <h1 className="max-w-2xl text-4xl font-semibold leading-[1.08] tracking-[-0.045em] sm:text-5xl lg:text-[64px]">Comprende mejor.<br /><span className="text-viria-700">Acompaña mejor.</span></h1>
+          <p className="mt-7 max-w-xl text-lg leading-relaxed text-slate-600">De las observaciones del aula a un informe claro. SIDEDA reúne evaluación, orientación con IA y seguimiento del estudiante en un mismo lugar.</p>
+          <div className="mt-9 flex flex-wrap gap-3">
+            <Link href="/demo" className="inline-flex items-center gap-3 rounded-full bg-viria-900 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-viria-800">Explorar un ejemplo <ArrowRight size={18} /></Link>
+            <Link href="/login" className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-6 py-3.5 text-sm font-semibold transition hover:bg-white">Ya tengo una cuenta <ArrowUpRight size={17} /></Link>
           </div>
-          <h1 className="text-4xl lg:text-6xl font-extrabold leading-tight mb-4">
-            <span className="bg-clip-text text-transparent bg-ia-gradient">SIDEDA</span>
-          </h1>
-          <p className="text-lg lg:text-2xl font-semibold text-viria-100 mb-3">
-            Sistema de Evaluación de Dificultades de Aprendizaje
-          </p>
-          <p className="text-base lg:text-lg text-viria-200/90 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Plataforma psicopedagógica que automatiza la detección y evaluación de dificultades
-            en lecto-escritura y desarrollo psicomotor, y genera informes integrales con
-            recomendaciones para el aula y la familia. Pensada para docentes de primaria y
-            secundaria en Bolivia.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 bg-viria-500 hover:bg-viria-400 text-white px-8 py-3.5 rounded-xl text-base font-semibold transition-colors shadow-lg shadow-viria-500/30"
-            >
-              Comenzar evaluación
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-            <a
-              href="#como-funciona"
-              className="inline-flex items-center gap-2 border border-white/30 backdrop-blur-sm text-viria-100 px-8 py-3.5 rounded-xl text-base font-medium hover:bg-white/10 transition-colors"
-            >
-              Conocer más
-            </a>
+          <p className="mt-4 text-xs text-slate-500">El ejemplo es público y ficticio. No necesitas registrarte.</p>
+          <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 border-t border-slate-200 pt-6 text-xs text-slate-600">
+            <span className="flex items-center gap-2"><Check size={15} className="text-viria-700" /> Contexto educativo boliviano</span>
+            <span className="flex items-center gap-2"><Check size={15} className="text-viria-700" /> Informes para aula y familia</span>
           </div>
         </div>
-      </header>
-
-      {/* Instrumentos */}
-      <section className="max-w-6xl mx-auto px-4 py-16 lg:py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-3">Instrumentos validados</h2>
-          <p className="text-slate-500 max-w-2xl mx-auto">
-            SIDEDA integra dos instrumentos reconocidos internacionalmente, cruzados con el currículo oficial boliviano
-          </p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="border-2 border-viria-100 rounded-2xl p-6 bg-viria-50/40 hover:shadow-md transition-shadow">
-            <div className="bg-viria-600 text-white rounded-xl w-12 h-12 flex items-center justify-center mb-4 shadow-md shadow-viria-500/20">
-              <BookOpen className="h-6 w-6" />
+        <div className="relative rounded-[28px] bg-[#e7eeeb] p-5 sm:p-8">
+          <div className="mb-5 flex items-center justify-between text-xs text-viria-900"><span className="font-semibold">Una evaluación. Una ruta de apoyo.</span><span className="rounded-full border border-viria-900/15 px-2.5 py-1">Vista ilustrativa</span></div>
+          <div className="rounded-2xl border border-white bg-white p-6 shadow-[0_20px_60px_-30px_rgba(1,50,58,0.3)] sm:p-7">
+            <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-5"><div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Informe de aprendizaje</p><h2 className="mt-2 text-lg font-semibold">Cada avance cuenta.</h2></div><FileText size={24} className="text-viria-600" /></div>
+            <div className="space-y-5 pt-5">
+              <div><p className="text-xs font-semibold text-viria-700">01 / Lo que ya puede hacer</p><p className="mt-2 text-sm leading-relaxed text-slate-600">Reconoce información explícita y participa cuando la lectura se acompaña con preguntas.</p></div>
+              <div><p className="text-xs font-semibold text-slate-700">02 / El siguiente paso</p><p className="mt-2 text-sm leading-relaxed text-slate-600">Practicar cómo ordenar las ideas antes de escribir un texto breve.</p></div>
+              <div className="rounded-xl bg-[#f4f6f0] p-4"><p className="text-xs font-semibold text-slate-800">03 / Una acción para el aula</p><p className="mt-2 text-sm leading-relaxed text-slate-600">Usar tres tarjetas: inicio, desarrollo y cierre. Revisar juntos el texto al terminar.</p></div>
             </div>
-            <h3 className="font-bold text-slate-900 mb-2">Instrumento MINEDU 2012</h3>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Instrumento para la Detección y Evaluación de las Dificultades en el Aprendizaje
-              de Lecto-Escritura del Ministerio de Educación del Estado Plurinacional de Bolivia.
-              16 ejercicios que evalúan lectura, procesos cognitivos, léxicos y escritura.
-            </p>
           </div>
-          <div className="border-2 border-orchid-400/20 rounded-2xl p-6 bg-orchid-400/5 hover:shadow-md transition-shadow">
-            <div className="bg-orchid-600 text-white rounded-xl w-12 h-12 flex items-center justify-center mb-4 shadow-md shadow-orchid-500/20">
-              <Users className="h-6 w-6" />
-            </div>
-            <h3 className="font-bold text-slate-900 mb-2">BPM — Da Fonseca</h3>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Batería Psicomotora de Víctor da Fonseca (1975). Evalúa 7 factores psicomotores:
-              tonicidad, equilibrio, lateralidad, noción del cuerpo, estructuración espacio-temporal,
-              praxia global y praxia fina.
-            </p>
-          </div>
-          <div className="border-2 border-glacier rounded-2xl p-6 bg-glacier-light/40 hover:shadow-md transition-shadow">
-            <div className="bg-viria-700 text-white rounded-xl w-12 h-12 flex items-center justify-center mb-4 shadow-md">
-              <Shield className="h-6 w-6" />
-            </div>
-            <h3 className="font-bold text-slate-900 mb-2">Currículo oficial por grado</h3>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Los resultados se cruzan con las expectativas del currículo boliviano —primaria
-              (R.M. 1040/2022) y secundaria (Planes y Programas ESCP)— para determinar el nivel
-              de desfase del estudiante respecto al perfil de salida de su grado.
-            </p>
-          </div>
+          <div className="mt-5 flex items-center justify-between gap-4 text-xs text-slate-600"><span>Observa → interpreta → acompaña</span><Link href="/demo" className="font-semibold text-viria-800 underline underline-offset-4">Ver el ejemplo completo</Link></div>
         </div>
       </section>
 
-      {/* Cómo funciona */}
-      <section id="como-funciona" className="bg-slate-50 py-16 lg:py-20">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-3">¿Cómo funciona?</h2>
-            <p className="text-slate-500">Tres pasos para generar un informe psicopedagógico completo</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                step: "1",
-                icon: Users,
-                title: "Registrar estudiante",
-                desc: "Ingrese los datos del estudiante: edad, año de escolaridad, unidad educativa. El sistema genera un código anónimo para proteger la identidad del menor.",
-              },
-              {
-                step: "2",
-                icon: BarChart3,
-                title: "Completar evaluación",
-                desc: "Llene los 16 ejercicios del instrumento de lecto-escritura y los 7 factores de la BPM —cada ejercicio explica qué evalúa— según el cuadernillo físico. El sistema calcula los puntajes automáticamente.",
-              },
-              {
-                step: "3",
-                icon: Brain,
-                title: "Generar informe con IA",
-                desc: "La inteligencia artificial analiza los resultados, cruza con el currículo y genera un informe integrado con perfil DAE, perfil psicomotor, perfil integrado, fortalezas y recomendaciones.",
-              },
-            ].map((item) => (
-              <div key={item.step} className="relative">
-                <div className="bg-gradient-to-br from-viria-500 to-viria-700 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg mb-4 shadow-md shadow-viria-500/30">
-                  {item.step}
-                </div>
-                <h3 className="font-bold text-slate-900 mb-2 text-lg">{item.title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
+      <section className="border-y border-slate-200 bg-white px-5 py-14 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">{benefits.map(({icon: Icon,title,text}) => <article key={title}><Icon size={24} strokeWidth={1.5} className="mb-4 text-viria-700" /><h2 className="text-lg font-semibold tracking-tight">{title}</h2><p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-600">{text}</p></article>)}</div>
+      </section>
+
+      <section id="soluciones" className="mx-auto max-w-7xl scroll-mt-8 px-5 py-20 lg:px-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-viria-700">Distintos equipos. Un propósito compartido.</p>
+        <h2 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">Una herramienta que acompaña<br className="hidden sm:block" /> tu forma de trabajar.</h2>
+        <div className="mt-10 grid gap-5 md:grid-cols-3">{audiences.map(({icon: Icon,title,subtitle,items}) => <article key={title} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-7"><Icon size={25} strokeWidth={1.5} className="text-viria-700" /><h3 className="mt-6 text-xl font-semibold">{title}</h3><p className="mt-2 text-sm leading-relaxed text-slate-500">{subtitle}</p><ul className="mt-6 space-y-4">{items.map(item => <li key={item} className="flex gap-3 text-sm leading-relaxed text-slate-700"><Check size={17} className="mt-1 shrink-0 text-viria-700" />{item}</li>)}</ul></article>)}</div>
+        <p className="mt-5 max-w-3xl text-sm leading-relaxed text-slate-500">Las familias reciben orientación a través del informe compartido por su docente o profesional. El acceso al sistema se habilita con una cuenta asignada.</p>
+      </section>
+
+      <section id="como-funciona" className="bg-viria-900 px-5 py-16 text-white lg:px-8">
+        <div className="mx-auto max-w-7xl"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="text-xs font-medium uppercase tracking-[0.2em] text-viria-200">Un recorrido claro</p><h2 className="mt-4 text-3xl font-semibold tracking-tight">Del registro a la próxima acción.</h2></div><Link href="/demo" className="inline-flex items-center gap-2 text-sm font-medium text-viria-100">Explorar el resultado <ArrowUpRight size={18} /></Link></div>
+          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">{[
+            ["01", "Organiza", "Registra al estudiante, su grado y el contexto de la evaluación."],
+            ["02", "Evalúa", "Completa los criterios observados. Guarda y retoma los apartados pendientes."],
+            ["03", "Revisa", "Consulta los puntajes y revisa la interpretación de IA antes de compartirla."],
+            ["04", "Acompaña", "Lleva las recomendaciones al aula y consulta el historial en la próxima evaluación."],
+          ].map(([n,title,text]) => <div key={n} className="border-t border-white/20 pt-5"><span className="text-xs tabular-nums text-viria-200">{n}</span><h3 className="mt-5 text-lg font-semibold">{title}</h3><p className="mt-3 text-sm leading-relaxed text-viria-100/80">{text}</p></div>)}</div>
         </div>
       </section>
 
-      {/* IA */}
-      <section className="max-w-6xl mx-auto px-4 py-16 lg:py-20">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <div className="inline-block bg-orchid-400/15 text-orchid-700 rounded-full px-3 py-1 text-xs font-semibold mb-4">
-              Inteligencia Artificial
-            </div>
-            <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-4">
-              Análisis psicopedagógico potenciado por IA
-            </h2>
-            <p className="text-slate-600 leading-relaxed mb-6">
-              SIDEDA aplica inteligencia artificial para generar informes psicopedagógicos profesionales.
-              La IA no reemplaza al especialista — lo asiste proporcionando un análisis estructurado
-              y recomendaciones basadas en evidencia que el docente puede adaptar a cada contexto.
-            </p>
-            <ul className="space-y-3">
-              {[
-                "Perfil de DAE en lecto-escritura con nivel de dificultad",
-                "Perfil psicomotor descriptivo (no diagnóstico)",
-                "Perfil integrado que cruza ambos instrumentos",
-                "Recomendaciones prácticas para el aula y la familia",
-                "Plan de seguimiento con indicadores medibles",
-              ].map((item, i) => (
-                <li key={i} className="flex gap-2 text-sm text-slate-700">
-                  <span className="text-viria-500 mt-0.5 shrink-0 font-bold">✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="bg-gradient-to-br from-viria-900 via-viria-800 to-orchid-700 rounded-2xl p-8 text-white shadow-xl">
-            <div className="flex items-center gap-2 mb-4">
-              <Brain className="h-5 w-5 text-viria-300" />
-              <span className="text-sm font-medium text-viria-200">Informe generado por IA</span>
-            </div>
-            <div className="space-y-3 text-sm">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/5">
-                <p className="text-viria-300 font-semibold text-xs mb-1">PERFIL DAE</p>
-                <p className="text-viria-100/80 text-xs">Análisis de dificultades en lecto-escritura cruzado con el currículo R.M. 1040/2022...</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/5">
-                <p className="text-orchid-400 font-semibold text-xs mb-1">PERFIL PSICOMOTOR</p>
-                <p className="text-viria-100/80 text-xs">Síntesis descriptiva del perfil BPM: tonicidad, equilibrio, lateralidad...</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/5">
-                <p className="text-viria-300 font-semibold text-xs mb-1">PERFIL INTEGRADO</p>
-                <p className="text-viria-100/80 text-xs">Cómo el perfil psicomotor se relaciona con las dificultades de lecto-escritura...</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/5">
-                <p className="text-viria-300 font-semibold text-xs mb-1">RECOMENDACIONES</p>
-                <p className="text-viria-100/80 text-xs">Estrategias para el aula, la familia y plan de seguimiento...</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <section className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:grid-cols-2 lg:px-8">
+        <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-viria-700">Conoce el alcance</p><h2 className="mt-4 text-3xl font-semibold tracking-tight">La tecnología apoya.<br />Tu criterio orienta.</h2><p className="mt-5 max-w-lg text-sm leading-relaxed text-slate-600">SIDEDA utiliza registros de lectoescritura basados en MINEDU 2012, una selección de ítems de la BPM y referencias curriculares por grado. La pertinencia de cada instrumento debe ser revisada por quien realiza la evaluación.</p><Link href="/acerca" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-viria-800 underline underline-offset-4">Conocer la metodología <ArrowUpRight size={16} /></Link></div>
+        <div className="space-y-2">{[
+          ["¿Puedo conocerlo antes de tener una cuenta?", "Sí. El ejemplo público muestra cómo se organiza la información para el profesional y para la familia, sin usar datos reales."],
+          ["¿La IA determina un diagnóstico?", "El informe es una orientación que requiere revisión profesional. Los puntajes del instrumento y la interpretación de IA se presentan por separado."],
+          ["¿Qué pasa si una evaluación queda pendiente?", "Puedes guardar el registro y continuarlo después. Las rúbricas incompletas de lectura y escritura se muestran como pendientes, sin emitir una clasificación general definitiva."],
+          ["¿Puedo entregar el informe a una familia?", "La evaluación tiene una vista para familias y opciones de impresión. El profesional revisa el contenido antes de compartirlo."],
+        ].map(([q,a]) => <details key={q} className="group rounded-xl border border-slate-200 bg-white px-5 py-4"><summary className="cursor-pointer text-sm font-semibold text-slate-800">{q}</summary><p className="mt-3 text-sm leading-relaxed text-slate-600">{a}</p></details>)}</div>
       </section>
-
-      {/* SIDEDA es un producto de VirIA — sección destacada */}
-      <section className="relative bg-gradient-to-br from-viria-50 via-white to-orchid-400/10 py-24 lg:py-32 border-y border-viria-100 overflow-hidden">
-        {/* Decoración sutil */}
-        <div className="absolute inset-0 pointer-events-none opacity-40">
-          <div className="absolute top-16 left-12 w-2 h-2 rounded-full bg-viria-300" />
-          <div className="absolute top-24 right-24 w-3 h-3 rounded-full bg-orchid-400" />
-          <div className="absolute bottom-20 left-1/4 w-2 h-2 rounded-full bg-viria-400" />
-          <div className="absolute bottom-32 right-1/3 w-2.5 h-2.5 rounded-full bg-orchid-500" />
-        </div>
-
-        <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
-          <p className="text-viria-700 text-sm lg:text-base font-bold uppercase tracking-[0.35em] mb-10">
-            SIDEDA es un producto de
-          </p>
-          <div className="flex justify-center mb-8">
-            <Logo variant="default" size={120} showTagline={true} />
-          </div>
-          <p className="text-slate-700 text-lg lg:text-2xl max-w-3xl mx-auto leading-relaxed font-light">
-            VirIA desarrolla soluciones de{" "}
-            <strong className="text-viria-700 font-bold">evaluación inteligente</strong>.
-          </p>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-950 text-slate-400 py-10">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col gap-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Logo variant="white" size={20} showText={false} />
-              <div>
-                <p className="font-bold text-white text-sm">SIDEDA</p>
-                <p className="text-[10px] text-slate-500">sideda.com · Producto de VirIA</p>
-              </div>
-            </div>
-            <p className="text-xs text-center sm:text-right max-w-md">
-              Sistema de Evaluación de Dificultades de Aprendizaje · Potenciado por Inteligencia Artificial
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs pt-4 border-t border-slate-800">
-            <Link href="/acerca" className="hover:text-white transition-colors">Acerca de</Link>
-            <span className="text-slate-700">·</span>
-            <Link href="/privacidad" className="hover:text-white transition-colors">Privacidad</Link>
-            <span className="text-slate-700">·</span>
-            <Link href="/terminos" className="hover:text-white transition-colors">Términos de Uso</Link>
-            <span className="text-slate-700">·</span>
-            <Link href="/login" className="hover:text-white transition-colors">Ingresar</Link>
-          </div>
-        </div>
-      </footer>
-    </div>
-  )
+      <section className="mx-auto max-w-7xl px-5 pb-20 lg:px-8"><div className="flex flex-col items-start justify-between gap-7 rounded-2xl border border-slate-200 bg-white p-8 sm:flex-row sm:items-center lg:p-10"><div><h2 className="text-2xl font-semibold tracking-tight">Mira lo que puedes entregar.</h2><p className="mt-2 text-sm text-slate-500">Explora una muestra y conoce el recorrido de SIDEDA.</p></div><Link href="/demo" className="inline-flex shrink-0 items-center gap-3 rounded-full bg-viria-900 px-6 py-3 text-sm font-semibold text-white hover:bg-viria-800">Ver ejemplo de informe <ArrowRight size={18} /></Link></div></section>
+    </main>
+    <ProductFooter />
+  </div>
 }

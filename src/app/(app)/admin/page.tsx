@@ -29,7 +29,7 @@ export default async function AdminPage() {
         <h1 className="text-2xl font-bold text-slate-900">Administración de Usuarios</h1>
         <p className="text-slate-500 text-sm mt-1">Crear, activar y desactivar cuentas de docentes</p>
       </div>
-      <AdminPanel usuarios={usuarios} />
+      <AdminPanel usuarios={usuarios} currentUserId={(session!.user as any).id} />
 
       <div className="pt-4 border-t border-slate-200">
         <h2 className="text-xl font-bold text-slate-900">Organizaciones y roles</h2>

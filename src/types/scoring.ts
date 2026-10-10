@@ -1,6 +1,9 @@
 import { EstadoAprendizaje } from "./evaluacion"
 
+export type EstadoRegistro = "no-evaluado" | "incompleto" | "completo"
+
 export interface LecturaResult {
+  registro: EstadoRegistro
   erroresPresentes: string[]
   erroresCount: number
   comprensionTotal: number
@@ -32,6 +35,9 @@ export interface LexicalResult {
 }
 
 export interface WritingResult {
+  registro: EstadoRegistro
+  itemsRespondidos: number
+  itemsEsperados: number
   errorScore: number
   caligrafia: number
   coherencia: number
@@ -42,7 +48,7 @@ export interface WritingResult {
 
 export interface BpmUnitScore {
   score: number   // average 1-4
-  perfil: "apráxico" | "dispráxico" | "eupráxico" | "hiperpráxico"
+  perfil: "no evaluado" | "apráxico" | "dispráxico" | "eupráxico" | "hiperpráxico"
   items: Record<string, number | null>
 }
 

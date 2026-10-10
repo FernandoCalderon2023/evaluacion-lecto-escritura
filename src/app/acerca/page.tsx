@@ -38,15 +38,14 @@ export default function AcercaPage() {
           <p className="text-slate-700 leading-relaxed">
             SIDEDA automatiza el proceso de detección y evaluación de dificultades en el aprendizaje
             de lecto-escritura y desarrollo psicomotor en estudiantes de primaria y secundaria. La
-            plataforma permite a docentes y especialistas registrar los resultados de instrumentos
-            estandarizados, generar análisis cruzados con el currículo oficial boliviano, y producir
+            plataforma permite a docentes y especialistas registrar observaciones basadas en instrumentos de referencia, generar análisis cruzados con el currículo oficial boliviano, y producir
             informes psicopedagógicos integrales con recomendaciones prácticas para el aula.
           </p>
         </section>
 
         <section className="mb-10">
           <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <Award className="h-5 w-5 text-purple-600" /> Instrumentos validados
+            <Award className="h-5 w-5 text-purple-600" /> Instrumentos de referencia
           </h2>
           <div className="grid md:grid-cols-3 gap-4">
             <div className="border-2 border-viria-100 rounded-xl p-4 bg-viria-50/50">
@@ -54,13 +53,13 @@ export default function AcercaPage() {
               <p className="text-xs text-slate-600 leading-relaxed">
                 Instrumento para la Detección y Evaluación de las Dificultades en el Aprendizaje
                 de Lecto-Escritura del Ministerio de Educación del Estado Plurinacional de Bolivia.
-                16 ejercicios: lectura, procesos cognitivos, léxicos y escritura.
+                Referencia para los ejercicios de lectura, procesos cognitivos, léxicos y escritura. La versión de SIDEDA utiliza una selección de los ítems.
               </p>
             </div>
             <div className="border-2 border-purple-100 rounded-xl p-4 bg-purple-50/50">
               <h3 className="font-bold text-slate-900 mb-1">BPM — Da Fonseca</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Batería Psicomotora de Víctor da Fonseca (1975). 7 factores: tonicidad, equilibrio,
+                Registro basado en una selección de ítems de la Batería Psicomotora de Víctor da Fonseca (1975). Sus áreas incluyen tonicidad, equilibrio,
                 lateralidad, noción del cuerpo, estructuración espacio-temporal, praxia global y fina.
               </p>
             </div>
@@ -79,10 +78,7 @@ export default function AcercaPage() {
             <Users className="h-5 w-5 text-indigo-600" /> Metodología
           </h2>
           <p className="text-slate-700 leading-relaxed mb-3">
-            SIDEDA aplica una metodología de <strong>Generación Aumentada por Recuperación (RAG)</strong>,
-            donde los instrumentos normativos y el currículo oficial constituyen una base de
-            conocimiento estructurada. Los resultados de cada estudiante se cruzan dinámicamente con
-            esa base para generar:
+            SIDEDA calcula los puntajes a partir de las respuestas registradas y utiliza referencias curriculares por grado para apoyar la interpretación con IA. El profesional revisa los datos y el contenido antes de compartir el informe. El resultado organiza:
           </p>
           <ul className="list-disc list-inside space-y-1 text-sm text-slate-700 ml-4">
             <li><strong>Perfil DAE</strong> — nivel de dificultad y desfase curricular</li>
@@ -103,10 +99,7 @@ export default function AcercaPage() {
               <strong> Modelo Educativo EPCV</strong> y la <strong>Resolución Ministerial 1040/2022</strong>.
             </p>
             <p>
-              Los datos de los estudiantes — todos menores de edad — se almacenan de forma{" "}
-              <strong>anonimizada mediante códigos</strong> (formato: iniciales + sufijo). El nombre
-              completo solo es visible para el docente responsable y nunca aparece en los reportes
-              generados por inteligencia artificial.
+              Los registros utilizan <strong>códigos de estudiante</strong> para su identificación en las vistas de evaluación. La plataforma también almacena datos personales; el acceso depende de la cuenta y de los permisos asignados. El uso de códigos no equivale a anonimización irreversible.
             </p>
             <p>
               Consulta nuestra{" "}
@@ -121,26 +114,10 @@ export default function AcercaPage() {
           </div>
         </section>
 
-        <section className="mb-10">
-          <h2 className="text-xl font-bold text-slate-900 mb-3">Tecnología</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-slate-600">
-            <div className="border border-slate-200 rounded-lg p-3">
-              <p className="font-bold text-slate-900 mb-1">IA</p>
-              <p>Modelo de lenguaje avanzado con caching de prompts</p>
-            </div>
-            <div className="border border-slate-200 rounded-lg p-3">
-              <p className="font-bold text-slate-900 mb-1">Infraestructura</p>
-              <p>Cloud distribuido con replicación automática</p>
-            </div>
-            <div className="border border-slate-200 rounded-lg p-3">
-              <p className="font-bold text-slate-900 mb-1">Seguridad</p>
-              <p>TLS 1.3, bcrypt, rate limiting, audit log</p>
-            </div>
-            <div className="border border-slate-200 rounded-lg p-3">
-              <p className="font-bold text-slate-900 mb-1">Monitoreo</p>
-              <p>Sentry, Vercel Analytics, health checks</p>
-            </div>
-          </div>
+        <section className="mb-10 rounded-xl border border-slate-200 bg-slate-50 p-6">
+          <h2 className="text-lg font-semibold text-slate-900">Alcance del informe</h2>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">Los resultados orientan el acompañamiento educativo. La selección de ítems y la interpretación asistida por IA requieren revisión profesional; no constituyen por sí mismas un diagnóstico ni una validación de la herramienta para toda edad o contexto.</p>
+          <Link href="/demo" className="mt-4 inline-block text-sm font-semibold text-viria-700 underline underline-offset-4">Explorar un ejemplo ficticio de informe</Link>
         </section>
 
         <section className="bg-gradient-to-br from-viria-50 to-orchid-400/5 rounded-2xl p-6 mb-10 border border-viria-100">

@@ -23,7 +23,8 @@ export function calcularScores(ev: Partial<EvaluacionFormData>): AllScores {
 
   const count = areasDificultad.length
   let estadoGeneral: EstadoAprendizaje
-  if (count === 0)      estadoGeneral = "sin-dificultades"
+  if ([lectura.registro, dictado.registro, composicion.registro].some(r => r !== "completo")) estadoGeneral = "evaluacion-incompleta"
+  else if (count === 0)      estadoGeneral = "sin-dificultades"
   else if (count === 1) estadoGeneral = "dificultad-leve"
   else if (count <= 3)  estadoGeneral = "dificultad-moderada"
   else                  estadoGeneral = "dificultad-severa"

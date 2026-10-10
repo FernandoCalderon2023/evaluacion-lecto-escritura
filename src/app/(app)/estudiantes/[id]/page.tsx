@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic"
 
+import { calcularScores } from "@/lib/scoring"
 import { prisma } from "@/lib/prisma"
 import { getAuthContext, canViewInScope } from "@/lib/apiAuth"
 import { redirect, notFound } from "next/navigation"
@@ -10,6 +11,7 @@ import { DeleteButton } from "@/components/shared/DeleteButton"
 import { PortfolioEvolucion } from "@/components/resultados/PortfolioEvolucion"
 
 const ESTADO_CONFIG: Record<string, { label: string; color: string }> = {
+  "evaluacion-incompleta": { label: "Evaluación incompleta", color: "bg-slate-100 text-slate-700" },
   "sin-dificultades": { label: "Sin dificultades", color: "bg-green-100 text-green-800" },
   "dificultad-leve": { label: "Dificultad leve", color: "bg-yellow-100 text-yellow-800" },
   "dificultad-moderada": { label: "Dificultad moderada", color: "bg-orange-100 text-orange-800" },
@@ -34,7 +36,7 @@ export default async function PortafolioEstudiantePage({ params }: { params: { i
   if (!(await canViewInScope(auth, est))) notFound()
 
   const edad = Math.floor((Date.now() - new Date(est.fechaNac).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
-  const evals = est.evaluaciones
+  const evals = est.evaluaciones.map(ev => ({ ...ev, estadoAprendizaje: calcularScores(ev as any).estadoGeneral }))
   const ultima = evals[0] ?? null
   const cfgUltima = ultima ? ESTADO_CONFIG[ultima.estadoAprendizaje ?? ""] : null
 
@@ -104,7 +106,7 @@ export default async function PortafolioEstudiantePage({ params }: { params: { i
                   Última evaluación: {new Date(ultima.fecha).toLocaleDateString("es-BO")} · {evals.length} en total
                 </span>
               </div>
-              {analisis?.perfilDAE?.resumen && (
+              {ultimaConIA?.id === ultima?.id && analisis?.perfilDAE?.resumen && (
                 <p className="text-sm text-slate-700 leading-relaxed max-w-3xl">{analisis.perfilDAE.resumen}</p>
               )}
             </div>

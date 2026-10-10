@@ -7,8 +7,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "SIDEDA",
-  description: "Sistema de Evaluación de Dificultades de Aprendizaje — Plataforma psicopedagógica con Inteligencia Artificial",
+  metadataBase: new URL("https://sideda.com"),
+  title: "SIDEDA | Evaluación y acompañamiento del aprendizaje",
+  description: "Organiza evaluaciones de lectoescritura, revisa informes con IA y acompaña a estudiantes y familias. Una herramienta para docentes, profesionales y unidades educativas.",
 }
 
 export const viewport: Viewport = {

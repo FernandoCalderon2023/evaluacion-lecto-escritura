@@ -79,14 +79,17 @@ export async function procesarAnalisis(jobId: string, evaluacionId: string): Pro
       throw new Error("Tool output sin perfilDAE.nivelDificultad")
     }
 
-    await prisma.evaluacion.update({
-      where: { id: evaluacionId },
+    const persisted = await prisma.evaluacion.updateMany({
+      where: { id: evaluacionId, updatedAt: ev.updatedAt },
       data: {
         analisisIA: JSON.stringify(analisis),
         analisisGeneradoEn: new Date(),
-        estadoAprendizaje: analisis.perfilDAE.nivelDificultad,
+        // La IA interpreta; la clasificación sigue siendo la del instrumento.
+        estadoAprendizaje: scores.estadoGeneral,
       },
     })
+
+    if (persisted.count !== 1) throw new Error("La evaluación cambió durante el análisis. Genere un nuevo informe con los datos actualizados.")
 
     await prisma.analysisJob.update({
       where: { id: jobId },

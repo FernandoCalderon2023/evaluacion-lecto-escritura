@@ -48,9 +48,7 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
   const analisis = ev.analisisIA ? (JSON.parse(ev.analisisIA) as AnalisisIA) : null
   const est = ev.estudiante
 
-  const edad = Math.floor(
-    (Date.now() - new Date(est.fechaNac).getTime()) / (1000 * 60 * 60 * 24 * 365.25)
-  )
+  const edad = ev.edadAlEvaluar ?? "No registrada"
 
   return (
     <div className="p-4 lg:p-6 space-y-6 w-full">
@@ -136,6 +134,13 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
         )}
       </div>
 
+      {scores.estadoGeneral === "evaluacion-incompleta" && (
+        <div role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          <strong>Resultado parcial.</strong> Completa lectura, dictado y composición para obtener la clasificación general.
+          Los apartados pendientes no se consideran dificultades ni logros. Las áreas con dificultad que aparecen corresponden a los datos registrados.
+        </div>
+      )}
+      <p className="text-xs text-slate-500">Clasificación calculada por el instrumento. La interpretación de IA se presenta por separado y requiere revisión del evaluador.</p>
       {/* Gráfica + scores cards */}
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
@@ -149,29 +154,30 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
 
         <div className="space-y-3">
           {[
-            { label: "Comprensión Lectora", val: scores.lectura.comprensionTotal, max: 15, diff: scores.lectura.hasDifficulty },
+            { label: "Comprensión Lectora", val: scores.lectura.comprensionTotal, max: 15, diff: scores.lectura.hasDifficulty, registro: scores.lectura.registro },
             { label: "Procesos Cognitivos", val: scores.cognitivo.totalCorrect, max: scores.cognitivo.totalItems, diff: scores.cognitivo.hasDifficulty },
             { label: "Procesos Léxicos", val: scores.lexical.totalCorrect, max: scores.lexical.totalItems, diff: scores.lexical.hasDifficulty },
-            { label: "Escritura — Dictado", val: scores.dictado.positiveTotal, max: 34, diff: scores.dictado.hasDifficulty },
-            { label: "Escritura — Composición", val: scores.composicion.positiveTotal, max: 34, diff: scores.composicion.hasDifficulty },
-          ].map(({ label, val, max, diff }) => {
+            { label: "Escritura — Dictado", val: scores.dictado.positiveTotal, max: 34, diff: scores.dictado.hasDifficulty, registro: scores.dictado.registro },
+            { label: "Escritura — Composición", val: scores.composicion.positiveTotal, max: 34, diff: scores.composicion.hasDifficulty, registro: scores.composicion.registro },
+          ].map(({ label, val, max, diff, registro }) => {
+            const complete = !registro || registro === "completo"
             const pct = Math.round((val / max) * 100)
             return (
               <div key={label} className="bg-white rounded-lg border border-slate-200 p-3">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-sm font-medium text-slate-700">{label}</span>
-                  <span className={`text-xs font-bold ${diff ? "text-red-600" : "text-green-700"}`}>
-                    {val}/{max}
+                  <span className={`text-xs font-bold ${!complete ? "text-slate-500" : diff ? "text-red-600" : "text-green-700"}`}>
+                    {complete ? `${val}/${max}` : registro === "no-evaluado" ? "No evaluado" : "Incompleto"}
                   </span>
                 </div>
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${diff ? "bg-red-400" : "bg-green-500"}`}
-                    style={{ width: `${pct}%` }}
+                    style={{ width: `${complete ? pct : 0}%` }}
                   />
                 </div>
                 <p className="text-xs text-slate-500 mt-1">
-                  {pct}% — {diff ? "⚠️ Presenta dificultades" : "✅ Sin dificultades"}
+                  {complete ? `${pct}% — ${diff ? "Presenta dificultades" : "Sin dificultades"}` : "Completa la rúbrica para interpretar el resultado."}
                 </p>
               </div>
             )
@@ -255,7 +261,7 @@ export default async function EvaluacionResultadoPage({ params }: { params: { id
                 { label: "Praxia Global", score: scores.bpm.praxiaGlobal.score, perfil: scores.bpm.praxiaGlobal.perfil },
                 { label: "Praxia Fina", score: scores.bpm.praxiaFina.score, perfil: scores.bpm.praxiaFina.perfil },
               ].map(({ label, score, perfil }) => {
-                const color = score <= 1.5 ? "bg-red-50 border-red-200" : score <= 2.5 ? "bg-yellow-50 border-yellow-200" : score <= 3.5 ? "bg-viria-50 border-viria-200" : "bg-green-50 border-green-200"
+                const color = score <= 0 ? "bg-slate-50 border-slate-200" : score <= 1.5 ? "bg-red-50 border-red-200" : score <= 2.5 ? "bg-yellow-50 border-yellow-200" : score <= 3.5 ? "bg-viria-50 border-viria-200" : "bg-green-50 border-green-200"
                 return (
                   <div key={label} className={`rounded-lg p-3 border ${color}`}>
                     <p className="text-xs text-slate-500">{label}</p>

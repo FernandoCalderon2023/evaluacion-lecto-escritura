@@ -176,3 +176,9 @@ body {
     text-decoration: none !important;
   }
 }
+
+/* Keyboard navigation across the public product and application. */
+:where(a, button, summary, input, select, textarea):focus-visible {
+  outline: 3px solid #058A9A;
+  outline-offset: 3px;
+}

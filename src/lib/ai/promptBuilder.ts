@@ -26,6 +26,12 @@ Cruzas siempre los resultados con las expectativas del currículo oficial bolivi
 - **Ehri** — Fases de lectura por palabras: pre-alfabética → alfabética parcial → alfabética completa → consolidada.
 - **CIE-11 / DSM-5-TR** — Una evaluación psicopedagógica describe **perfiles funcionales**, NO diagnostica trastornos (requiere derivación a especialista).
 
+## DATOS INCOMPLETOS
+- Los estados «no-evaluado» e «incompleto» indican falta de datos, nunca una dificultad ni un desempeño adecuado.
+- Si el resultado del instrumento es «evaluacion-incompleta», indica que la interpretación es parcial; no concluyas un nivel global definitivo.
+- No atribuyas un origen psicomotor o cognitivo cuando la matriz indique «no-determinable».
+- No describas como observados los ítems retirados: paratonía, lateralidad adquirida o sentido kinestésico.
+
 ## REGLAS DE COMUNICACIÓN EMPÁTICA (críticas)
 
 ✅ **HACER siempre:**
@@ -121,7 +127,7 @@ export function buildUserMessage(
   ev: Evaluacion,
   scores: AllScores
 ): string {
-  const esFemenino = estudiante.sexo === "Femenino"
+  const esFemenino = ["F", "Femenino"].includes(estudiante.sexo)
   const estudianteLabel = esFemenino ? "la estudiante" : "el estudiante"
 
   const edad = (ev as Evaluacion & { edadAlEvaluar?: number | null }).edadAlEvaluar
@@ -183,7 +189,7 @@ ${expectativas ? `\n## EXPECTATIVAS CURRICULARES DE SU GRADO\n${expectativas}\n`
 - Tipo lectura: ${scores.lectura.tipoLectura}
 - Errores (${scores.lectura.erroresCount}/8): ${scores.lectura.erroresPresentes.join(", ") || "Ninguno"}
 - Comprensión: ${pct(scores.lectura.comprensionTotal, 15)}
-- RESULTADO: ${scores.lectura.hasDifficulty ? "DIFICULTADES" : "Sin dificultades"}
+- RESULTADO: ${scores.lectura.registro !== "completo" ? "NO CONCLUYENTE: registro " + scores.lectura.registro : scores.lectura.hasDifficulty ? "DIFICULTADES" : "Sin dificultades"}
 
 ### Procesos cognitivos (3-10): ${pct(scores.cognitivo.totalCorrect, scores.cognitivo.totalItems)}
 RESULTADO: ${scores.cognitivo.hasDifficulty ? "DIFICULTADES" : "Sin dificultades"}
@@ -192,10 +198,10 @@ RESULTADO: ${scores.cognitivo.hasDifficulty ? "DIFICULTADES" : "Sin dificultades
 RESULTADO: ${scores.lexical.hasDifficulty ? "DIFICULTADES" : "Sin dificultades"}
 
 ### Escritura — Dictado (Ej.15): err ${scores.dictado.errorScore}/18, calig ${scores.dictado.caligrafia}/6, coh ${scores.dictado.coherencia}/10, prod ${scores.dictado.produccion}/18
-RESULTADO: ${scores.dictado.hasDifficulty ? "DIFICULTADES" : "Adecuada"}
+RESULTADO: ${scores.dictado.registro !== "completo" ? "NO CONCLUYENTE: registro " + scores.dictado.registro : scores.dictado.hasDifficulty ? "DIFICULTADES" : "Adecuada"}
 
 ### Escritura — Composición (Ej.16): err ${scores.composicion.errorScore}/18, calig ${scores.composicion.caligrafia}/6, coh ${scores.composicion.coherencia}/10, prod ${scores.composicion.produccion}/18
-RESULTADO: ${scores.composicion.hasDifficulty ? "DIFICULTADES" : "Adecuada"}
+RESULTADO: ${scores.composicion.registro !== "completo" ? "NO CONCLUYENTE: registro " + scores.composicion.registro : scores.composicion.hasDifficulty ? "DIFICULTADES" : "Adecuada"}
 
 ### Estado General: ${scores.estadoGeneral.toUpperCase()}
 Áreas con dificultad: ${scores.areasDificultad.length > 0 ? scores.areasDificultad.join(", ") : "Ninguna"}
@@ -215,7 +221,7 @@ export function buildAnalysisPrompt(
   ev: Evaluacion,
   scores: AllScores
 ): string {
-  const esFemenino = estudiante.sexo === "Femenino"
+  const esFemenino = ["F", "Femenino"].includes(estudiante.sexo)
   const elLa = esFemenino ? "la" : "el"
   const estudianteLabel = esFemenino ? "la estudiante" : "el estudiante"
 
@@ -332,7 +338,7 @@ ${expectativas}
 - Errores (${scores.lectura.erroresCount}/8): ${scores.lectura.erroresPresentes.join(", ") || "Ninguno"}
 - Comprensión lectora: ${pct(scores.lectura.comprensionTotal, 15)}
   Memoriza: ${scaleName(ev.compMemoriza)} | Ideas: ${scaleName(ev.compIdeas)} | Valora: ${scaleName(ev.compValora)} | Interpreta: ${scaleName(ev.compInterpreta)} | Asocia: ${scaleName(ev.compAsocia)}
-- RESULTADO: ${scores.lectura.hasDifficulty ? "PRESENTA DIFICULTADES" : "Sin dificultades significativas"}
+- RESULTADO: ${scores.lectura.registro !== "completo" ? "NO CONCLUYENTE: registro " + scores.lectura.registro : scores.lectura.hasDifficulty ? "PRESENTA DIFICULTADES" : "Sin dificultades significativas"}
 
 ### 2. PROCESOS COGNITIVOS (Ítems 3-10) — ${pct(scores.cognitivo.totalCorrect, scores.cognitivo.totalItems)}
 - Nombrar objetos (3A): ${pct(scores.cognitivo.byItem.item3a, 3)} | Explicar uso (3B): ${pct(scores.cognitivo.byItem.item3b, 3)}
@@ -349,12 +355,12 @@ ${expectativas}
 ### 4. ESCRITURA — DICTADO (Ej. 15)
 - Errores expresión escrita: ${scores.dictado.errorScore}/18 | Caligrafía: ${scores.dictado.caligrafia}/6
 - Coherencia: ${scores.dictado.coherencia}/10 | Producción: ${scores.dictado.produccion}/18
-- RESULTADO: ${scores.dictado.hasDifficulty ? "DIFICULTADES en dictado" : "Escritura adecuada"}
+- RESULTADO: ${scores.dictado.registro !== "completo" ? "NO CONCLUYENTE: registro " + scores.dictado.registro : scores.dictado.hasDifficulty ? "DIFICULTADES en dictado" : "Escritura adecuada"}
 
 ### 5. ESCRITURA — COMPOSICIÓN (Ej. 16)
 - Errores expresión escrita: ${scores.composicion.errorScore}/18 | Caligrafía: ${scores.composicion.caligrafia}/6
 - Coherencia: ${scores.composicion.coherencia}/10 | Producción: ${scores.composicion.produccion}/18
-- RESULTADO: ${scores.composicion.hasDifficulty ? "DIFICULTADES en composición" : "Composición adecuada"}
+- RESULTADO: ${scores.composicion.registro !== "completo" ? "NO CONCLUYENTE: registro " + scores.composicion.registro : scores.composicion.hasDifficulty ? "DIFICULTADES en composición" : "Composición adecuada"}
 
 ### ESTADO GENERAL: ${scores.estadoGeneral.toUpperCase()}
 Áreas con dificultad: ${scores.areasDificultad.length > 0 ? scores.areasDificultad.join(", ") : "Ninguna"}
@@ -363,7 +369,7 @@ ${bpmSection}
 ---
 
 Genera un informe psicopedagógico integral, profesional, empático y orientado a la acción.
-Usa lenguaje inclusivo referido a ${estudianteLabel} (${estudiante.sexo === "Femenino" ? "ella" : "él"}).
+Usa lenguaje inclusivo referido a ${estudianteLabel} (${["F", "Femenino"].includes(estudiante.sexo) ? "ella" : "él"}).
 ${scores.bpm.applied ? "IMPORTANTE: Integra ambos instrumentos (lecto-escritura Y BPM) en un análisis cruzado." : "Nota: No se aplicó la BPM, genera el perfil solo con el instrumento de lecto-escritura."}
 
 IMPORTANTE: El reporte debe caber en 1-2 páginas impresas. Sé CONCISO: máximo 2-3 oraciones por campo. Máximo 3 fortalezas, 3 áreas de mejora, 5 recomendaciones aula, 3 familia, 3 indicadores. No repitas información entre secciones.

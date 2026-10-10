@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { EVALUACION_DEFAULTS } from "@/types/evaluacion"
 import { calcularScores } from "@/lib/scoring"
 import { getAuthContext, unauthorizedResponse, forbiddenResponse, canAccessResource, resolveScope } from "@/lib/apiAuth"
 import { evaluacionSchema, validationError, stripServerControlledEvalFields } from "@/lib/validators"
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
     if (!canAccessResource(auth, estudiante.docenteId)) return forbiddenResponse()
 
     // Quitar campos controlados por el servidor antes del spread.
-    const clean = stripServerControlledEvalFields(body)
+    const clean = { ...EVALUACION_DEFAULTS, ...stripServerControlledEvalFields(body), estudianteId, evaluador: typeof body.evaluador === "string" ? body.evaluador : "" }
     const fecha = clean.fecha ? new Date(clean.fecha as string).toISOString() : new Date().toISOString()
 
     // Calcular scores del servidor

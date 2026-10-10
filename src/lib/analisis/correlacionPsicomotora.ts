@@ -159,7 +159,7 @@ export function calcularCorrelacionPsicomotora(
   /* 1 · LATERALIDAD (2ª Unidad Funcional) */
   {
     const lat = b.lateralidad
-    const estado: EstadoArea = !lat || lat.score <= 0
+    const estado: EstadoArea = !lat || lat.score <= 0 || [lat.ocular, lat.auditiva, lat.manual, lat.podal].some(v => v !== "D" && v !== "I")
       ? "no-evaluada"
       : (lat.score <= 2 || !lat.definida) ? "alterada" : "adecuada"
     const indicadores: IndicadorMinedu[] = [
@@ -167,7 +167,7 @@ export function calcularCorrelacionPsicomotora(
       { nombre: "Escribe en espejo / confunde derecha-izquierda", fuente: "Escritura · expresión escrita", valor: txtEscala(espejo), presente: escalaPresente(espejo) },
     ]
     filas.push({
-      area: "Lateralidad (ocular, manual y dominancia adquirida)",
+      area: "Lateralidad (ocular, auditiva, manual y podal)",
       unidadFuncional: "2ª Unidad Funcional — Análisis y procesamiento sensorial",
       bpm: {
         score: lat?.score ?? null,
@@ -188,7 +188,7 @@ export function calcularCorrelacionPsicomotora(
   /* 2 · ESTRUCTURACIÓN ESPACIO-TEMPORAL (2ª Unidad Funcional) */
   {
     const et = b.estructuracionET
-    const estado = estadoArea(et?.score)
+    const estado = Object.values(et.items).some(v => v == null || v < 1 || v > 4) ? "no-evaluada" : estadoArea(et?.score)
     const indicadores: IndicadorMinedu[] = [
       { nombre: "Inversiones (el/le, sol/los)", fuente: "Lectura · errores", valor: txtPosicion(inversionLect), presente: posicionPresente(inversionLect) },
       { nombre: "Invierte letras o palabras", fuente: "Escritura · expresión escrita", valor: txtEscala(invierteEsc), presente: escalaPresente(invierteEsc) },
@@ -220,7 +220,7 @@ export function calcularCorrelacionPsicomotora(
   {
     const pf = b.praxiaFina
     const pg = b.praxiaGlobal
-    const estado = estadoArea(pf?.score)
+    const estado = Object.values(pf.items).some(v => v == null || v < 1 || v > 4) ? "no-evaluada" : estadoArea(pf?.score)
     const indicadores: IndicadorMinedu[] = [
       { nombre: "Caligrafía — coordinación motora", fuente: "Escritura · caligrafía", valor: txtCalidad(caligCoord), presente: calidadDeficiente(caligCoord) },
       { nombre: "Caligrafía — uniformidad de los trazos", fuente: "Escritura · caligrafía", valor: txtCalidad(caligUnif), presente: calidadDeficiente(caligUnif) },
@@ -254,7 +254,7 @@ export function calcularCorrelacionPsicomotora(
       { nombre: "Escribe en espejo / confunde derecha-izquierda", fuente: "Escritura · expresión escrita", valor: txtEscala(espejo), presente: escalaPresente(espejo) },
     ]
     filas.push({
-      area: "Noción del cuerpo (sentido kinestésico, reconocimiento izq./der.)",
+      area: "Noción del cuerpo (reconocimiento izq./der., gestos y dibujo)",
       unidadFuncional: "2ª Unidad Funcional — Análisis y procesamiento sensorial",
       bpm: {
         score: nc?.score ?? null,
@@ -280,7 +280,7 @@ export function calcularCorrelacionPsicomotora(
       { nombre: "Caligrafía — coordinación motora (calidad del trazo)", fuente: "Escritura · caligrafía", valor: txtCalidad(caligCoord), presente: calidadDeficiente(caligCoord) },
     ]
     filas.push({
-      area: "Tonicidad y sincinesias (paratonía, movimientos parásitos)",
+      area: "Tonicidad (sincinesias bucales)",
       unidadFuncional: "1ª Unidad Funcional — Tono y control de alerta",
       bpm: {
         score: to?.score ?? null,
@@ -300,7 +300,7 @@ export function calcularCorrelacionPsicomotora(
 
   /* ─── criterio diagnóstico clave del anexo ─── */
   const AREAS_CLAVE = [
-    "Lateralidad (ocular, manual y dominancia adquirida)",
+    "Lateralidad (ocular, auditiva, manual y podal)",
     "Estructuración espacio-temporal (organización, dinámica y rítmica)",
     "Praxia fina y control tónico (coord. dinámica manual, velocidad-precisión)",
   ]
@@ -321,7 +321,11 @@ export function calcularCorrelacionPsicomotora(
   let origenProbable: OrigenProbable
   let interpretacion: string
 
-  if (hayIndicadores && hayAreas) {
+  const faltanAreasClave = filas.some(f => AREAS_CLAVE.includes(f.area) && f.bpm.estado === "no-evaluada")
+  if (faltanAreasClave) {
+    origenProbable = "no-determinable"
+    interpretacion = "La BPM está incompleta en lateralidad, estructuración espacio-temporal o praxia fina. No se puede atribuir un origen a las dificultades con estos datos; complete las áreas pendientes. Los indicadores observados se conservan como evidencia parcial."
+  } else if (hayIndicadores && hayAreas) {
     origenProbable = "neuro-psicomotor"
     interpretacion =
       `Se cumple el criterio del análisis de correlación: se observan ${indicadoresClavePresentes.join(", ").toLowerCase()} en el instrumento MINEDU y, simultáneamente, un perfil apráxico o dispráxico en ${areasClaveAlteradas.length === 1 ? "el área" : "las áreas"} de ${areasClaveAlteradas.join(" y ").toLowerCase()}. ` +

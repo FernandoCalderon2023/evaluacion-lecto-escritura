@@ -2,6 +2,7 @@ import { EstadoAprendizaje } from "@/types/evaluacion"
 import { CheckCircle, AlertCircle, AlertTriangle, XCircle } from "lucide-react"
 
 const CONFIG: Record<EstadoAprendizaje, { label: string; color: string; bg: string; icon: React.ElementType }> = {
+  "evaluacion-incompleta": { label: "Evaluación incompleta", color: "text-slate-700", bg: "bg-slate-100 border-slate-300", icon: AlertCircle },
   "sin-dificultades":    { label: "Sin Dificultades",    color: "text-green-700",  bg: "bg-green-100 border-green-300",  icon: CheckCircle },
   "dificultad-leve":     { label: "Dificultad Leve",     color: "text-yellow-700", bg: "bg-yellow-100 border-yellow-300", icon: AlertCircle },
   "dificultad-moderada": { label: "Dificultad Moderada", color: "text-orange-700", bg: "bg-orange-100 border-orange-300", icon: AlertTriangle },
@@ -11,7 +12,7 @@ const CONFIG: Record<EstadoAprendizaje, { label: string; color: string; bg: stri
 interface Props { estado: EstadoAprendizaje; size?: "sm" | "lg" }
 
 export function EstadoBadge({ estado, size = "sm" }: Props) {
-  const cfg = CONFIG[estado]
+  const cfg = CONFIG[estado] ?? CONFIG["evaluacion-incompleta"]
   const Icon = cfg.icon
   if (size === "lg") {
     return (
