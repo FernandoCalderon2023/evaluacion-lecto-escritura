@@ -1,3 +1,4 @@
+import { readGuardedReport } from "@/lib/ai/reportGuard"
 import { isTrial, withoutReport } from "@/lib/commercial"
 export const dynamic = "force-dynamic"
 
@@ -24,7 +25,8 @@ const PRIORIDAD_COLOR: Record<string, string> = {
   baja: "bg-slate-100 text-slate-600",
 }
 
-export default async function PortafolioEstudiantePage({ params }: { params: { id: string } }) {
+export default async function PortafolioEstudiantePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await getAuthContext()
   if (!auth) redirect("/login")
 
@@ -46,15 +48,15 @@ export default async function PortafolioEstudiantePage({ params }: { params: { i
   const ultimaConIA = evals.find((e) => e.analisisIA)
   let analisis: any = null
   if (ultimaConIA?.analisisIA) {
-    try { analisis = JSON.parse(ultimaConIA.analisisIA) } catch { analisis = null }
+    try { analisis = readGuardedReport(ultimaConIA.analisisIA, calcularScores(ultimaConIA as any)) } catch { analisis = null }
   }
 
   // Serie de evolución (orden cronológico ascendente)
   const evolucion = [...evals].reverse().map((e) => ({
     fecha: new Date(e.fecha).toLocaleDateString("es-BO", { month: "short", year: "2-digit" }),
-    cognitivo: e.scoreCognitivo,
-    lexical: e.scoreLexical,
-    comprension: e.scoreComprension,
+    cognitivo: e.cognitivoAplicado ? e.scoreCognitivo : null,
+    lexical: e.lexicoAplicado ? e.scoreLexical : null,
+    comprension: calcularScores(e as any).lectura.registro === "completo" ? e.scoreComprension : null,
   }))
 
   const fortalezas: string[] = Array.isArray(analisis?.fortalezas) ? analisis.fortalezas : []

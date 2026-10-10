@@ -1,0 +1,5 @@
+import Link from "next/link"
+import { redirect } from "next/navigation"
+import { getAuthContext } from "@/lib/apiAuth"
+import { PasswordForm } from "@/components/auth/PasswordForms"
+export default async function AccountPage(){const auth=await getAuthContext();if(!auth)redirect("/login");return <main className="mx-auto max-w-3xl space-y-8 p-5 lg:p-8"><div><p className="text-xs font-semibold uppercase tracking-widest text-viria-700">Seguridad y acceso</p><h1 className="mt-3 text-3xl font-semibold">Mi cuenta</h1><p className="mt-3 break-words text-sm text-slate-600">{auth.email}</p><Link href="/suscripcion" className="mt-4 inline-block text-sm font-semibold text-viria-700">Consultar mi acceso y suscripción</Link></div><section className="rounded-2xl border bg-white p-6"><h2 className="mb-6 text-xl font-semibold">Cambiar contraseña</h2><PasswordForm mode="change"/></section><p className="text-sm text-slate-500">Ayuda: <a href="mailto:fcalderon@vir-ia.com" className="underline">fcalderon@vir-ia.com</a>. Nunca compartas tu contraseña.</p></main>}

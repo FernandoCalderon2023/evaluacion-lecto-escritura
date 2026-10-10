@@ -33,7 +33,7 @@ export default function TerminosPage() {
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">1. Aceptación</h2>
             <p className="text-sm">
-              Al ingresar y utilizar SIDEDA, el/la docente acepta estos Términos de Uso y la{" "}
+              Al ingresar y utilizar SIDEDA, la persona titular de la cuenta acepta estos Términos de Uso y la{" "}
               <Link href="/privacidad" className="text-viria-600 hover:underline">Política de Privacidad</Link>.
               Si no está de acuerdo, no debe utilizar la plataforma.
             </p>
@@ -43,7 +43,7 @@ export default function TerminosPage() {
             <h2 className="text-xl font-bold text-slate-900 mb-2">2. Cuentas, prueba gratuita y suscripción</h2>
             <p className="text-sm">
               Puedes crear una cuenta de prueba gratuita: incluye 1 estudiante, 1 evaluación y un resumen de resultados.
-              Eliminar registros no restablece el cupo. El informe con IA y la versión para familias requieren acceso completo.
+              Eliminar registros no restablece el cupo. En cuentas docentes, el informe con IA y su versión para compartir con la familia requieren acceso completo. Las cuentas familiares incluyen un registro propio de observaciones en casa, editable e imprimible, con orientación sin IA. Ampliar una cuenta familiar permite más registros, no acceso a funciones profesionales.
               Puedes solicitar la suscripción desde tu cuenta; nuestro equipo recibe tus datos para acordar precio y condiciones antes de activar el acceso.
               No se solicita tarjeta ni se realizan cobros automáticos. Las cuentas habilitadas previamente por administración conservan su acceso.
               Las credenciales son personales e intransferibles.
@@ -54,7 +54,7 @@ export default function TerminosPage() {
             <h2 className="text-xl font-bold text-slate-900 mb-2">3. Uso permitido</h2>
             <p className="text-sm">SIDEDA está destinado exclusivamente a:</p>
             <ul className="list-disc pl-5 space-y-1 text-sm">
-              <li>Docentes de educación primaria autorizados.</li>
+              <li>Docentes de educación primaria autorizados y profesionales, dentro de su competencia.</li><li>Madres, padres y responsables autorizados, en el espacio de observación familiar para niños y niñas de 6 a 12 años. Este recorrido no es una prueba estandarizada ni permite concluir diagnósticos.</li>
               <li>Evaluación psicopedagógica de estudiantes a quienes se les aplicó los instrumentos físicos.</li>
               <li>Generación de reportes con fines educativos y de apoyo profesional.</li>
             </ul>
@@ -62,7 +62,7 @@ export default function TerminosPage() {
 
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">4. Uso prohibido</h2>
-            <p className="text-sm">El docente se compromete a NO:</p>
+            <p className="text-sm">La persona usuaria se compromete a NO:</p>
             <ul className="list-disc pl-5 space-y-1 text-sm">
               <li>Compartir su contraseña con terceros.</li>
               <li>Presentar datos ficticios como una evaluación real. Puedes utilizar datos ficticios, claramente identificados, para explorar la prueba.</li>

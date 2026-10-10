@@ -1,3 +1,4 @@
+import { guardedRecord } from "@/lib/ai/reportGuard"
 import { consumeTrial, TrialLimitError, subscriptionRequired, isTrial, withoutReport } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
@@ -9,6 +10,7 @@ import { ZodError } from "zod"
 
 export async function GET(req: NextRequest) {
   const auth = await getAuthContext()
+  if (auth?.role === "FAMILIA") return NextResponse.json({ error: "Esta función corresponde al espacio profesional." }, { status: 403 })
   if (!auth) return unauthorizedResponse()
 
   const { searchParams } = new URL(req.url)
@@ -27,15 +29,19 @@ export async function GET(req: NextRequest) {
       },
     },
   })
-  return NextResponse.json(await isTrial(auth.userId) ? evaluaciones.map(withoutReport) : evaluaciones)
+  return NextResponse.json(await isTrial(auth.userId) ? evaluaciones.map(withoutReport) : evaluaciones.map(guardedRecord))
 }
 
 export async function POST(req: NextRequest) {
   try {
     const auth = await getAuthContext()
+  if (auth?.role === "FAMILIA") return NextResponse.json({ error: "Esta función corresponde al espacio profesional." }, { status: 403 })
     if (!auth) return unauthorizedResponse()
 
     const body = await req.json()
+    for (const field of ["cognitivoAplicado", "lexicoAplicado"]) {
+      if (body && field in body && typeof body[field] !== "boolean") return NextResponse.json({ error: "La confirmación de aplicación debe ser verdadera o falsa." }, { status: 400 })
+    }
     // Solo exigimos estudianteId (para verificar propiedad). El resto de los campos los
     // gobierna el wizard; no reintroducimos validación estricta que rechace guardados
     // parciales que antes funcionaban (p. ej. "Evaluador" en blanco).

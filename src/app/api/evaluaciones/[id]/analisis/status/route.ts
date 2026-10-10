@@ -1,3 +1,5 @@
+import { calcularScores } from "@/lib/scoring"
+import { readGuardedReport } from "@/lib/ai/reportGuard"
 import { isTrial, subscriptionRequired } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
@@ -12,15 +14,17 @@ export const dynamic = "force-dynamic"
  * Devuelve el estado del job + el análisis si está completo.
  * El cliente hace polling cada 2-3 segundos.
  */
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions)
+  if ((session?.user as any)?.role === "FAMILIA") return NextResponse.json({ error: "Esta función corresponde al espacio profesional." }, { status: 403 })
   if (!session?.user) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 })
   }
 
   const isAdmin = (session.user as any).role === "ADMIN"
   const docenteId = (session.user as any).id
-    if (await isTrial(docenteId)) return subscriptionRequired()
+  if (await isTrial(docenteId)) return subscriptionRequired()
 
   const ev = await prisma.evaluacion.findUnique({ where: { id: params.id } })
   if (!ev) return NextResponse.json({ error: "Evaluación no encontrada" }, { status: 404 })
@@ -39,7 +43,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     if (job.status === "done") {
       return NextResponse.json({
         status: "done",
-        analisis: ev.analisisIA ? JSON.parse(ev.analisisIA) : null,
+        analisis: readGuardedReport(ev.analisisIA, calcularScores(ev as any)),
       })
     }
     if (job.status === "failed") {
@@ -62,13 +66,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   })
 
   if (!lastJob) {
-    return NextResponse.json({ status: "no_job", analisis: ev.analisisIA ? JSON.parse(ev.analisisIA) : null })
+    return NextResponse.json({ status: "no_job", analisis: readGuardedReport(ev.analisisIA, calcularScores(ev as any)) })
   }
 
   if (lastJob.status === "done") {
     return NextResponse.json({
       status: "done",
-      analisis: ev.analisisIA ? JSON.parse(ev.analisisIA) : null,
+      analisis: readGuardedReport(ev.analisisIA, calcularScores(ev as any)),
     })
   }
   if (lastJob.status === "failed") {

@@ -55,6 +55,7 @@ async function main() {
       ANTHROPIC_API_KEY: 'local-test-only', SENTRY_DSN: '', NEXT_PUBLIC_SENTRY_DSN: '',
     },
   })
+  const waitFor = async predicate => { for(let i=0;i<80;i++){if(await predicate())return;await new Promise(r=>setTimeout(r,100))}throw new Error('La tarea asíncrona no terminó') }
   const passed = []
   const check = (name, condition) => { assert.ok(condition, name); passed.push(name); console.log('PASS',name) }
   try {
@@ -65,7 +66,7 @@ async function main() {
       await new Promise(r=>setTimeout(r,500))
     }
     assert.ok(ready, 'Servidor disponible')
-    async function login(email) {
+    async function login(email, loginPassword=password, expectAuth=true) {
       const jar = new Map()
       const request = async (route, options={}) => {
         const r = await fetch(base+route, { ...options, redirect:'manual', headers:{...options.headers, Cookie:[...jar].map(([k,v])=>`${k}=${v}`).join('; ')} })
@@ -73,8 +74,9 @@ async function main() {
         return r
       }
       const {csrfToken} = await (await request('/api/auth/csrf')).json()
-      await request('/api/auth/callback/credentials',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({email,password,csrfToken,json:'true'})})
-      check('Sesión '+email, (await (await request('/api/auth/session')).json()).user?.email===email)
+      await request('/api/auth/callback/credentials',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({email,password:loginPassword,csrfToken,json:'true'})})
+      const identity=(await (await request('/api/auth/session')).json()).user?.email
+      check((expectAuth?'Sesión ':'Acceso rechazado ')+email, expectAuth?identity===email:!identity)
       return request
     }
     for (const [route, expected] of [["/", "Comprende mejor"], ["/demo", "familia"], ["/login", "Contraseña"]]) {
@@ -100,6 +102,9 @@ async function main() {
     const ev=await create.json()
     check('Sin valores positivos por defecto',ev.dict_caligUnif==='' && ev.dict_invierte==='')
     check('Estado parcial persistido',ev.estadoAprendizaje==='evaluacion-incompleta')
+    check('Registro nuevo no confirma aplicación por defecto',ev.cognitivoAplicado===false&&ev.lexicoAplicado===false)
+    const untestedHtml=await (await one('/evaluaciones/'+ev.id)).text()
+    check('Registro sin aplicación no presenta dificultades confirmadas',!untestedHtml.includes('Presenta dificultades')&&!untestedHtml.includes('Áreas con dificultad:'))
     check('Otro docente no lee la evaluación',(await two('/api/evaluaciones/'+ev.id)).status===403)
     const forbidden=await two('/evaluaciones/'+ev.id+'/editar')
     const forbiddenHtml=await forbidden.text()
@@ -107,7 +112,7 @@ async function main() {
     check('Otro docente no edita la evaluación',(await two('/api/evaluaciones/'+ev.id,json('PUT',{observaciones:'No autorizado'}))).status===403)
     const editHtml=await (await one('/evaluaciones/'+ev.id+'/editar')).text()
     check('Dueño puede abrir edición',editHtml.includes('Editar Evaluación'))
-    const complete={...ev}
+    const complete={...ev,cognitivoAplicado:true,lexicoAplicado:true}
     delete complete.analysisJobs
     for(const k of Object.keys(complete)) {
       if(k.startsWith('ej') && typeof complete[k]==='boolean') complete[k]=true
@@ -117,16 +122,24 @@ async function main() {
     const completed=await one('/api/evaluaciones/'+ev.id,json('PUT',complete))
     check('Actualizar con evaluación completa',completed.status===200)
     check('Puntaje completo sin dificultad',(await completed.json()).estadoAprendizaje==='sin-dificultades')
+    check('Confirmación textual rechazada',(await one('/api/evaluaciones/'+ev.id,json('PUT',{cognitivoAplicado:'true'}))).status===400)
+    const changedAnswer=await (await one('/api/evaluaciones/'+ev.id,json('PUT',{ej3a1:false}))).json()
+    check('Editar respuestas exige reconfirmar aplicación',changedAnswer.cognitivoAplicado===false&&changedAnswer.estadoAprendizaje==='evaluacion-incompleta')
+    await one('/api/evaluaciones/'+ev.id,json('PUT',{ej3a1:true,cognitivoAplicado:true}))
     const partialPut=await one('/api/evaluaciones/'+ev.id,json('PUT',{observaciones:'Edición de una sola observación'}))
     check('PUT parcial conserva puntuaciones',(await partialPut.json()).scoreCognitivo===27)
     const aiResponse=await one('/api/evaluaciones/'+ev.id+'/analisis',{method:'POST'})
     check('Generación con proveedor simulado',aiResponse.status===200)
     const afterAI=await (await one('/api/evaluaciones/'+ev.id)).json()
-    check('IA no reemplaza clasificación del instrumento',afterAI.estadoAprendizaje==='sin-dificultades' && JSON.parse(afterAI.analisisIA).perfilDAE.nivelDificultad==='dificultad-severa')
+    check('IA no reemplaza clasificación del instrumento',afterAI.estadoAprendizaje==='sin-dificultades' && JSON.parse(afterAI.analisisIA).perfilDAE.nivelDificultad==='sin-dificultades' && JSON.parse(afterAI.analisisIA).controlCalidad.version===1)
+    const cached=await (await one('/api/evaluaciones/'+ev.id+'/analisis',{method:'POST'})).json()
+    check('Informe vigente se reutiliza sin llamar al proveedor',cached.cached===true && cached.analisis.controlCalidad.version===1)
     hold=true
     const incoming=new Promise(resolve=>{arrived=resolve})
-    const racing=one('/api/evaluaciones/'+ev.id+'/analisis',{method:'POST'})
+    const racing=one('/api/evaluaciones/'+ev.id+'/analisis',json('POST',{regenerar:true}))
     await Promise.race([incoming,new Promise((_,reject)=>setTimeout(()=>reject(new Error('No llegó solicitud IA')),15000))])
+    const sharedJob=await (await one('/api/evaluaciones/'+ev.id+'/analisis',json('POST',{regenerar:true}))).json()
+    check('Solicitud simultánea comparte trabajo activo',sharedJob.queued===true && typeof sharedJob.jobId==='string')
     await one('/api/evaluaciones/'+ev.id,json('PUT',{observaciones:'Edición durante generación'}))
     release()
     check('Informe antiguo rechazado tras edición',(await racing).status===500)
@@ -153,6 +166,7 @@ async function main() {
     check('Nueva cuenta es docente',trialSession.user.role==='DOCENTE')
     const access=await db.execute({sql:'SELECT estado FROM AccesoComercial WHERE usuarioId=?',args:[trialSession.user.id]})
     check('Plan de prueba persistido',access.rows[0].estado==='PRUEBA')
+    await waitFor(async()=>{const r=await db.execute({sql:'SELECT estado,intentos FROM AvisoSistema WHERE id=?',args:['registro-'+trialSession.user.id]});return r.rows[0]?.estado==='PENDIENTE'&&r.rows[0]?.intentos>0})
     const queuedMail=await db.execute({sql:'SELECT estado FROM AvisoSistema WHERE id=?',args:['registro-'+trialSession.user.id]})
     check('Fallo de correo conserva aviso y registro',queuedMail.rows[0].estado==='PENDIENTE')
     check('Cron de correo rechaza anónimo',(await fetch(base+'/api/cron/notificaciones')).status===401)
@@ -193,6 +207,7 @@ async function main() {
     check('Guardar solicitud automática',(await trial('/api/suscripcion',json('POST',requestPayload))).status===200)
     const repeat=await (await trial('/api/suscripcion',json('POST',requestPayload))).json()
     check('Solicitud repetida no duplica',repeat.alreadyRequested===true)
+    await waitFor(()=>mails.some(m=>m.payload.subject.includes('Solicitud de suscripción')))
     check('Una notificación de solicitud, sin duplicados',mails.filter(m=>m.payload.subject.includes('Solicitud de suscripción')).length===1)
     const adminHtml=await (await admin('/admin')).text()
     check('Solicitud llega a administración',adminHtml.includes(trialEmail)&&adminHtml.includes('Solicitud QA'))
@@ -207,12 +222,106 @@ async function main() {
     const activeStudent=await activeStudentResponse.json()
     const activeEval=await (await trial('/api/evaluaciones',json('POST',{...evalPayload,estudianteId:activeStudent.id}))).json()
     check('Acceso completo habilita IA',(await trial('/api/evaluaciones/'+activeEval.id+'/analisis',{method:'POST'})).status===200)
+    await waitFor(()=>mails.some(m=>m.payload.subject.includes('Acceso completo habilitado')))
     check('Aviso de activación enviado',mails.filter(m=>m.payload.subject.includes('Acceso completo habilitado')).length===1)
     check('Acceso completo habilita informe familiar',(await trial('/evaluaciones/'+activeEval.id+'/padres')).status===200)
     for(let i=0;i<3;i++) await publicPost('/api/registro',registration)
     check('Registro público limita abuso',(await publicPost('/api/registro',registration)).status===429)
+    // Password recovery, current-password changes, and session revocation.
+    check('Página de recuperación disponible',(await fetch(base+'/olvide-contrasena')).status===200)
+    check('Página de nueva contraseña disponible',(await fetch(base+'/restablecer-contrasena')).status===200)
+    check('Icono propio SVG disponible',(await fetch(base+'/icon.svg')).status===200)
+    check('Mi cuenta exige sesión',(await fetch(base+'/cuenta',{redirect:'manual'})).status===307)
+    const secondOne=await login('one@qa.invalid')
+    const known=await publicPost('/api/auth/recuperar',{email:'one@qa.invalid'})
+    const unknown=await publicPost('/api/auth/recuperar',{email:'missing@qa.invalid'})
+    check('Recuperación no revela existencia del correo',known.status===202&&unknown.status===202&&JSON.stringify(await known.json())===JSON.stringify(await unknown.json()))
+    await waitFor(()=>mails.some(m=>m.payload.subject.includes('Recupera tu acceso')))
+    const recoveryMails=()=>mails.filter(m=>m.payload.subject.includes('Recupera tu acceso'))
+    const extract=m=>m.payload.text.match(/#token=([a-f0-9]{64})/)[1]
+    const firstToken=extract(recoveryMails()[0])
+    const oneId=(await (await one('/api/auth/session')).json()).user.id
+    const stored=await db.execute({sql:'SELECT tokenHash FROM RecuperacionPassword WHERE usuarioId=?',args:[oneId]})
+    check('Token solo en correo del titular, almacenado como hash',recoveryMails()[0].payload.to[0]==='one@qa.invalid'&&stored.rows[0].tokenHash!==firstToken)
+    const newPassword=randomBytes(18).toString('hex')
+    const resetBody=token=>({token,password:newPassword,confirmPassword:newPassword})
+    check('Token inventado rechazado',(await publicPost('/api/auth/restablecer',resetBody('a'.repeat(64)))).status===400)
+    check('Confirmación diferente rechazada',(await publicPost('/api/auth/restablecer',{...resetBody(firstToken),confirmPassword:'distinta'})).status===400)
+    await db.execute({sql:'UPDATE RecuperacionPassword SET venceEn=? WHERE usuarioId=?',args:[Date.now()-60000,oneId]})
+    check('Token vencido rechazado',(await publicPost('/api/auth/restablecer',resetBody(firstToken))).status===400)
+    await publicPost('/api/auth/recuperar',{email:'one@qa.invalid'})
+    await waitFor(()=>recoveryMails().length===2)
+    const validToken=extract(recoveryMails()[1])
+    const resetRace=await Promise.all([publicPost('/api/auth/restablecer',resetBody(validToken)),publicPost('/api/auth/restablecer',resetBody(validToken))])
+    check('Enlace de un uso bajo concurrencia',resetRace.filter(r=>r.status===200).length===1&&resetRace.filter(r=>r.status===400).length===1)
+    check('Token usado no se puede reutilizar',(await publicPost('/api/auth/restablecer',resetBody(validToken))).status===400)
+    check('Recuperación revoca todas las sesiones anteriores',(await one('/api/estudiantes')).status===401&&(await secondOne('/api/estudiantes')).status===401)
+    await login('one@qa.invalid',password,false)
+    const newOne=await login('one@qa.invalid',newPassword)
+    check('Mi cuenta disponible con la contraseña nueva',(await (await newOne('/cuenta')).text()).includes('Cambiar contraseña'))
+    const changedPassword=randomBytes(18).toString('hex')
+    check('Cambio exige clave actual correcta',(await newOne('/api/cuenta/password',json('POST',{currentPassword:'incorrecta',password:changedPassword,confirmPassword:changedPassword}))).status===400)
+    check('Cambio voluntario de contraseña',(await newOne('/api/cuenta/password',json('POST',{currentPassword:newPassword,password:changedPassword,confirmPassword:changedPassword}))).status===200)
+    check('Cambio voluntario revoca la sesión',(await newOne('/api/estudiantes')).status===401)
+    await login('one@qa.invalid',changedPassword)
+    const twoId=(await (await two('/api/auth/session')).json()).user.id
+    await admin('/api/admin/usuarios/'+twoId,json('PATCH',{activo:false}))
+    check('Desactivación revoca sesiones existentes',(await two('/api/estudiantes')).status===401)
+    await admin('/api/admin/usuarios/'+twoId,json('PATCH',{activo:true}))
+    check('Reactivar no revive cookies revocadas',(await two('/api/estudiantes')).status===401)
+    const notices=await db.execute('SELECT texto FROM AvisoSistema')
+    check('Avisos no contienen contraseñas ni tokens',notices.rows.every(r=>![firstToken,validToken,newPassword,changedPassword].some(secret=>r.texto.includes(secret))))
+    // Existing user records and trial limits were exercised above; paging must be bounded.
+    const pagingUserId=(await (await admin('/api/auth/session')).json()).user.id
+    const insert='INSERT INTO Estudiante (id,codigo,nombre,apellido1,fechaNac,grado,unidadEducativa,gestion,docente,sexo,docenteId,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
+    for(let i=0;i<26;i++) await db.execute({sql:insert,args:[randomUUID(),'PAGE-'+i,'QA','Paging',Date.now(),'3º de Primaria','QA',2026,'QA','F',pagingUserId,Date.now(),Date.now()]})
+    const page1=await (await admin('/estudiantes?q=PAGE-')).text()
+    const page2=await (await admin('/estudiantes?q=PAGE-&pagina=2')).text()
+    check('Listado paginado conserva búsqueda',page1.includes('Página <!-- -->1<!-- --> de <!-- -->2')&&page2.includes('Página <!-- -->2<!-- --> de <!-- -->2'))
+    // Families: genuine public signup, independent ownership, deterministic orientation.
+    await db.execute('DELETE FROM RegistroVentana')
+    check('Página pública para familias',(await fetch(base+'/familias')).status===200)
+    for(const email of ['family1@qa.invalid','family2@qa.invalid']) check('Crear cuenta familiar '+email,(await publicPost('/api/registro',{nombre:'Familia QA',email,password,perfil:'FAMILIA',aceptaTerminos:true})).status===201)
+    check('Perfil administrativo inyectado rechazado',(await publicPost('/api/registro',{nombre:'QA',email:'bad@qa.invalid',password,perfil:'ADMIN',aceptaTerminos:true})).status===400)
+    const family1=await login('family1@qa.invalid'),family2=await login('family2@qa.invalid')
+    const familyUser=(await (await family1('/api/auth/session')).json()).user
+    check('Sesión familiar conserva rol',familyUser.role==='FAMILIA')
+    check('Familia entra a su espacio',(await (await family1('/familia')).text()).includes('Acompaña su aprendizaje en casa'))
+    check('Dashboard redirige a familia',(await family1('/dashboard')).headers.get('location')?.endsWith('/familia'))
+    for(const path of ['/api/estudiantes','/api/evaluaciones','/api/dashboard','/api/organizaciones/ue','/api/admin/usuarios']) check('Familia no accede al área profesional '+path,(await family1(path)).status===403)
+    check('Familia no puede crear evaluación profesional',(await family1('/api/evaluaciones',json('POST',{estudianteId:student.id}))).status===403)
+    const observation={id:randomUUID(),alias:'FAMILIA-PRIVADA-QA',edad:8,respuestas:{lectura:'no_observado',comprension:'autonomo',escritura:'a_veces',instrucciones:'frecuente',bienestar:'autonomo',rutina:'no_observado'},autoriza:true}
+    check('Familia exige autorización',(await family1('/api/familia',json('POST',{...observation,autoriza:false}))).status===400)
+    check('Respuesta familiar inexistente rechazada',(await family1('/api/familia',json('POST',{...observation,respuestas:{...observation.respuestas,lectura:'diagnostico'}}))).status===400)
+    check('Edad fuera del alcance rechazada',(await family1('/api/familia',json('POST',{...observation,edad:3}))).status===400)
+    check('Docente no presenta observación como familia',(await admin('/api/familia',json('POST',observation))).status===403)
+    const candidates=[observation,{...observation,id:randomUUID()}]
+    const familyRace=await Promise.all(candidates.map(o=>family1('/api/familia',json('POST',o))))
+    check('Cupo familiar resiste concurrencia',familyRace.filter(r=>r.status===200).length===1&&familyRace.filter(r=>r.status===403).length===1)
+    let saved=candidates[familyRace.findIndex(r=>r.status===200)]
+    check('Familia puede editar sin consumir otro cupo',(await family1('/api/familia',json('POST',saved))).status===200)
+    const parentSpaceHtml=await (await family1('/familia/'+saved.id)).text()
+    check('Resumen familiar sin diagnóstico y con áreas no observadas',parentSpaceHtml.includes('no un diagnóstico')&&parentSpaceHtml.includes('Sin observación suficiente')&&parentSpaceHtml.includes('FAMILIA-PRIVADA-QA'))
+    check('Otra familia no lee el registro',!(await (await family2('/familia/'+saved.id)).text()).includes('FAMILIA-PRIVADA-QA'))
+    check('Otra familia no edita el registro',(await family2('/api/familia',json('POST',saved))).status===403)
+    check('Otra familia no elimina el registro',(await family2('/api/familia?id='+saved.id,{method:'DELETE'})).status===404)
+    check('Prueba familiar ofrece ampliar su propio alcance',(await (await family1('/suscripcion')).text()).includes('no habilita pruebas profesionales'))
+    const familyNotice=await db.execute({sql:'SELECT texto FROM AvisoSistema WHERE id=?',args:['familia-'+saved.id]})
+    check('Aviso familiar no contiene respuestas ni apodo',familyNotice.rows.length===1&&!familyNotice.rows[0].texto.includes(saved.alias)&&!familyNotice.rows[0].texto.includes('no_observado'))
+    check('Familia elimina su propio registro',(await family1('/api/familia?id='+saved.id,{method:'DELETE'})).status===200)
+    check('Eliminar no renueva prueba familiar',(await family1('/api/familia',json('POST',{...saved,id:randomUUID()}))).status===403)
+    check('Familia solicita ampliación',(await family1('/api/suscripcion',json('POST',requestPayload))).status===200)
+    check('Administración activa solicitud familiar',(await admin('/api/admin/suscripciones/'+familyUser.id,{method:'POST'})).status===200)
+    saved={...saved,id:randomUUID()}
+    check('Acceso familiar ampliado permite otro registro',(await family1('/api/familia',json('POST',saved))).status===200)
+    check('Activar familia no habilita área docente',(await family1('/api/evaluaciones')).status===403)
     writeFileSync(path.join(dir,'resultados.json'),JSON.stringify({passed,productionAccess:false,ai:'local fake'},null,2))
     console.log(`${passed.length} comprobaciones correctas. Evidencia: ${dir}`)
+    if(process.env.QA_KEEP_SERVER==='1') {
+      writeFileSync(path.join(dir,'browser-qa.json'),JSON.stringify({base,email:'family1@qa.invalid',password,href:'/familia/'+saved.id}),{mode:0o600})
+      console.log('Servidor de inspección visual disponible; solo datos sintéticos: '+dir)
+      await new Promise(resolve=>process.once('SIGINT',resolve))
+    }
   } finally {
     server.kill('SIGTERM'); ai.close(); db.close(); closeSync(log)
   }

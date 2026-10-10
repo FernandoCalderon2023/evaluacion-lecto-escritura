@@ -10,6 +10,7 @@ import { ZodError } from "zod"
 
 export async function GET(req: NextRequest) {
   const auth = await getAuthContext()
+  if (auth?.role === "FAMILIA") return NextResponse.json({ error: "Esta función corresponde al espacio profesional." }, { status: 403 })
   if (!auth) return unauthorizedResponse()
 
   const { searchParams } = new URL(req.url)
@@ -59,6 +60,7 @@ function generarCodigo(nombre: string, apellido1: string, apellido2: string | nu
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
+  if ((session?.user as any)?.role === "FAMILIA") return NextResponse.json({ error: "Esta función corresponde al espacio profesional." }, { status: 403 })
     if (!session?.user) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }

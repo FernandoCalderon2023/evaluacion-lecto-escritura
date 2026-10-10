@@ -8,11 +8,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Plus, User } from "lucide-react"
 
-export default async function EstudiantesPage({
-  searchParams,
-}: {
-  searchParams: { q?: string }
-}) {
+export default async function EstudiantesPage(
+  props: {
+    searchParams: Promise<{ q?: string; pagina?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const q = searchParams.q ?? ""
   const auth = await getAuthContext()
   if (!auth) redirect("/login")
@@ -20,18 +21,24 @@ export default async function EstudiantesPage({
   const search = q ? { OR: [{ codigo: { contains: q } }, { nombre: { contains: q } }, { apellido1: { contains: q } }] } : null
   const where: any = search ? { AND: [scope, search] } : scope
 
+  const pageSize = 24
+  const total = await prisma.estudiante.count({where})
+  const totalPages = Math.max(1,Math.ceil(total/pageSize))
+  const requested = Number(searchParams.pagina)
+  const page = Math.min(totalPages,Number.isSafeInteger(requested) && requested>0 ? requested : 1)
   const estudiantes = await prisma.estudiante.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: { _count: { select: { evaluaciones: true } } },
+    where, orderBy: [{createdAt:"desc"},{id:"desc"}], skip:(page-1)*pageSize,take:pageSize,
+    select:{id:true,codigo:true,grado:true,unidadEducativa:true,sexo:true,_count:{select:{evaluaciones:true}}},
   })
+  const pageHref = (n:number) => `/estudiantes?${new URLSearchParams({q,pagina:String(n)})}`
+
 
   return (
     <div className="p-4 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Estudiantes</h1>
-          <p className="text-slate-500 text-sm mt-1">{estudiantes.length} registrado(s)</p>
+          <p className="text-slate-500 text-sm mt-1">{total} registrado(s)</p>
         </div>
         <Link
           href="/estudiantes/nuevo"
@@ -92,6 +99,7 @@ export default async function EstudiantesPage({
           ))}
         </div>
       )}
+      {totalPages>1 && <nav aria-label="Páginas de estudiantes" className="flex items-center justify-between gap-3 text-sm">{page>1?<Link className="rounded-lg border bg-white px-4 py-2" href={pageHref(page-1)}>Anterior</Link>:<span/>}<span className="text-slate-500">Página {page} de {totalPages}</span>{page<totalPages?<Link className="rounded-lg border bg-white px-4 py-2" href={pageHref(page+1)}>Siguiente</Link>:<span/>}</nav>}
     </div>
   )
 }

@@ -17,6 +17,7 @@ export function Step10Inferencia({ state, set }: Props) {
         { field: "ej10b", label: "b) Tomaste agua y se te enfriaron los labios. ¿Cómo estaba el agua?", description: "Respuesta: fría / muy fría" },
         { field: "ej10c", label: "c) Jorge ayuda a su mamá. ¿Cómo es Jorge?", description: "Respuesta: bueno / responsable / amable" },
       ]} />
+      <label className="flex items-start gap-3 rounded-xl border border-viria-300 bg-viria-50 p-4 text-sm"><input type="checkbox" checked={state.cognitivoAplicado === true} onChange={e => set("cognitivoAplicado")(e.target.checked)} className="mt-1"/><span><strong>Confirmo que apliqué y registré todos los ejercicios cognitivos (3 al 10).</strong> Solo después de confirmar, las casillas sin marcar se interpretan como respuestas incorrectas. Si falta aplicar alguno, deja esta confirmación desmarcada.</span></label>
     </div>
   )
 }

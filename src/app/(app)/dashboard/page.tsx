@@ -1,3 +1,4 @@
+import { classificationSelect } from "@/lib/classificationSelect"
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
@@ -13,12 +14,12 @@ async function getDashboardData(filtro: any, individual: any) {
   const [students, totalEv, recientes, reports] = await Promise.all([
     prisma.estudiante.findMany({
       where: filtro,
-      select: { evaluaciones: { where: filtro, orderBy: [{ fecha: "desc" }, { createdAt: "desc" }, { id: "desc" }], take: 1 } },
+      select: { evaluaciones: { select: classificationSelect, where: filtro, orderBy: [{ fecha: "desc" }, { createdAt: "desc" }, { id: "desc" }], take: 1 } },
     }),
     prisma.evaluacion.count({ where: { AND: [filtro, { estudiante: filtro }] } }),
     prisma.evaluacion.findMany({
       where: { AND: [individual, { estudiante: individual }] }, take: 6, orderBy: { fecha: "desc" },
-      include: { estudiante: { select: { codigo: true, grado: true } } },
+      select: { ...classificationSelect, id: true, fecha: true, estudiante: { select: { codigo: true, grado: true } } },
     }),
     prisma.evaluacion.count({ where: { AND: [filtro, { estudiante: filtro }, { analisisIA: { not: null } }] } }),
   ])

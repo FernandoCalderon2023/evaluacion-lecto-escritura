@@ -6,8 +6,10 @@ import { estudianteUpdateSchema, validationError } from "@/lib/validators"
 import { findOrCreateUE } from "@/lib/organizaciones"
 import { ZodError } from "zod"
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await getAuthContext()
+  if (auth?.role === "FAMILIA") return NextResponse.json({ error: "Esta función corresponde al espacio profesional." }, { status: 403 })
   if (!auth) return unauthorizedResponse()
 
   const est = await prisma.estudiante.findUnique({
@@ -24,8 +26,10 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   return NextResponse.json(est)
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await getAuthContext()
+  if (auth?.role === "FAMILIA") return NextResponse.json({ error: "Esta función corresponde al espacio profesional." }, { status: 403 })
   if (!auth) return unauthorizedResponse()
 
   const existing = await prisma.estudiante.findUnique({ where: { id: params.id }, select: { docenteId: true } })
@@ -62,8 +66,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await getAuthContext()
+  if (auth?.role === "FAMILIA") return NextResponse.json({ error: "Esta función corresponde al espacio profesional." }, { status: 403 })
   if (!auth) return unauthorizedResponse()
 
   const existing = await prisma.estudiante.findUnique({ where: { id: params.id }, select: { docenteId: true } })

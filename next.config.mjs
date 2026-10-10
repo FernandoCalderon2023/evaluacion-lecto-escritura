@@ -1,4 +1,4 @@
-import { withSentryConfig } from "@sentry/nextjs"
+import { withSentryConfig } from "@sentry/nextjs/config"
 
 const securityHeaders = [
   // Fuerza HTTPS por 1 año (incluye subdominios)
@@ -35,9 +35,6 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    instrumentationHook: true,
-  },
   // Habilitar compresión gzip/brotli (default en Vercel pero explícito)
   compress: true,
   // Quitar header "powered by Next.js"
@@ -51,6 +48,7 @@ const nextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      { source: "/restablecer-contrasena", headers: [{ key: "Referrer-Policy", value: "no-referrer" }, { key: "Cache-Control", value: "no-store" }] },
     ]
   },
 }

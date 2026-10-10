@@ -54,7 +54,11 @@ const STEPS = [
 type Action = { type: "SET"; field: keyof EvaluacionFormData; value: unknown } | { type: "RESTORE"; data: Partial<EvaluacionFormData> }
 
 function reducer(state: Partial<EvaluacionFormData>, action: Action): Partial<EvaluacionFormData> {
-  return action.type === "RESTORE" ? action.data : { ...state, [action.field]: action.value }
+  if (action.type === "RESTORE") return action.data
+  const next = { ...state, [action.field]: action.value }
+  if (/^ej([3-9]|10)[a-z0-9]/.test(action.field) || action.field === "ej7" || action.field === "ej5b") next.cognitivoAplicado = false
+  if (/^ej(11|12|13|14)/.test(action.field)) next.lexicoAplicado = false
+  return next
 }
 
 interface Props {

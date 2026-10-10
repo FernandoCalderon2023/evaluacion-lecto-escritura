@@ -1,9 +1,12 @@
+import { cache } from "react"
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { isLoginBlocked, registerFailedLogin, clearFailedLogins } from "@/lib/ratelimit"
 import { logAudit } from "@/lib/audit"
+
+const sessionAccount = cache((id:string)=>prisma.usuario.findUnique({where:{id},select:{activo:true,sessionVersion:true,rol:true}}))
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -81,6 +84,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.nombre,
           role: user.rol,
+          sessionVersion: user.sessionVersion,
         }
       },
     }),
@@ -90,10 +94,16 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id
         token.role = (user as any).role
+        token.sessionVersion = (user as any).sessionVersion
       }
+      if (typeof token.id !== "string") { token.invalid = true; return token }
+      const account = await sessionAccount(token.id)
+      token.invalid = !account?.activo || (token.sessionVersion ?? 0) !== account.sessionVersion
+      if (!token.invalid && account) token.role = account.rol
       return token
     },
     async session({ session, token }) {
+      if (token.invalid) { (session as any).user = undefined; return session }
       if (session.user) {
         (session.user as any).id = token.id as string
         (session.user as any).role = token.role as string

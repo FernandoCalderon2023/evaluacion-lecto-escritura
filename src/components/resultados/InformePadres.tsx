@@ -36,7 +36,7 @@ export function InformePadres({
   const derivacion = analisis?.recomendaciones?.derivacion
 
   return (
-    <div className="space-y-5 max-w-3xl">
+    <div className="space-y-5 max-w-3xl min-w-0 break-words">
       {/* Disclaimer reforzado — SIEMPRE arriba */}
       <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4">
         <p className="text-sm text-amber-900">
@@ -46,6 +46,7 @@ export function InformePadres({
         </p>
       </div>
 
+      {analisis.controlCalidad && <div className="rounded-xl border border-slate-200 p-4 text-sm text-slate-700"><strong>Antes de compartir este informe</strong><p className="mt-1">El docente debe revisar los registros y las sugerencias. Las áreas incompletas y los ejercicios cuya aplicación no se confirmó no permiten concluir una dificultad.</p></div>}
       {/* Fortalezas primero */}
       {fortalezas.length > 0 && (
         <Card>

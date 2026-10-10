@@ -36,9 +36,10 @@ export default function PrivacidadPage() {
             <h2 className="text-xl font-bold text-slate-900 mb-2">1. Datos que recopilamos</h2>
             <p>SIDEDA recopila únicamente los datos estrictamente necesarios para realizar evaluaciones psicopedagógicas:</p>
             <ul className="list-disc pl-5 space-y-1 text-sm">
-              <li><strong>Del docente evaluador:</strong> nombre, correo electrónico, contraseña (almacenada como hash con bcrypt).</li>
+              <li><strong>Del titular de la cuenta (docente o familiar):</strong> nombre, correo electrónico, contraseña (almacenada como hash con bcrypt).</li>
               <li><strong>De la prueba y solicitud comercial:</strong> cupos utilizados, fecha de registro, teléfono, institución y mensaje proporcionados al solicitar la suscripción. El equipo administrativo usa estos datos para atender tu solicitud; el envío no activa un pago ni una suscripción automáticamente.</li>
               <li><strong>Del estudiante (menor de edad):</strong> nombre y apellidos, fecha de nacimiento, sexo, grado, Unidad Educativa, código RUDE opcional, domicilio opcional.</li>
+              <li><strong>De la observación familiar:</strong> apodo o iniciales, edad de 6 a 12 años, seis respuestas sobre actividades cotidianas y fechas del registro. Se guardan en un espacio separado y no se envían al agente de IA. La familia decide si imprime y comparte el resumen.</li>
               <li><strong>Resultados de evaluación:</strong> puntuaciones por ejercicio del instrumento MINEDU 2012 y de la Batería Psicomotora (BPM).</li>
               <li><strong>Datos técnicos:</strong> dirección IP, navegador y momento de cada acción sensible (para auditoría).</li>
             </ul>
@@ -51,9 +52,9 @@ export default function PrivacidadPage() {
               <strong>código de identificación</strong> (formato: iniciales + sufijo, ej. <code>QMM-A1B2</code>).
             </p>
             <ul className="list-disc pl-5 space-y-1 text-sm">
-              <li>En todos los listados, dashboards y reportes se muestra <strong>únicamente el código</strong>.</li>
+              <li>En los listados, dashboards y reportes del área profesional se muestra <strong>únicamente el código</strong>.</li>
               <li>El acceso a los datos se controla por propietario y roles de administración u organización. El código no convierte los datos almacenados en anónimos.</li>
-              <li>El campo de identificación utilizado para generar el informe es el código. Evita incorporar datos identificativos en las observaciones.</li>
+              <li>El agente recibe un resumen numérico sin nombres, códigos, edad, institución ni observaciones libres. Evita incorporar datos identificativos innecesarios en las observaciones.</li>
             </ul>
           </div>
 
@@ -61,9 +62,9 @@ export default function PrivacidadPage() {
             <h2 className="text-xl font-bold text-slate-900 mb-2">3. Inteligencia Artificial</h2>
             <p>
               Los informes se generan con el proveedor configurado por el sistema: DeepSeek o Anthropic.
-              Se envían los resultados, datos de contexto y observaciones necesarios para la interpretación.
+              Se envía un resumen numérico del registro para proponer actividades educativas. No se envían nombres ni observaciones libres. Las conclusiones del reporte se calculan en el sistema; las sugerencias requieren revisión profesional.
               No incluyas nombres ni información personal innecesaria en los campos de texto libre.
-              La prueba gratuita muestra puntajes calculados sin generar un informe de IA.
+              La prueba docente muestra puntajes calculados sin generar un informe de IA. El recorrido familiar utiliza orientación predefinida sin IA.
             </p>
             <p className="text-sm text-slate-600">
               El profesional debe revisar el informe antes de compartirlo con la familia.
@@ -73,10 +74,10 @@ export default function PrivacidadPage() {
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">4. Almacenamiento y seguridad</h2>
             <ul className="list-disc pl-5 space-y-1 text-sm">
-              <li>Los datos se almacenan en <strong>Turso</strong> (libSQL distribuido) con replicación automática.</li>
-              <li>La plataforma corre en <strong>Vercel</strong> con TLS 1.3 obligatorio.</li>
-              <li>Las contraseñas se almacenan <strong>cifradas con bcrypt</strong> (12 rounds). Nadie — ni el administrador — puede verlas.</li>
-              <li><strong>Backups diarios</strong> cifrados, conservados 14 días.</li>
+              <li>Los datos se almacenan en <strong>Turso</strong> (libSQL distribuido) según la configuración contratada.</li>
+              <li>La plataforma corre en <strong>Vercel</strong> y se accede mediante HTTPS.</li>
+              <li>Las contraseñas se almacenan como <strong>hashes de bcrypt</strong>, no como texto recuperable.</li>
+              <li>Hay una tarea de <strong>respaldo diario</strong> a almacenamiento privado, con retención configurada de 14 días. Su ejecución depende de la disponibilidad y configuración del servicio.</li>
               <li><strong>Audit log</strong> de todas las acciones sensibles (creación de usuarios, accesos administrativos).</li>
             </ul>
           </div>
@@ -84,9 +85,7 @@ export default function PrivacidadPage() {
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">5. Aislamiento por docente</h2>
             <p>
-              Cada docente solo puede ver y administrar los estudiantes que él mismo registró. No es
-              posible acceder a datos de otros docentes ni de otras Unidades Educativas. Solo el
-              administrador del sistema tiene visibilidad global, con fines exclusivos de soporte.
+              Cada docente administra sus registros. Los roles institucionales pueden consultar información según su organización y alcance; administración dispone de acceso global para soporte. Cada familia accede a sus propios registros familiares y puede eliminarlos; la eliminación no renueva el cupo de prueba. Los respaldos pueden conservar copias durante su periodo de retención.
             </p>
           </div>
 

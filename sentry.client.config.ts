@@ -8,6 +8,11 @@ const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN || process.env.SENTRY_DSN
 
 Sentry.init({
   dsn: SENTRY_DSN,
+  enabled: typeof window === "undefined" || !window.location.pathname.includes("contrasena"),
+  beforeBreadcrumb(breadcrumb) {
+    if (typeof window !== "undefined" && window.location.pathname.includes("contrasena")) return null
+    return breadcrumb
+  },
 
   // Capturar info del usuario (IP, headers) — útil para debugging
   sendDefaultPii: true,
@@ -21,6 +26,7 @@ Sentry.init({
 
   // Filtrar errores conocidos / ruido
   beforeSend(event, hint) {
+    if (typeof window !== "undefined" && window.location.pathname.includes("contrasena")) return null
     const error = hint.originalException
     const message = error instanceof Error ? error.message : String(error)
 

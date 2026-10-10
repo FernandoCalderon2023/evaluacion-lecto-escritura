@@ -1,6 +1,12 @@
 import { EstadoAprendizaje } from "./evaluacion"
 
 export interface AnalisisIA {
+  controlCalidad?: {
+    version: number
+    estado: "revision-profesional"
+    advertencias: string[]
+    evidencias: Array<{ area: string; registro: string; dato: string; alerta: boolean }>
+  }
   /** Resumen ejecutivo que abre el informe (nuevo — puede faltar en informes antiguos). */
   sintesisEjecutiva?: string
   perfilDAE: {

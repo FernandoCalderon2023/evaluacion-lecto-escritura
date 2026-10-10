@@ -17,6 +17,7 @@ export function Step14Inversion({ state, set }: Props) {
         { field: "ej14b", label: 'Sílaba contraria de "se" → es' },
         { field: "ej14c", label: 'Sílaba contraria de "ed" → de' },
       ]} />
+      <label className="flex items-start gap-3 rounded-xl border border-viria-300 bg-viria-50 p-4 text-sm"><input type="checkbox" checked={state.lexicoAplicado === true} onChange={e => set("lexicoAplicado")(e.target.checked)} className="mt-1"/><span><strong>Confirmo que apliqué y registré todos los ejercicios léxicos (11 al 14).</strong> Solo después de confirmar, las casillas sin marcar se interpretan como respuestas incorrectas. Si falta aplicar alguno, deja esta confirmación desmarcada.</span></label>
     </div>
   )
 }

@@ -1,3 +1,5 @@
+import { calcularScores } from "@/lib/scoring"
+import { readGuardedReport } from "@/lib/ai/reportGuard"
 import { isTrial, subscriptionRequired } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
@@ -20,9 +22,11 @@ export const maxDuration = 300
  * Si QStash no está configurado, hace fallback al procesamiento sincrónico
  * (modo dev / sin cola).
  */
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const session = await getServerSession(authOptions)
+  if ((session?.user as any)?.role === "FAMILIA") return NextResponse.json({ error: "Esta función corresponde al espacio profesional." }, { status: 403 })
     if (!session?.user) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
@@ -49,6 +53,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ error: "No autorizado" }, { status: 403 })
     }
 
+    const body = await req.text()
+    let regenerate = false
+    if (body) {
+      try { const parsed = JSON.parse(body); if (typeof parsed.regenerar !== "boolean" || Object.keys(parsed).some(k => k !== "regenerar")) throw new Error(); regenerate = parsed.regenerar }
+      catch { return NextResponse.json({ error: "Solicitud de análisis inválida." }, { status: 400 }) }
+    }
+    if (!regenerate && ev.analisisIA) {
+      const cached = readGuardedReport(ev.analisisIA, calcularScores(ev as any))
+      if (cached) return NextResponse.json({ status: "done", analisis: cached, cached: true, analisisGeneradoEn: ev.analisisGeneradoEn })
+    }
+    // Release abandoned jobs after the maximum worker runtime plus a safety margin.
+    await prisma.analysisJob.updateMany({ where: { evaluacionId: params.id, status: { in: ["queued", "processing"] }, updatedAt: { lt: new Date(Date.now() - 6 * 60000) } }, data: { status: "failed", activeKey: null, error: "El trabajo venció. Puede generar uno nuevo.", completedAt: new Date() } })
     // Si ya hay un job en cola/procesando para esta evaluación, devolverlo
     const existing = await prisma.analysisJob.findFirst({
       where: {
@@ -62,13 +78,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
 
     // Crear el job
-    const job = await prisma.analysisJob.create({
-      data: {
-        evaluacionId: params.id,
-        docenteId,
-        status: "queued",
-      },
-    })
+    let job
+    try {
+      job = await prisma.analysisJob.create({ data: { evaluacionId: params.id, docenteId, status: "queued", activeKey: params.id } })
+    } catch (error) {
+      if ((error as { code?: string }).code !== "P2002") throw error
+      const shared = await prisma.analysisJob.findUnique({ where: { activeKey: params.id } })
+      if (!shared) throw error
+      return NextResponse.json({ jobId: shared.id, status: shared.status, queued: true })
+    }
 
     // Modo de procesamiento del informe:
     //  - "inline" (POR DEFECTO): el sistema lo procesa por sí mismo en este mismo pedido,
@@ -119,8 +137,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
  * GET /api/evaluaciones/[id]/analisis
  * Devuelve el análisis IA ya generado (si existe).
  */
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions)
+  if ((session?.user as any)?.role === "FAMILIA") return NextResponse.json({ error: "Esta función corresponde al espacio profesional." }, { status: 403 })
   if (!session?.user) return NextResponse.json({ error: "No autenticado" }, { status: 401 })
 
   const ev = await prisma.evaluacion.findUnique({ where: { id: params.id } })
@@ -128,13 +148,13 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 
   const isAdmin = (session.user as any).role === "ADMIN"
   const docenteId = (session.user as any).id
-    if (await isTrial(docenteId)) return subscriptionRequired()
+  if (await isTrial(docenteId)) return subscriptionRequired()
   if (!isAdmin && ev.docenteId !== docenteId) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 })
   }
 
   return NextResponse.json({
-    analisis: ev.analisisIA ? JSON.parse(ev.analisisIA) : null,
+    analisis: readGuardedReport(ev.analisisIA, calcularScores(ev as any)),
     analisisGeneradoEn: ev.analisisGeneradoEn,
   })
 }

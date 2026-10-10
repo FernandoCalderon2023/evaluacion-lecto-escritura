@@ -1,3 +1,4 @@
+import { waitUntil } from "@vercel/functions"
 import { queueNotice, sendNotice } from "@/lib/notifications"
 import { NextRequest, NextResponse } from "next/server"
 import { getAuthContext, unauthorizedResponse } from "@/lib/apiAuth"
@@ -19,6 +20,6 @@ export async function POST(req: NextRequest) {
     }
     return updated
   })
-  if (result.count) await sendNotice(`solicitud-${auth.userId}`)
+  if (result.count) waitUntil(sendNotice(`solicitud-${auth.userId}`))
   return NextResponse.json({ ok: true, alreadyRequested: result.count === 0 })
 }

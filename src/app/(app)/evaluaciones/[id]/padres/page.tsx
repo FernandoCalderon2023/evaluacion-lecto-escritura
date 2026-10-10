@@ -1,3 +1,5 @@
+import { calcularScores } from "@/lib/scoring"
+import { readGuardedReport } from "@/lib/ai/reportGuard"
 import { isTrial } from "@/lib/commercial"
 export const dynamic = "force-dynamic"
 
@@ -8,7 +10,8 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { InformePadres } from "@/components/resultados/InformePadres"
 
-export default async function InformePadresPage({ params }: { params: { id: string } }) {
+export default async function InformePadresPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await getAuthContext()
   if (!auth) redirect("/login")
 
@@ -22,7 +25,7 @@ export default async function InformePadresPage({ params }: { params: { id: stri
   }
 
   if (await isTrial(auth.userId)) redirect("/suscripcion")
-  const analisis = ev.analisisIA ? JSON.parse(ev.analisisIA) : null
+  const analisis = readGuardedReport(ev.analisisIA, calcularScores(ev as any))
 
   return (
     <div className="p-4 lg:p-8 space-y-6 max-w-3xl">

@@ -11,6 +11,7 @@ const nav = [
   { href: "/dashboard", label: "Panel Principal", icon: LayoutDashboard },
   { href: "/estudiantes", label: "Estudiantes", icon: Users },
   { href: "/evaluaciones", label: "Evaluaciones", icon: ClipboardList },
+  { href: "/cuenta", label: "Cuenta", icon: Settings },
   { href: "/guia", label: "Guía de uso", icon: BookOpen },
 ]
 
@@ -23,7 +24,8 @@ export function Sidebar() {
   const { data: session } = useSession()
   const isAdmin = (session?.user as any)?.role === "ADMIN"
 
-  const fullNav = isAdmin
+  const isFamily = (session?.user as any)?.role === "FAMILIA"
+  const fullNav = isFamily ? [{ href: "/familia", label: "Mi familia", icon: Users }, { href: "/suscripcion", label: "Mi acceso", icon: BookOpen }, { href: "/cuenta", label: "Cuenta", icon: Settings }] : isAdmin
     ? [...nav, { href: "/admin", label: "Administración", icon: Settings }]
     : nav
 
@@ -32,11 +34,10 @@ export function Sidebar() {
 
   // Persistir estado collapsed (desktop)
   useEffect(() => {
-    const saved = localStorage.getItem(LS_KEY)
-    if (saved === "1") setCollapsed(true)
+    try { if (localStorage.getItem(LS_KEY) === "1") setCollapsed(true) } catch {}
   }, [])
   useEffect(() => {
-    localStorage.setItem(LS_KEY, collapsed ? "1" : "0")
+    try { localStorage.setItem(LS_KEY, collapsed ? "1" : "0") } catch {}
   }, [collapsed])
 
   return (
@@ -71,7 +72,7 @@ export function Sidebar() {
           collapsed ? "lg:w-16" : "lg:w-64",
           "w-72",
           "lg:translate-x-0",
-          open ? "translate-x-0" : "-translate-x-full"
+          open ? "visible translate-x-0" : "invisible -translate-x-full lg:visible"
         )}
       >
         {/* Logo */}
@@ -160,13 +161,13 @@ export function Sidebar() {
               key={href}
               href={href}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-all",
+                "flex flex-col items-center gap-0.5 px-1 py-1.5 rounded-lg transition-all",
                 active ? "text-viria-600" : "text-slate-400 hover:text-slate-600"
               )}
             >
               <Icon className={cn("h-5 w-5", active && "scale-110")} />
               <span className={cn("text-[10px] leading-none", active && "font-semibold")}>
-                {label.split(" ")[0]}
+                {href === "/familia" ? "Familia" : href === "/suscripcion" ? "Acceso" : label.split(" ")[0]}
               </span>
             </Link>
           )

@@ -8,7 +8,8 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 
-export default async function EditarEvaluacionPage({ params }: { params: { id: string } }) {
+export default async function EditarEvaluacionPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await getAuthContext()
   if (!auth) redirect("/login")
   const ev = await prisma.evaluacion.findUnique({

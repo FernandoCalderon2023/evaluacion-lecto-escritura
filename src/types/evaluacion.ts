@@ -10,6 +10,8 @@ export type EstadoAprendizaje =
   | "dificultad-severa"
 
 export interface EvaluacionFormData {
+  cognitivoAplicado: boolean
+  lexicoAplicado: boolean
   estudianteId: string
   evaluador: string
   fecha: string
@@ -165,6 +167,7 @@ export interface EvaluacionFormData {
 }
 
 export const EVALUACION_DEFAULTS: Omit<EvaluacionFormData, "estudianteId" | "evaluador" | "fecha"> = {
+  cognitivoAplicado: false, lexicoAplicado: false,
   edadAlEvaluar: null,
   anioEscolar: null,
   observaciones: null,

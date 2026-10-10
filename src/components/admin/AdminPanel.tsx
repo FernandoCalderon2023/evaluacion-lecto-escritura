@@ -63,7 +63,7 @@ export function AdminPanel({ usuarios, currentUserId }: { usuarios: Usuario[]; c
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || "No se pudo actualizar la cuenta")
-      setMessage({ text: activo ? "Cuenta desactivada para nuevos inicios de sesión." : "Cuenta activada.", error: false })
+      setMessage({ text: activo ? "Cuenta desactivada. Sus sesiones anteriores ya no tienen acceso." : "Cuenta activada.", error: false })
       router.refresh()
     } catch (error) {
       setMessage({ text: error instanceof Error ? error.message : "No se pudo conectar. Intenta nuevamente.", error: true })
@@ -157,7 +157,7 @@ export function AdminPanel({ usuarios, currentUserId }: { usuarios: Usuario[]; c
                   {u.rol === "ADMIN" ? <Shield className="h-5 w-5 text-purple-500" /> : <User className="h-5 w-5 text-viria-500" />}
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{u.nombre}{u.id === currentUserId && <span className="ml-2 text-xs font-normal text-viria-700">Tu cuenta</span>}</p>
-                    <p className="text-xs text-slate-500">{u.email} · {u.rol === "ADMIN" ? "Administrador" : "Docente"}</p>
+                    <p className="text-xs text-slate-500">{u.email} · {u.rol === "ADMIN" ? "Administrador" : u.rol === "FAMILIA" ? "Familia" : "Docente"}</p>
                   </div>
                 </div>
                 <button disabled={pendingId !== null || u.id === currentUserId} aria-label={`${pendingId === u.id ? "Guardando…" : u.activo ? "Desactivar" : "Activar"} cuenta de ${u.nombre}`} onClick={() => toggleActivo(u.id, u.activo)}

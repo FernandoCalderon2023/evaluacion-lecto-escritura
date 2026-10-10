@@ -30,14 +30,14 @@ const LEXICAL_ALL_TRUE = {
 }
 
 test("cognitivo: todos correctos = 27/27, sin dificultad", () => {
-  const r = scoreCognitive(COGNITIVE_ALL_TRUE as never)
+  const r = scoreCognitive({ ...COGNITIVE_ALL_TRUE, cognitivoAplicado: true })
   assert.equal(r.totalCorrect, 27)
   assert.equal(r.totalItems, 27)
   assert.equal(r.hasDifficulty, false)
 })
 
 test("cognitivo: ninguno correcto = 0/27, con dificultad", () => {
-  const r = scoreCognitive({} as never)
+  const r = scoreCognitive({ cognitivoAplicado: true })
   assert.equal(r.totalCorrect, 0)
   assert.equal(r.hasDifficulty, true)
 })
@@ -45,24 +45,24 @@ test("cognitivo: ninguno correcto = 0/27, con dificultad", () => {
 test("cognitivo: umbral exacto — 15 = dificultad, 16 = sin dificultad", () => {
   const keys = Object.keys(COGNITIVE_ALL_TRUE)
   const con15 = Object.fromEntries(keys.slice(0, 15).map((k) => [k, true]))
-  const r15 = scoreCognitive(con15 as never)
+  const r15 = scoreCognitive({ ...con15, cognitivoAplicado: true })
   assert.equal(r15.totalCorrect, 15)
   assert.equal(r15.hasDifficulty, true)
 
   const con16 = Object.fromEntries(keys.slice(0, 16).map((k) => [k, true]))
-  const r16 = scoreCognitive(con16 as never)
+  const r16 = scoreCognitive({ ...con16, cognitivoAplicado: true })
   assert.equal(r16.totalCorrect, 16)
   assert.equal(r16.hasDifficulty, false)
 })
 
 test("léxico: todos correctos = 17/17, sin dificultad", () => {
-  const r = scoreLexical(LEXICAL_ALL_TRUE as never)
+  const r = scoreLexical({ ...LEXICAL_ALL_TRUE, lexicoAplicado: true })
   assert.equal(r.totalCorrect, 17)
   assert.equal(r.hasDifficulty, false)
 })
 
 test("léxico: ninguno correcto = 0/17, con dificultad", () => {
-  const r = scoreLexical({} as never)
+  const r = scoreLexical({ lexicoAplicado: true })
   assert.equal(r.totalCorrect, 0)
   assert.equal(r.hasDifficulty, true)
 })
@@ -70,15 +70,15 @@ test("léxico: ninguno correcto = 0/17, con dificultad", () => {
 test("léxico: umbral exacto — 8 = dificultad, 9 = sin dificultad", () => {
   const keys = Object.keys(LEXICAL_ALL_TRUE)
   const con8 = Object.fromEntries(keys.slice(0, 8).map((k) => [k, true]))
-  assert.equal(scoreLexical(con8 as never).hasDifficulty, true)
+  assert.equal(scoreLexical({ ...con8, lexicoAplicado: true }).hasDifficulty, true)
   const con9 = Object.fromEntries(keys.slice(0, 9).map((k) => [k, true]))
-  assert.equal(scoreLexical(con9 as never).hasDifficulty, false)
+  assert.equal(scoreLexical({ ...con9, lexicoAplicado: true }).hasDifficulty, false)
 })
 
 test("integración: evaluación vacía no emite clasificación general", () => {
   const s = calcularScores({} as never)
-  assert.equal(s.cognitivo.hasDifficulty, true)
-  assert.equal(s.lexical.hasDifficulty, true)
+  assert.equal(s.cognitivo.hasDifficulty, false)
+  assert.equal(s.lexical.hasDifficulty, false)
   assert.equal(s.estadoGeneral, "evaluacion-incompleta")
   assert.equal(s.dictado.hasDifficulty, false)
   assert.equal(s.composicion.hasDifficulty, false)

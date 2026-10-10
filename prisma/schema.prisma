@@ -9,6 +9,9 @@ datasource db {
 
 model Usuario {
   accesoComercial AccesoComercial?
+  sessionVersion Int @default(0)
+  recuperaciones RecuperacionPassword[]
+  observacionesFamiliares ObservacionFamiliar[]
   id           String   @id @default(cuid())
   email        String   @unique
   passwordHash String
@@ -36,6 +39,7 @@ model AuditLog {
 }
 
 model AnalysisJob {
+  activeKey String? @unique
   id            String   @id @default(cuid())
   evaluacionId  String
   docenteId     String?
@@ -79,6 +83,8 @@ model Estudiante {
 }
 
 model Evaluacion {
+  cognitivoAplicado Boolean @default(false)
+  lexicoAplicado Boolean @default(false)
   id           String     @id @default(cuid())
   estudianteId String
   estudiante   Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
@@ -451,4 +457,26 @@ model AvisoSistema {
   ultimoError String?
   createdAt DateTime @default(now())
   @@index([estado, createdAt])
+}
+
+model RecuperacionPassword {
+  tokenHash String @id
+  usuarioId String
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  venceEn DateTime
+  usadoEn DateTime?
+  createdAt DateTime @default(now())
+  @@index([usuarioId, venceEn])
+}
+
+model ObservacionFamiliar {
+  id String @id
+  usuarioId String
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  alias String
+  edad Int
+  respuestas String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([usuarioId, createdAt])
 }

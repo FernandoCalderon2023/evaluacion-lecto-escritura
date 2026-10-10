@@ -10,11 +10,12 @@ import { Card, CardContent } from "@/components/ui/card"
 
 export const dynamic = "force-dynamic"
 
-export default async function NuevaEvaluacionPage({
-  searchParams,
-}: {
-  searchParams: { estudianteId?: string }
-}) {
+export default async function NuevaEvaluacionPage(
+  props: {
+    searchParams: Promise<{ estudianteId?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions)
   if (!(session?.user as any)?.id) redirect("/login")
   const isAdmin = (session?.user as any)?.role === "ADMIN"

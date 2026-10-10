@@ -54,7 +54,7 @@ export default function LandingPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-viria-700">Distintos equipos. Un propósito compartido.</p>
         <h2 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">Una herramienta que acompaña<br className="hidden sm:block" /> tu forma de trabajar.</h2>
         <div className="mt-10 grid gap-5 md:grid-cols-3">{audiences.map(({icon: Icon,title,subtitle,items}) => <article key={title} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-7"><Icon size={25} strokeWidth={1.5} className="text-viria-700" /><h3 className="mt-6 text-xl font-semibold">{title}</h3><p className="mt-2 text-sm leading-relaxed text-slate-500">{subtitle}</p><ul className="mt-6 space-y-4">{items.map(item => <li key={item} className="flex gap-3 text-sm leading-relaxed text-slate-700"><Check size={17} className="mt-1 shrink-0 text-viria-700" />{item}</li>)}</ul></article>)}</div>
-        <p className="mt-5 max-w-3xl text-sm leading-relaxed text-slate-500">Las familias reciben orientación a través del informe compartido por su docente o profesional. Puedes crear tu cuenta e iniciar una prueba gratuita con acceso limitado.</p>
+        <p className="mt-5 max-w-3xl text-sm leading-relaxed text-slate-500">Las familias también pueden crear su propia cuenta para registrar observaciones en casa. <Link href="/familias" className="font-semibold text-viria-700 underline">Conocer el espacio para familias.</Link></p>
       </section>
 
       <section id="como-funciona" className="bg-viria-900 px-5 py-16 text-white lg:px-8">

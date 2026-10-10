@@ -7,6 +7,7 @@ export function ProductHeader() {
       <Link href="/" aria-label="SIDEDA, inicio" className="flex items-center gap-3"><Logo size={32} showText={false} /><span className="text-xl font-extrabold tracking-tight text-viria-900">SIDEDA<span className="ml-2 text-[10px] font-medium uppercase tracking-[0.18em] text-slate-500">por VirIA</span></span></Link>
       <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600 sm:gap-7">
         <Link href="/#soluciones" className="hover:text-viria-700">Soluciones</Link>
+        <Link href="/familias" className="hover:text-viria-700">Familias</Link>
         <Link href="/demo" className="hover:text-viria-700">Ver ejemplo</Link>
         <Link href="/registro" className="font-semibold text-viria-700">Prueba gratis</Link>
         <Link href="/login" className="rounded-full bg-viria-900 px-5 py-2.5 text-white hover:bg-viria-800">Ingresar</Link>

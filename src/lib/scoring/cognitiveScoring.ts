@@ -21,9 +21,10 @@ export function scoreCognitive(ev: Partial<EvaluacionFormData>): CognitiveResult
   const totalCorrect = item3a + item3b + item4 + item5a + item5b + item6 + item7 + item8 + item9 + item10
 
   return {
+    registro: ev.cognitivoAplicado === true ? "completo" : totalCorrect > 0 ? "incompleto" : "no-evaluado",
     totalCorrect,
     totalItems: 27,
-    hasDifficulty: totalCorrect <= COGNITIVE_THRESHOLD, // <=15 = dificultad (instrumento: >15 = sin dificultad)
+    hasDifficulty: ev.cognitivoAplicado === true && totalCorrect <= COGNITIVE_THRESHOLD, // <=15 = dificultad (instrumento: >15 = sin dificultad)
     byItem: { item3a, item3b, item4, item5a, item5b, item6, item7, item8, item9, item10 },
   }
 }

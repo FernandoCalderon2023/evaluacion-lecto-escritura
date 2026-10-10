@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { anthropic } from "@/lib/anthropic"
 import { calcularScores } from "@/lib/scoring"
-import { SYSTEM_PROMPT_CACHEABLE, buildUserMessage } from "@/lib/ai/promptBuilder"
+import { guardReport, readGuardedReport, RECOMMENDATION_PROMPT, recommendationContext } from "@/lib/ai/reportGuard"
 import { ANALYSIS_TOOL } from "@/lib/ai/analysisSchema"
 import { deepseekEnabled, generarInformeDeepseek } from "@/lib/ai/deepseek"
 import * as Sentry from "@sentry/nextjs"
@@ -19,12 +19,16 @@ import type { AnalisisIA } from "@/types/ai"
  * Devuelve el análisis. Si falla, deja el job en "failed" y relanza el error.
  */
 export async function procesarAnalisis(jobId: string, evaluacionId: string): Promise<AnalisisIA> {
+  // Claim once. Duplicate queue delivery must not regenerate or fail another worker's job.
+  const claimed = await prisma.analysisJob.updateMany({ where: { id: jobId, evaluacionId, status: "queued" }, data: { status: "processing", startedAt: new Date() } })
+  if (!claimed.count) {
+    const job = await prisma.analysisJob.findFirst({ where: { id: jobId, evaluacionId, status: "done" } })
+    const ev = job ? await prisma.evaluacion.findUnique({ where: { id: evaluacionId } }) : null
+    const existing = ev ? readGuardedReport(ev.analisisIA, calcularScores(ev as any)) : null
+    if (existing) return existing
+    throw new Error("El trabajo ya está siendo procesado o no está disponible.")
+  }
   try {
-    await prisma.analysisJob.update({
-      where: { id: jobId },
-      data: { status: "processing", startedAt: new Date() },
-    })
-
     const ev = await prisma.evaluacion.findUnique({
       where: { id: evaluacionId },
       include: { estudiante: true },
@@ -32,23 +36,23 @@ export async function procesarAnalisis(jobId: string, evaluacionId: string): Pro
     if (!ev) throw new Error("Evaluación no encontrada")
 
     const scores = calcularScores(ev as any)
-    const userMessage = buildUserMessage(ev.estudiante, ev, scores)
+    const userMessage = recommendationContext(scores)
 
     let analisis: AnalisisIA
 
     if (deepseekEnabled()) {
       // Proveedor DeepSeek (activo si DEEPSEEK_API_KEY está en el entorno)
-      analisis = await generarInformeDeepseek(SYSTEM_PROMPT_CACHEABLE, userMessage)
+      analisis = await generarInformeDeepseek(RECOMMENDATION_PROMPT, userMessage)
       console.log("[procesarAnalisis] proveedor: DeepSeek")
     } else {
       // Proveedor Anthropic: tool_use con prompt caching
       const stream = anthropic.messages.stream({
         model: "claude-sonnet-4-6",
-        max_tokens: 16000,
+        max_tokens: 4096,
         system: [
           {
             type: "text",
-            text: SYSTEM_PROMPT_CACHEABLE,
+            text: RECOMMENDATION_PROMPT,
             cache_control: { type: "ephemeral" },
           },
         ],
@@ -65,19 +69,14 @@ export async function procesarAnalisis(jobId: string, evaluacionId: string): Pro
       ) as { type: "tool_use"; name: string; input: AnalisisIA } | undefined
 
       if (!toolUseBlock) {
-        const textBlock = message.content.find((b) => b.type === "text")
-        const textContent = textBlock?.type === "text" ? textBlock.text : ""
         throw new Error(
-          `Claude no devolvió tool_use. Stop reason: ${message.stop_reason}. Content: ${textContent.slice(0, 200)}`
+          "El proveedor no devolvió sugerencias estructuradas. Intente nuevamente."
         )
       }
       analisis = toolUseBlock.input
     }
 
-    // Validación mínima
-    if (!analisis.perfilDAE?.nivelDificultad) {
-      throw new Error("Tool output sin perfilDAE.nivelDificultad")
-    }
+    analisis = guardReport(analisis, scores)
 
     const persisted = await prisma.evaluacion.updateMany({
       where: { id: evaluacionId, updatedAt: ev.updatedAt },
@@ -93,7 +92,7 @@ export async function procesarAnalisis(jobId: string, evaluacionId: string): Pro
 
     await prisma.analysisJob.update({
       where: { id: jobId },
-      data: { status: "done", completedAt: new Date() },
+      data: { status: "done", activeKey: null, completedAt: new Date() },
     })
 
     return analisis
@@ -109,7 +108,7 @@ export async function procesarAnalisis(jobId: string, evaluacionId: string): Pro
     await prisma.analysisJob
       .update({
         where: { id: jobId },
-        data: { status: "failed", error: msg, completedAt: new Date() },
+        data: { status: "failed", activeKey: null, error: msg, completedAt: new Date() },
       })
       .catch(() => {})
 

@@ -13,6 +13,7 @@ Sentry.init({
   // Capturar también console.error en producción
   // (los logs de Vercel ya los tenemos, pero esto da contexto)
   beforeSend(event, hint) {
+    if (event.request?.url && /\/api\/(auth\/(recuperar|restablecer)|cuenta\/password)/.test(event.request.url)) return null
     const error = hint.originalException
     const message = error instanceof Error ? error.message : String(error)
 

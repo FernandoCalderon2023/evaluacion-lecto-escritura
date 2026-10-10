@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic"
  */
 export async function GET() {
   const auth = await getAuthContext()
+  if (auth?.role === "FAMILIA") return NextResponse.json({ error: "Esta función corresponde al espacio profesional." }, { status: 403 })
   if (!auth) return unauthorizedResponse()
 
   if (await isTrial(auth.userId)) return NextResponse.json([])

@@ -36,7 +36,7 @@ function deepParseNested(value: unknown): unknown {
 /**
  * Genera el informe psicopedagógico con DeepSeek (API compatible con OpenAI).
  * Reutiliza el MISMO esquema del informe (ANALYSIS_TOOL) vía function calling,
- * así el output mantiene la estructura garantizada, igual que con Anthropic.
+ * así el output mantiene la estructura solicitada (validada posteriormente por reportGuard), igual que con Anthropic.
  *
  * La API key se lee de process.env.DEEPSEEK_API_KEY — NUNCA se hardcodea.
  */
@@ -53,9 +53,9 @@ export async function generarInformeDeepseek(
 
   const body = JSON.stringify({
     model,
-    max_tokens: 8192,
+    max_tokens: 4096,
     // Temperatura baja → JSON estructurado mucho más fiable (menos malformación).
-    temperature: 0.3,
+    temperature: 0.1,
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userText },
@@ -74,43 +74,32 @@ export async function generarInformeDeepseek(
   })
 
   // DeepSeek ocasionalmente devuelve JSON malformado en el function-call.
-  // Reintentamos hasta 3 veces (cada llamada es independiente) antes de fallar.
+  // Reintentamos hasta 2 veces (cada llamada es independiente) antes de fallar.
   let lastErr: Error | null = null
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= 2; attempt++) {
     try {
       // Timeout de 90s por intento: si DeepSeek se cuelga, abortamos y reintentamos
       // en vez de bloquear el worker hasta su maxDuration.
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 90_000)
-      let res: Response
-      try {
-        res = await fetch(`${baseUrl}/chat/completions`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body,
-          signal: controller.signal,
-        })
-      } finally {
-        clearTimeout(timeoutId)
-      }
+      const res = await fetch(`${baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body,
+        // The deadline covers response body parsing as well as connection headers.
+        signal: AbortSignal.timeout(90_000),
+      })
 
       if (!res.ok) {
-        const errText = await res.text().catch(() => "")
         if (res.status === 401 || res.status === 403) {
           // Key inválida: reintentar no ayuda. Mensaje accionable.
-          throw new Error(`DEEPSEEK_KEY_INVALIDA (HTTP ${res.status}): revisá DEEPSEEK_API_KEY en Vercel. ${errText.slice(0, 150)}`)
+          throw new Error(`DEEPSEEK_KEY_INVALIDA (HTTP ${res.status}): revisá DEEPSEEK_API_KEY en Vercel.`)
         }
-        throw new Error(`DeepSeek HTTP ${res.status}: ${errText.slice(0, 300)}`)
+        throw new Error(`DeepSeek HTTP ${res.status}`)
       }
 
       const data = await res.json()
       const argsStr = data?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments
       if (!argsStr) {
-        const content = data?.choices?.[0]?.message?.content ?? ""
-        throw new Error(`DeepSeek no devolvió function call. Content: ${String(content).slice(0, 200)}`)
+        throw new Error("El proveedor no devolvió sugerencias estructuradas")
       }
 
       const parsed = JSON.parse(argsStr)
@@ -122,5 +111,5 @@ export async function generarInformeDeepseek(
       if (lastErr.message.startsWith("DEEPSEEK_KEY_INVALIDA")) break
     }
   }
-  throw new Error(`DeepSeek falló tras 3 intentos: ${lastErr?.message ?? "error desconocido"}`)
+  throw new Error(`DeepSeek falló tras un máximo de 2 intentos: ${lastErr?.message ?? "error desconocido"}`)
 }

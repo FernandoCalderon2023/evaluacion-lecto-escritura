@@ -16,7 +16,8 @@ const ESTADO_CONFIG = {
   "dificultad-severa":   { label: "Dificultad Severa",   color: "bg-red-100 text-red-800" },
 }
 
-export default async function EvaluacionesPage({ searchParams }: { searchParams: { estado?: string } }) {
+export default async function EvaluacionesPage(props: { searchParams: Promise<{ estado?: string }> }) {
+  const searchParams = await props.searchParams;
   const auth = await getAuthContext()
   if (!auth) redirect("/login")
   const filtroEstado = searchParams.estado
@@ -36,7 +37,7 @@ export default async function EvaluacionesPage({ searchParams }: { searchParams:
 
   return (
     <div className="p-4 lg:p-8 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Evaluaciones</h1>
           <p className="text-slate-500 text-sm mt-1">{evaluaciones.length} evaluación(es)</p>

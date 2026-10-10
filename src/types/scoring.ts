@@ -14,6 +14,7 @@ export interface LecturaResult {
 }
 
 export interface CognitiveResult {
+  registro: EstadoRegistro
   totalCorrect: number
   totalItems: 27
   hasDifficulty: boolean
@@ -25,6 +26,7 @@ export interface CognitiveResult {
 }
 
 export interface LexicalResult {
+  registro: EstadoRegistro
   totalCorrect: number
   totalItems: 17
   hasDifficulty: boolean

@@ -1,9 +1,11 @@
+import { waitUntil } from "@vercel/functions"
 import { queueNotice, sendNotice } from "@/lib/notifications"
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/apiAuth"
 import { prisma } from "@/lib/prisma"
 import { logAudit, getRequestContext } from "@/lib/audit"
-export async function POST(_: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(_: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireAdmin()
   if (!gate.ok) return gate.response
   const result = await prisma.$transaction(async tx => {
@@ -14,7 +16,7 @@ export async function POST(_: NextRequest, { params }: { params: { id: string } 
     }
     return updated
   })
-  if(result.count) await sendNotice(`activacion-${params.id}`)
+  if(result.count) waitUntil(sendNotice(`activacion-${params.id}`))
   if (!result.count) return NextResponse.json({ error: "No hay una solicitud pendiente para esta cuenta." }, { status: 409 })
   logAudit({ actorId: gate.auth.userId, actorEmail: gate.auth.email, action: "activate_subscription", target: params.id, ...getRequestContext(_) })
   return NextResponse.json({ ok: true })

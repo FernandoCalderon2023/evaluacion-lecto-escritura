@@ -55,23 +55,12 @@ const INTEGRADO_LABELS: Record<string, string> = {
   atencionMemoria: "Atención y memoria procedimental",
 }
 
-const LOADING_STEPS = [
-  "Iniciando análisis...",
-  "Analizando resultados de lecto-escritura...",
-  "Evaluando procesos cognitivos y léxicos...",
-  "Cruzando con currículo R.M. 1040/2022...",
-  "Analizando perfil psicomotor...",
-  "Generando perfil integrado...",
-  "Elaborando recomendaciones...",
-  "Finalizando informe...",
-]
-
 export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }: Props) {
   const { toast } = useToast()
   const [analisis, setAnalisis] = useState<AnalisisIA | null>(analisisInicial)
   const [generadoEn, setGeneradoEn] = useState<Date | null>(analisisGeneradoEn)
   const [loading, setLoading] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const [, setProgress] = useState(0)
   const [stepMsg, setStepMsg] = useState("")
 
   async function pollStatus(jobId: string, timeoutMs = 240_000): Promise<AnalisisIA> {
@@ -79,10 +68,12 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
     let lastPos = -1
     while (Date.now() - start < timeoutMs) {
       await new Promise((r) => setTimeout(r, 2500))
-      try {
-        const res = await fetch(`/api/evaluaciones/${evaluacionId}/analisis/status?jobId=${jobId}`)
-        if (!res.ok) continue
-        const data = await res.json()
+      let res: Response
+      try { res = await fetch(`/api/evaluaciones/${evaluacionId}/analisis/status?jobId=${jobId}`, { signal: AbortSignal.timeout(15000) }) }
+      catch { continue }
+      if ([401, 403, 404].includes(res.status)) throw new Error("No se puede consultar este análisis. Revise su sesión y vuelva a intentar.")
+      if (!res.ok) continue
+      const data = await res.json()
         if (data.status === "done" && data.analisis) {
           setProgress(100)
           setStepMsg("Informe completo")
@@ -101,9 +92,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
             setProgress((p) => Math.max(p, Math.min(20 + (10 - data.posicion) * 3, 60)))
           }
         }
-      } catch (e) {
-        // network blip — continúa polling
-      }
+
     }
     throw new Error("El análisis está tardando más de lo esperado. Recarga la página en unos minutos.")
   }
@@ -112,11 +101,9 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
     setLoading(true)
     setProgress(5)
     setStepMsg("Generando el informe con IA… suele tardar 30–60 s")
-    // El informe se genera en el mismo pedido: la barra avanza sola mientras se procesa.
-    const creep = setInterval(() => setProgress((p) => Math.min(p + 2, 90)), 1500)
 
     try {
-      const res = await fetch(`/api/evaluaciones/${evaluacionId}/analisis`, { method: "POST" })
+      const res = await fetch(`/api/evaluaciones/${evaluacionId}/analisis`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ regenerar: !!analisis }) })
 
       const contentType = res.headers.get("content-type") ?? ""
       if (!contentType.includes("application/json")) {
@@ -142,15 +129,14 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
       setProgress(15)
       setStepMsg("Trabajo encolado. Esperando...")
 
-      const analisis = await pollStatus(data.jobId)
-      setAnalisis(analisis)
+      const completedReport = await pollStatus(data.jobId)
+      setAnalisis(completedReport)
       setGeneradoEn(new Date())
       toast({ title: "Análisis generado correctamente" })
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error al generar el análisis"
       toast({ title: msg, variant: "destructive" })
     } finally {
-      clearInterval(creep)
       setLoading(false)
     }
   }
@@ -162,7 +148,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
         <div>
           <p className="font-semibold text-slate-700">Informe Psicopedagógico con IA</p>
           <p className="text-sm text-slate-500 mt-1">
-            Genera un informe integrado: Perfil DAE + Perfil Psicomotor + Perfil Integrado + Recomendaciones
+            Resultados verificables del registro y sugerencias educativas para revisión docente.
           </p>
         </div>
 
@@ -170,12 +156,12 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
           <div className="max-w-sm mx-auto space-y-2 px-4">
             <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-viria-600 rounded-full transition-all duration-700 ease-out"
-                style={{ width: `${progress}%` }}
+                className="h-full bg-viria-600 rounded-full animate-pulse"
+                style={{ width: "45%" }}
               />
             </div>
             <p className="text-xs text-viria-600 font-medium animate-pulse">{stepMsg}</p>
-            <p className="text-xs text-slate-400">{progress}% — suele tardar entre 30 y 60 segundos</p>
+            <p className="text-xs text-slate-400">Procesando. El tiempo depende de la disponibilidad del servicio.</p>
           </div>
         ) : (
           <button
@@ -207,9 +193,9 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+    <div className="space-y-5 min-w-0 break-words">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500">
           <Sparkles className="h-4 w-4 text-viria-500" />
           <span>Informe psicopedagógico generado</span>
           {generadoEn && (
@@ -225,6 +211,10 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
         </button>
       </div>
 
+      <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950" role="note">
+        <strong>Informe provisional · revisión profesional requerida</strong>
+        <ul className="mt-2 list-disc pl-5 space-y-1">{analisis.controlCalidad?.advertencias.map((warning, i) => <li key={i}>{warning}</li>)}</ul>
+      </div>
       {/* SÍNTESIS EJECUTIVA */}
       {analisis.sintesisEjecutiva && (
         <Card className="border-viria-300 bg-viria-50/50">

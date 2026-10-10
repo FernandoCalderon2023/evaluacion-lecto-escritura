@@ -14,9 +14,10 @@ export function scoreLexical(ev: Partial<EvaluacionFormData>): LexicalResult {
   const totalCorrect = item11a + item11b + item12 + item13 + item14  // max 17
 
   return {
+    registro: ev.lexicoAplicado === true ? "completo" : totalCorrect > 0 ? "incompleto" : "no-evaluado",
     totalCorrect,
     totalItems: 17,
-    hasDifficulty: totalCorrect <= LEXICAL_THRESHOLD,
+    hasDifficulty: ev.lexicoAplicado === true && totalCorrect <= LEXICAL_THRESHOLD,
     byItem: { item11a, item11b, item12, item13, item14 },
   }
 }

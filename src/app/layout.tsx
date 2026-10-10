@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { Analytics } from "@vercel/analytics/next"
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Telemetry } from "@/components/Telemetry"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
+  icons: { icon: "/icon.svg", shortcut: "/icon.svg" },
   metadataBase: new URL("https://sideda.com"),
   title: "SIDEDA | Evaluación y acompañamiento del aprendizaje",
   description: "Organiza evaluaciones de lectoescritura, revisa informes con IA y acompaña a estudiantes y familias. Una herramienta para docentes, profesionales y unidades educativas.",
@@ -23,8 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <body className={inter.className}>
         {children}
-        <Analytics />
-        <SpeedInsights />
+        <Telemetry />
       </body>
     </html>
   )

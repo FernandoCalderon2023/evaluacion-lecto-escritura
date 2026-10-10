@@ -3,6 +3,14 @@ import { prisma } from "@/lib/prisma"
 
 export const NOTIFICATION_EMAIL = "fcalderon@vir-ia.com"
 export function emailConfigured() { return !!(process.env.RESEND_API_KEY?.trim() && process.env.SYSTEM_EMAIL_FROM?.trim()) }
+export async function deliverEmail(id:string, to:string, subject:string, text:string):Promise<string|null> {
+  if(!emailConfigured())return null
+  try {
+    const response=await fetch(process.env.RESEND_API_URL?.trim()||"https://api.resend.com/emails",{method:"POST",headers:{Authorization:`Bearer ${process.env.RESEND_API_KEY!.trim()}`,"Content-Type":"application/json","Idempotency-Key":`sideda/${id}`},body:JSON.stringify({from:process.env.SYSTEM_EMAIL_FROM!.trim(),to:[to],subject,text}),signal:AbortSignal.timeout(8000)})
+    const result=await response.json().catch(()=>({}))
+    return response.ok && typeof result.id === "string" ? result.id : null
+  }catch{return null}
+}
 export async function queueNotice(tx: Prisma.TransactionClient, id: string, subject: string, lines: string[]) {
   await tx.avisoSistema.create({ data: { id, destinatario: NOTIFICATION_EMAIL, asunto: `SIDEDA · ${subject}`, texto: `Fernando Calderon,\n\n${lines.join("\n")}\n\nRevisa la cuenta y las solicitudes en https://sideda.com/admin\nEste aviso no contiene datos de estudiantes.` } })
 }
@@ -16,10 +24,9 @@ export async function sendNotice(id: string): Promise<boolean> {
     if (!claim.count) return false
     const item = await prisma.avisoSistema.findUniqueOrThrow({ where: { id } })
     try {
-      const response = await fetch(process.env.RESEND_API_URL?.trim() || "https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY!.trim()}`, "Content-Type": "application/json", "Idempotency-Key": `sideda/${item.id}` }, body: JSON.stringify({ from: process.env.SYSTEM_EMAIL_FROM!.trim(), to: [item.destinatario], subject: item.asunto, text: item.texto }), signal: AbortSignal.timeout(8000) })
-      const result = await response.json().catch(()=>({}))
-      if (!response.ok || typeof result.id !== "string") throw new Error(`Proveedor de correo: HTTP ${response.status}`)
-      await prisma.avisoSistema.update({ where: { id }, data: { estado: "ENVIADO", enviadoEn: new Date(), proveedorId: result.id, ultimoError: null, bloqueoHasta: null } })
+      const providerId = await deliverEmail(item.id,item.destinatario,item.asunto,item.texto)
+      if(!providerId) throw new Error("Email not accepted")
+      await prisma.avisoSistema.update({ where: { id }, data: { estado: "ENVIADO", enviadoEn: new Date(), proveedorId: providerId, ultimoError: null, bloqueoHasta: null } })
       return true
     } catch {
       await prisma.avisoSistema.update({ where: { id }, data: { estado: "PENDIENTE", ultimoError: "El proveedor no confirmó el envío. Se reintentará.", bloqueoHasta: null } })

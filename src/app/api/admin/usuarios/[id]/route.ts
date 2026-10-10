@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma"
 import { logAudit, getRequestContext } from "@/lib/audit"
 import { z } from "zod"
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions)
   if ((session?.user as any)?.role !== "ADMIN") {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 })
@@ -21,7 +22,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!existing) return NextResponse.json({ error: "Cuenta no encontrada" }, { status: 404 })
   const usuario = await prisma.usuario.update({
     where: { id: params.id },
-    data: { activo: body.activo },
+    data: { activo: body.activo, ...(!body.activo ? { sessionVersion: { increment: 1 } } : {}) },
   })
 
   const ctx = getRequestContext(req)

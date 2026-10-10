@@ -47,7 +47,7 @@ export default function LoginPage() {
           {error && <p id="login-error" role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
           <button type="submit" disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-xl bg-viria-900 px-5 py-3.5 text-sm font-semibold text-white hover:bg-viria-800 disabled:opacity-60"><LogIn size={17}/>{loading ? "Ingresando…" : "Ingresar a mi espacio"}</button>
         </form>
-        <p className="mt-5 text-xs leading-relaxed text-slate-500">Si necesitas acceso o recuperar tu contraseña, contacta a la persona que te habilitó la cuenta.</p>
+        <Link href="/olvide-contrasena" className="mt-5 inline-block text-sm font-semibold text-viria-700 underline">Olvidé mi contraseña</Link>
         <Link href="/demo" className="mt-9 flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4"><div className="flex gap-3"><FileText size={20} className="mt-0.5 text-viria-700"/><div><p className="text-sm font-semibold text-slate-800">¿Quieres conocer SIDEDA?</p><p className="mt-1 text-xs text-slate-500">Explora un ejemplo sin iniciar sesión.</p></div></div><ArrowRight size={17} className="text-slate-400"/></Link>
         <div className="mt-8 flex gap-5 text-xs text-slate-500"><Link href="/privacidad">Privacidad</Link><Link href="/terminos">Términos de uso</Link></div>
       </div>

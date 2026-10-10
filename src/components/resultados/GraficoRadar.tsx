@@ -13,10 +13,12 @@ export function GraficoRadar({ scores }: Props) {
     },
     {
       area: "Cognitivo",
+      complete: scores.cognitivo.registro === "completo",
       valor: Math.round((scores.cognitivo.totalCorrect / scores.cognitivo.totalItems) * 100),
     },
     {
       area: "Léxico",
+      complete: scores.lexical.registro === "completo",
       valor: Math.round((scores.lexical.totalCorrect / scores.lexical.totalItems) * 100),
     },
     {
@@ -30,6 +32,8 @@ export function GraficoRadar({ scores }: Props) {
       valor: Math.round((scores.composicion.positiveTotal / 34) * 100),
     },
   ].filter(item => item.complete !== false)
+
+  if (!data.length) return <p className="py-8 text-center text-sm text-slate-500">Sin áreas completas para graficar. Complete y confirme los registros.</p>
 
   return (
     <div>

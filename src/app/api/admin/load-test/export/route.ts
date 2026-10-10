@@ -1,3 +1,5 @@
+import { calcularScores } from "@/lib/scoring"
+import { readGuardedReport } from "@/lib/ai/reportGuard"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireAdmin } from "@/lib/apiAuth"
@@ -57,7 +59,7 @@ export async function GET(req: NextRequest) {
           ? job.completedAt.getTime() - job.startedAt.getTime()
           : null,
       estadoAprendizaje: ev.estadoAprendizaje,
-      analisis: ev.analisisIA ? JSON.parse(ev.analisisIA) : null,
+      analisis: readGuardedReport(ev.analisisIA, calcularScores(ev as any)),
     })
   }
 

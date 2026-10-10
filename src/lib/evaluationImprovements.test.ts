@@ -8,7 +8,7 @@ import { summarizeStudents } from "./dashboardSummary"
 import { buildUserMessage } from "./ai/promptBuilder"
 
 function complete(): Partial<EvaluacionFormData> {
-  const ev: Record<string, unknown> = { ...EVALUACION_DEFAULTS }
+  const ev: Record<string, unknown> = { ...EVALUACION_DEFAULTS, cognitivoAplicado: true, lexicoAplicado: true }
   for (const key of Object.keys(ev)) {
     if (key.startsWith("ej") && typeof ev[key] === "boolean") ev[key] = true
     if (/^(dict|comp)_/.test(key)) ev[key] = /_(calig|coh|prod)/.test(key) ? "B" : "N"
@@ -147,4 +147,19 @@ test("login rejects external and unrelated destinations", () => {
   for (const value of [null, "https://evil.invalid", "//evil.invalid", "/\\evil.invalid", "/api/admin", "/dashboard/../../login", "/dashboardevil"]) {
     assert.equal(loginDestination(value), "/dashboard")
   }
+})
+
+
+test("legacy unchecked blocks do not imply difficulty or successful application", () => {
+ const scores = calcularScores({ ...complete(), cognitivoAplicado: false, lexicoAplicado: false })
+ assert.equal(scores.estadoGeneral, "evaluacion-incompleta")
+ assert.equal(scores.cognitivo.hasDifficulty, false)
+ assert.equal(scores.lexical.hasDifficulty, false)
+ assert.equal(scores.cognitivo.registro, "incompleto")
+})
+test("confirmed zero answers activate thresholds only for the applied block", () => {
+ const s = calcularScores({ ...EVALUACION_DEFAULTS, cognitivoAplicado: true })
+ assert.equal(s.cognitivo.hasDifficulty, true)
+ assert.equal(s.lexical.hasDifficulty, false)
+ assert.deepEqual(s.areasDificultad, ["Procesos Cognitivos"])
 })
