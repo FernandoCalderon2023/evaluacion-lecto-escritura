@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { EvaluacionFormData, EVALUACION_DEFAULTS } from "@/types/evaluacion"
 import { draftKey, readDraft, EvaluationDraft } from "@/lib/evaluationDraft"
 import { useToast } from "@/hooks/use-toast"
+import { InstrumentViewer } from "./InstrumentViewer"
 import { ChevronLeft, ChevronRight, Save } from "lucide-react"
 
 // Steps
@@ -87,6 +88,14 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
   const [draftReady, setDraftReady] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [draftMessage, setDraftMessage] = useState("")
+  const stepHeading = useRef<HTMLDivElement>(null)
+  function goToStep(next: number) {
+    setStep(next)
+    requestAnimationFrame(() => {
+      stepHeading.current?.focus({ preventScroll: true })
+      stepHeading.current?.scrollIntoView({ block: "start", behavior: "instant" })
+    })
+  }
   const submitted = useRef(false)
   const studentIds = estudiantes.map(e => e.id).join(",")
 
@@ -117,7 +126,7 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
 
   async function handleSubmit() {
     if (!state.estudianteId || !estudiantes.some(e => e.id === state.estudianteId)) {
-      setStep(0)
+      goToStep(0)
       toast({ title: "Selecciona un estudiante antes de guardar", variant: "destructive" })
       return
     }
@@ -186,12 +195,12 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
             : "¡Ya casi terminamos! 🌈"
 
   return (
-    <div className="space-y-6">
+    <div className="evaluation-form min-w-0 space-y-5">
       {pendingDraft && (
         <div role="status" className="rounded-xl border border-viria-200 bg-viria-50 p-4 space-y-3">
           <p className="text-sm font-semibold">Tienes una evaluación en curso en esta pestaña.</p>
           <p className="text-xs text-slate-600">Último avance: {new Date(pendingDraft.savedAt).toLocaleString("es-BO")}. Puedes recuperarlo o descartarlo.</p>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button type="button" className="rounded-lg bg-viria-600 px-3 py-2 text-sm text-white" onClick={() => {
               dispatch({ type: "RESTORE", data: pendingDraft.data }); setStep(pendingDraft.step); setDirty(true); setPendingDraft(null)
             }}>Recuperar avance</button>
@@ -203,10 +212,10 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
         </div>
       )}
       {draftMessage && <p role="status" className="text-xs text-slate-500">{draftMessage}</p>}
-      <fieldset disabled={!!pendingDraft || !draftReady || saving} className="space-y-6 disabled:opacity-60">
+      <fieldset disabled={!!pendingDraft || !draftReady || saving} className="min-w-0 space-y-5 disabled:opacity-60">
       {/* Progress bar */}
-      <div>
-        <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
+      <div ref={stepHeading} tabIndex={-1} className="scroll-mt-20 lg:scroll-mt-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-500 mb-2">
           <span>Paso {step + 1} de {STEPS.length}</span>
           <span className="font-medium text-slate-700">{STEPS[step].label}</span>
         </div>
@@ -216,16 +225,19 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
             style={{ width: `${progress}%` }}
           />
         </div>
-        {/* Step pills - scrollable */}
-        <div className="flex gap-1 mt-3 overflow-x-auto pb-1">
+        <label className="mt-3 block text-sm font-medium sm:hidden" htmlFor="evaluation-step">Ir a un apartado</label>
+        <select id="evaluation-step" value={step} onChange={e => goToStep(Number(e.target.value))} className="mt-2 w-full min-w-0 rounded-lg border border-slate-300 bg-white p-3 text-base sm:hidden">
+          {STEPS.map((s, i) => <option key={i} value={i}>{i + 1} / {STEPS.length} · {s.label}</option>)}
+        </select>
+        <div className="hidden sm:flex flex-wrap gap-1 mt-3 pb-1">
           {STEPS.map((s, i) => (
             <button
               key={i}
               type="button"
               aria-label={s.label}
               aria-current={i === step ? "step" : undefined}
-              onClick={() => setStep(i)}
-              className={`shrink-0 px-2 py-1 rounded text-xs transition-colors ${
+              onClick={() => goToStep(i)}
+              className={`shrink-0 min-h-10 min-w-10 px-2 py-1 rounded text-xs transition-colors ${
                 i === step
                   ? "bg-viria-600 text-white"
                   : "bg-slate-100 text-slate-500"
@@ -242,44 +254,20 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
         {animo}
       </div>
 
+      <InstrumentViewer key={step} step={step} />
       {/* Step content */}
-      <div className="min-h-[400px]">{stepComponents[step]}</div>
+      <div className="min-w-0 sm:min-h-[400px]">{stepComponents[step]}</div>
 
-      {/* Navigation */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t">
-        <button
-          type="button"
-          onClick={() => setStep((s) => Math.max(0, s - 1))}
-          disabled={step === 0}
-          className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-sm hover:bg-slate-50 disabled:opacity-40"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Anterior
+      <div className="grid grid-cols-2 gap-3 border-t pt-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
+        <button type="button" onClick={() => goToStep(Math.max(0, step - 1))} disabled={step === 0} className="flex min-h-12 items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 py-3 text-sm disabled:opacity-40">
+          <ChevronLeft className="h-4 w-4" />Anterior
         </button>
-
-        <div className="flex flex-wrap gap-2">
-
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={saving}
-            className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50"
-          >
-            <Save className="h-4 w-4" />
-            {saving ? "Guardando..." : editMode ? "Actualizar evaluación" : "Guardar evaluación"}
-          </button>
-
-        {!isLast && (
-          <button
-            type="button"
-            onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
-            className="flex items-center gap-2 px-4 py-2 bg-viria-600 text-white rounded-lg text-sm font-medium hover:bg-viria-700"
-          >
-            Siguiente
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        )}
-        </div>
+        {!isLast && <button type="button" onClick={() => goToStep(Math.min(STEPS.length - 1, step + 1))} className="flex min-h-12 items-center justify-center gap-2 rounded-lg bg-viria-600 px-4 py-3 text-sm font-medium text-white sm:order-3">
+          Siguiente<ChevronRight className="h-4 w-4" />
+        </button>}
+        <button type="button" onClick={handleSubmit} disabled={saving} className="col-span-2 flex min-h-12 items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white disabled:opacity-50 sm:order-2">
+          <Save className="h-4 w-4" />{saving ? "Guardando..." : editMode ? "Actualizar evaluación" : "Guardar evaluación"}
+        </button>
       </div>
       </fieldset>
     </div>

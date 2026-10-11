@@ -24,9 +24,10 @@ export function PositionSelector({ label, value, onChange }: Props) {
           <button
             key={o.value}
             type="button"
+            aria-pressed={value === o.value}
             onClick={() => onChange(value === o.value ? "" : o.value)}
             className={cn(
-              "px-3 py-2 rounded-lg text-xs font-bold border-2 transition-all",
+              "min-h-11 px-3 py-2 rounded-lg text-xs font-bold border-2 transition-all",
               value === o.value && o.value !== "N"
                 ? "bg-orange-500 border-orange-500 text-white shadow-md"
                 : value === o.value && o.value === "N"
@@ -42,7 +43,7 @@ export function PositionSelector({ label, value, onChange }: Props) {
             type="button"
             onClick={() => onChange("")}
             className="px-2 py-2 rounded-lg text-xs text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-            title="Dejar en blanco"
+            title="Dejar en blanco" aria-label={`Dejar en blanco: ${label}`}
           >
             ✕
           </button>

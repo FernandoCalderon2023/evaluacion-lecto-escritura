@@ -51,6 +51,7 @@ export default async function EvaluacionesPage(props: { searchParams: Promise<{ 
         </Link>
       </div>
 
+      <Link href="/evaluaciones/instrumento" className="block rounded-xl border border-viria-200 bg-white p-4 text-sm font-semibold text-viria-800">Ver o imprimir el cuadernillo de evaluación →</Link>
       {/* Filtros por estado */}
       <div className="flex gap-2 flex-wrap">
         <Link

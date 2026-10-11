@@ -51,7 +51,7 @@ export default async function EditarEvaluacionPage(props: { params: Promise<{ id
         </div>
       </div>
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-3 sm:p-6">
           <EvaluacionWizard
             draftOwner={auth.userId}
             sourceRevision={ev.updatedAt.toISOString()}

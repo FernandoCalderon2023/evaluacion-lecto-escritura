@@ -59,7 +59,7 @@ export default async function NuevaEvaluacionPage(
         <h1 className="text-2xl font-bold text-slate-900">Nueva Evaluación</h1>
       </div>
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-3 sm:p-6">
           <EvaluacionWizard
             draftOwner={docenteId}
             estudianteId={searchParams.estudianteId}

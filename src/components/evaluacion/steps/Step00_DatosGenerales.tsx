@@ -16,8 +16,8 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
       <h2 className="text-lg font-semibold text-slate-800">Datos Generales de la Evaluación</h2>
 
       <div className="space-y-1">
-        <Label>Estudiante *</Label>
-        <select
+        <Label htmlFor="evaluation-student">Estudiante *</Label>
+        <select id="evaluation-student"
           value={state.estudianteId ?? ""}
           onChange={(e) => {
             const id = e.target.value
@@ -39,20 +39,20 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
         </select>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1">
-          <Label>Fecha de evaluación *</Label>
+          <Label htmlFor="evaluation-date">Fecha de evaluación *</Label>
           <Input
-            type="date"
+            id="evaluation-date" type="date"
             value={state.fecha ?? ""}
             onChange={(e) => set("fecha")(e.target.value)}
             required
           />
         </div>
         <div className="space-y-1">
-          <Label>Evaluador/a *</Label>
+          <Label htmlFor="evaluation-author">Evaluador/a *</Label>
           <Input
-            placeholder="Nombre del docente evaluador"
+            id="evaluation-author" placeholder="Nombre del docente evaluador"
             value={state.evaluador ?? ""}
             onChange={(e) => set("evaluador")(e.target.value)}
             required
@@ -68,11 +68,11 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
           Al elegir al/la estudiante, el año se autocompleta desde su grado (podés ajustarlo).
         </p>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <Label>Edad del estudiante (años) *</Label>
+            <Label htmlFor="evaluation-age">Edad del estudiante (años) *</Label>
             <Input
-              type="number"
+              id="evaluation-age" type="number"
               min={5}
               max={18}
               placeholder="Ej: 8"
@@ -83,8 +83,8 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
             />
           </div>
           <div className="space-y-1">
-            <Label>Año de escolaridad *</Label>
-            <select
+            <Label htmlFor="evaluation-grade">Año de escolaridad *</Label>
+            <select id="evaluation-grade"
               value={state.anioEscolar ?? ""}
               onChange={(e) =>
                 set("anioEscolar")(e.target.value ? Number(e.target.value) : null)
@@ -101,8 +101,8 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
       </div>
 
       <div className="space-y-1">
-        <Label>Observaciones / Notas</Label>
-        <textarea
+        <Label htmlFor="evaluation-notes">Observaciones / Notas</Label>
+        <textarea id="evaluation-notes"
           value={state.observaciones ?? ""}
           onChange={(e) => set("observaciones")(e.target.value || null)}
           placeholder="Ej: No se evaluó lectura porque el estudiante aún no lee. Sección X dejada en blanco porque..."

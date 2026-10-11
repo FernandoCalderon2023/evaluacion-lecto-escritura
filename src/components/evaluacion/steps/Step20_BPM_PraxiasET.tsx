@@ -16,7 +16,7 @@ export function Step20BpmPraxiasET({ state, set }: Props) {
 
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600">
         <p className="font-semibold mb-1">Escala de puntuación BPM</p>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 min-[380px]:grid-cols-2 sm:grid-cols-4 gap-2">
           <span><strong className="text-green-600">4</strong> — Excelente (hiperpráxico)</span>
           <span><strong className="text-viria-600">3</strong> — Bueno (eupráxico)</span>
           <span><strong className="text-yellow-600">2</strong> — Satisfactorio (dispráxico)</span>
@@ -58,7 +58,7 @@ export function Step20BpmPraxiasET({ state, set }: Props) {
 
         {/* Velocidad-precisión + puntos y cruces */}
         <BpmScoreInput label="Velocidad-precisión" value={state.bpm_pfVelocidadPrecision as number | null} onChange={set("bpm_pfVelocidadPrecision")} />
-        <div className="pl-4 grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:pl-4 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-600">Número de puntos</label>
             <input

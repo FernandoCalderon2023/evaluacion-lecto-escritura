@@ -182,3 +182,21 @@ body {
   outline: 3px solid #058A9A;
   outline-offset: 3px;
 }
+
+/* Fieldsets default to min-content: explicitly allow narrow evaluation forms. */
+.evaluation-form fieldset { min-inline-size: 0; }
+.evaluation-form input:not([type="checkbox"]):not([type="radio"]),
+.evaluation-form select, .evaluation-form textarea { min-width: 0; max-width: 100%; }
+@media (max-width: 639px) {
+  .evaluation-form input:not([type="checkbox"]):not([type="radio"]),
+  .evaluation-form select, .evaluation-form textarea { font-size: 16px; min-height: 44px; }
+}
+
+.evaluation-form select {
+  appearance: none;
+  min-height: 44px;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .75rem center;
+}

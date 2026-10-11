@@ -37,6 +37,7 @@ const securityHeaders = [
 const nextConfig = {
   // Habilitar compresión gzip/brotli (default en Vercel pero explícito)
   compress: true,
+  outputFileTracingIncludes: { "/api/instrumento/[archivo]": ["./assets/instrumento/**/*"] },
   // Quitar header "powered by Next.js"
   poweredByHeader: false,
   // React strict mode (mejor debugging)

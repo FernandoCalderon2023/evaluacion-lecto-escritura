@@ -16,7 +16,7 @@ export function Step19BpmLateralidadCuerpo({ state, set }: Props) {
 
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600">
         <p className="font-semibold mb-1">Escala de puntuación BPM</p>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 min-[380px]:grid-cols-2 sm:grid-cols-4 gap-2">
           <span><strong className="text-red-600">1</strong> — Débil (apráxico)</span>
           <span><strong className="text-yellow-600">2</strong> — Satisfactorio (dispráxico)</span>
           <span><strong className="text-viria-600">3</strong> — Bueno (eupráxico)</span>

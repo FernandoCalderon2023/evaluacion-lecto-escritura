@@ -23,9 +23,10 @@ export function QualitySelector({ label, value, onChange }: Props) {
           <button
             key={o.value}
             type="button"
+            aria-pressed={value === o.value}
             onClick={() => onChange(value === o.value ? "" : o.value)}
             className={cn(
-              "px-3 py-2 rounded-lg text-xs font-bold border-2 transition-all",
+              "min-h-11 px-3 py-2 rounded-lg text-xs font-bold border-2 transition-all",
               value === o.value
                 ? o.color
                 : "bg-white border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50"

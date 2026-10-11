@@ -88,6 +88,18 @@ async function main() {
     const admin=await login('admin@qa.invalid')
     const json = (method, body) => ({method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
     check('Guía disponible al docente', (await (await one('/guia')).text()).includes('Guía'))
+    check('Instrumento exige sesión', (await fetch(base+'/api/instrumento/original.pdf')).status===401)
+    const instrument=await one('/api/instrumento/original.pdf')
+    const source=require('node:fs').readFileSync(path.join(cwd,'assets/instrumento/original.pdf'))
+    check('PDF profesional conserva bytes originales', instrument.status===200 && Buffer.from(await instrument.arrayBuffer()).equals(source))
+    const download=await one('/api/instrumento/original.pdf?descargar=1')
+    check('Examen descargable y privado', download.headers.get('content-disposition').startsWith('attachment') && download.headers.get('cache-control')==='private, no-store')
+    for(let page=1;page<=13;page++) {
+      const image=await one('/api/instrumento/pagina-'+String(page).padStart(2,'0')+'.jpg')
+      check('Vista del instrumento página '+page, image.status===200 && image.headers.get('content-type')==='image/jpeg')
+    }
+    check('Instrumento no permite archivos arbitrarios', (await one('/api/instrumento/secret.txt')).status===404)
+    check('Vista completa del cuadernillo disponible', (await one('/evaluaciones/instrumento')).status===200)
     const adminSession=await (await admin('/api/auth/session')).json()
     check('Administrador no desactiva su cuenta', (await admin('/api/admin/usuarios/'+adminSession.user.id,json('PATCH',{activo:false}))).status===400)
     check('Validación de estado de cuenta', (await admin('/api/admin/usuarios/missing',json('PATCH',{activo:"false"}))).status===400)
@@ -299,6 +311,7 @@ async function main() {
     check('Familia exige autorización',(await family1('/api/familia',json('POST',{...observation,autoriza:false}))).status===400)
     check('Respuesta familiar inexistente rechazada',(await family1('/api/familia',json('POST',{...observation,respuestas:{...observation.respuestas,lectura:'diagnostico'}}))).status===400)
     check('Edad fuera del alcance rechazada',(await family1('/api/familia',json('POST',{...observation,edad:3}))).status===400)
+    check('Familia no abre instrumento profesional', (await family1('/api/instrumento/original.pdf')).status===403)
     check('Docente no presenta observación como familia',(await admin('/api/familia',json('POST',observation))).status===403)
     const candidates=[observation,{...observation,id:randomUUID()}]
     const familyRace=await Promise.all(candidates.map(o=>family1('/api/familia',json('POST',o))))

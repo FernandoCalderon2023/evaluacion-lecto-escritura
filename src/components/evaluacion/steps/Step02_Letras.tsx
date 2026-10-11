@@ -19,15 +19,16 @@ function LetterScore({ label, letters, max, field, value, onChange }: {
     <div className="border-2 border-slate-200 rounded-lg p-4 space-y-2">
       <p className="text-sm font-semibold text-slate-800">{label}</p>
       <p className="text-xs text-slate-500">Letras faltantes: <span className="font-bold text-slate-700">{letters}</span> (máx. {max} puntos)</p>
-      <div className="flex gap-2 items-center">
+      <div className="flex flex-wrap gap-2 items-center">
         <span className="text-xs text-slate-600 font-medium">Letras correctas:</span>
         <div className="flex gap-1">
           {Array.from({ length: max + 1 }, (_, i) => (
             <button
               key={i}
               type="button"
+              aria-pressed={value === i}
               onClick={() => onChange(i)}
-              className={`w-10 h-10 rounded-lg border-2 text-sm font-bold transition-all ${
+              className={`w-11 h-11 rounded-lg border-2 text-sm font-bold transition-all ${
                 value === i
                   ? i === max ? "bg-green-600 border-green-600 text-white shadow-md"
                     : i === 0 ? "bg-red-500 border-red-500 text-white shadow-md"
