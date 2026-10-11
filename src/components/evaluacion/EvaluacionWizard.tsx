@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { EvaluacionFormData, EVALUACION_DEFAULTS } from "@/types/evaluacion"
 import { draftKey, readDraft, EvaluationDraft } from "@/lib/evaluationDraft"
 import { useToast } from "@/hooks/use-toast"
+import { ApplicationGuide } from "./ApplicationGuide"
 import { InstrumentViewer } from "./InstrumentViewer"
 import { ChevronLeft, ChevronRight, Save } from "lucide-react"
 
@@ -76,6 +77,7 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
   const { toast } = useToast()
   const [step, setStep] = useState(0)
   const [saving, setSaving] = useState(false)
+  const [activityRunning, setActivityRunning] = useState(false)
   const [view, setView] = useState<"registro" | "preguntas" | "ambas">("registro")
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 1280px)")
@@ -97,6 +99,9 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
   const [draftMessage, setDraftMessage] = useState("")
   const stepHeading = useRef<HTMLDivElement>(null)
   function goToStep(next: number) {
+    if (activityRunning && next !== step) {
+      toast({ title: "Detén la actividad antes de cambiar de apartado" }); return
+    }
     setStep(next)
     requestAnimationFrame(() => {
       stepHeading.current?.focus({ preventScroll: true })
@@ -132,6 +137,7 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
   }
 
   async function handleSubmit() {
+    if (activityRunning) { toast({ title: "Detén la actividad antes de guardar" }); return }
     if (!state.estudianteId || !estudiantes.some(e => e.id === state.estudianteId)) {
       goToStep(0)
       toast({ title: "Selecciona un estudiante antes de guardar", variant: "destructive" })
@@ -264,6 +270,7 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
         </div>
         <p className="text-xs text-slate-500">Puedes alternar sin perder las respuestas registradas. Guarda la evaluación para conservarlas al cerrar.</p>
       </div>
+      <ApplicationGuide step={step} onRunningChange={setActivityRunning} />
       <div className={view === "ambas" ? "grid min-w-0 gap-5 xl:grid-cols-2" : "min-w-0"}>
         <div className={view === "registro" ? "hidden" : view === "ambas" ? "min-w-0 xl:max-h-[75vh] xl:overflow-y-auto" : "min-w-0"}>
           <InstrumentViewer key={step} step={step} expanded fixedOpen active={view !== "registro"} />
