@@ -10,3 +10,9 @@ export function timerDisplay(seconds: number): string {
 export function readingExpired(timer: ActivityTimer | undefined, now: number): boolean {
   return !!timer && timer.stoppedAt === undefined && elapsedSeconds(timer, now) >= 240
 }
+
+export function stopActivity(timer: ActivityTimer, now: number, reading: boolean, finishedText = false) {
+  const stoppedAt = Math.max(timer.startedAt, reading ? Math.min(now, timer.startedAt + 240_000) : now)
+  const outcome: "completed" | "interrupted" | "finished" = reading && stoppedAt < timer.startedAt + 240_000 ? finishedText ? "finished" : "interrupted" : "completed"
+  return { ...timer, stoppedAt, outcome }
+}

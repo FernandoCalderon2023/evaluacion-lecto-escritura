@@ -1,4 +1,5 @@
 "use client"
+import { SectionHelp } from "../help/EvaluatorHelp"
 import { EvaluacionFormData } from "@/types/evaluacion"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -14,6 +15,7 @@ export function Step00DatosGenerales({ state, set, estudiantes }: Props) {
   return (
     <div className="space-y-5">
       <h2 className="text-lg font-semibold text-slate-800">Datos Generales de la Evaluación</h2>
+      <SectionHelp step={0}/>
 
       <div className="space-y-1">
         <Label htmlFor="evaluation-student">Estudiante *</Label>

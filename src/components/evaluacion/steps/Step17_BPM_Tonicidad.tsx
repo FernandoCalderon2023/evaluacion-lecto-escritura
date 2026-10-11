@@ -8,10 +8,10 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step17BpmTonicidad({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle
+      <SectionTitle helpStep={16}
         title="BPM — 1ª Unidad: Tonicidad"
         subtitle="Batería Psicomotora (Da Fonseca) — versión depurada del instrumento"
-        evalua="La inhibición motora a través de las sincinesias: los movimientos involuntarios (p. ej. de la boca) al escribir revelan inmadurez en el control tónico, que produce fatiga y trazos rígidos o temblorosos."
+        evalua="Observa los movimientos bucales que acompañan involuntariamente otra acción durante la tarea profesional. Registra lo ocurrido sin atribuir una causa a partir de un solo movimiento."
       />
 
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600">
@@ -26,7 +26,7 @@ export function Step17BpmTonicidad({ state, set }: Props) {
 
       <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
         <h3 className="text-sm font-semibold text-slate-600 mb-2">Sincinesias</h3>
-        <BpmScoreInput label="Bucales" value={state.bpm_sincinBucales as number | null} onChange={set("bpm_sincinBucales")} />
+        <BpmScoreInput label="Bucales" helpKey="bpm_sincinBucales" value={state.bpm_sincinBucales as number | null} onChange={set("bpm_sincinBucales")} />
       </div>
     </div>
   )

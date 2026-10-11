@@ -7,7 +7,7 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step07Secuencia({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle
+      <SectionTitle helpStep={7}
         title="Ejercicio 7: Secuencia temporal"
         evalua="La organización temporal (antes/después) y el razonamiento secuencial de acciones: ordenar el tiempo, habilidad ligada a comprender y narrar en orden."
       />

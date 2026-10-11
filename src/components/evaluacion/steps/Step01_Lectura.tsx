@@ -14,7 +14,7 @@ interface Props {
 export function Step01Lectura({ state, set }: Props) {
   return (
     <div className="space-y-6">
-      <SectionTitle
+      <SectionTitle helpStep={1}
         title="Ejercicio 1: Lectura en Voz Alta"
         subtitle={'Texto: "El Pajarito Intoxicado"'}
         evalua="El núcleo del proceso lector: la fluidez lectora (velocidad y tipo de lectura), los errores específicos de decodificación (cambios, omisiones, inversiones) y la comprensión por niveles (memoriza, ideas centrales, valora, interpreta, asocia)."
@@ -38,16 +38,16 @@ export function Step01Lectura({ state, set }: Props) {
 
       {/* Expresividad */}
       <div className="border border-slate-200 rounded-lg p-4 space-y-4">
-        <h3 className="font-medium text-slate-700 text-sm uppercase tracking-wide">Expresividad</h3>
+        <h3 className="font-medium text-slate-700 text-sm uppercase tracking-wide">Forma de lectura</h3>
 
         <div className="bg-viria-50 border border-viria-200 rounded-lg p-3">
-          <p className="text-xs font-semibold text-viria-700 mb-1">Expresión de matices emocionales</p>
-          <p className="text-xs text-viria-600">Se evalúa a través de los 3 indicadores siguientes. Puede dejar en blanco si no aplica.</p>
+          <p className="text-xs font-semibold text-viria-700 mb-1">Frecuencia de lo observado</p>
+          <p className="text-xs text-viria-600">Marca la frecuencia de cada conducta observada: S = siempre; CS = casi siempre; AV = a veces; N = nunca. Si no la evaluaste, déjala en blanco. No hay porcentajes automáticos para estas categorías.</p>
         </div>
 
-        <ScaleSelector label="Lectura vacilante" value={state.lecturaVacilante} onChange={(v) => set("lecturaVacilante")(v)} />
-        <ScaleSelector label="Lectura silábica" value={state.lecturaSilabica} onChange={(v) => set("lecturaSilabica")(v)} />
-        <ScaleSelector label="Lectura corriente (fluida)" value={state.lecturaCorriente} onChange={(v) => set("lecturaCorriente")(v)} />
+        <ScaleSelector label="Lectura vacilante" helpKey="lecturaVacilante" value={state.lecturaVacilante} onChange={(v) => set("lecturaVacilante")(v)} />
+        <ScaleSelector label="Lectura silábica" helpKey="lecturaSilabica" value={state.lecturaSilabica} onChange={(v) => set("lecturaSilabica")(v)} />
+        <ScaleSelector label="Lectura corriente (fluida)" helpKey="lecturaCorriente" value={state.lecturaCorriente} onChange={(v) => set("lecturaCorriente")(v)} />
       </div>
 
       {/* Errores */}
@@ -55,27 +55,28 @@ export function Step01Lectura({ state, set }: Props) {
         <h3 className="font-medium text-slate-700 text-sm uppercase tracking-wide">
           Errores en la lectura — posición donde ocurre
         </h3>
-        <p className="text-xs text-slate-500">Haga clic de nuevo para desmarcar. Puede dejar en blanco si no aplica.</p>
-        <PositionSelector label="Cambios de letras (ej: b→d)" value={state.errorCambioLetras} onChange={(v) => set("errorCambioLetras")(v)} />
-        <PositionSelector label="Cambios de sílabas" value={state.errorCambioSilabas} onChange={(v) => set("errorCambioSilabas")(v)} />
-        <PositionSelector label="Cambios de palabras" value={state.errorCambioPalabras} onChange={(v) => set("errorCambioPalabras")(v)} />
-        <PositionSelector label="Omisión de sonidos" value={state.errorOmision} onChange={(v) => set("errorOmision")(v)} />
-        <PositionSelector label="Adición de sonidos" value={state.errorAdicion} onChange={(v) => set("errorAdicion")(v)} />
-        <PositionSelector label="Repeticiones" value={state.errorRepeticion} onChange={(v) => set("errorRepeticion")(v)} />
-        <PositionSelector label="Rotaciones (b↔d, p↔q, u↔n)" value={state.errorRotacion} onChange={(v) => set("errorRotacion")(v)} />
-        <PositionSelector label="Inversiones (el↔le, sol↔los)" value={state.errorInversion} onChange={(v) => set("errorInversion")(v)} />
+        <p className="text-xs text-slate-500">Inicio, Medio y Final registran la ubicación del error según el protocolo aplicado; no son niveles de gravedad. No presenta significa que observaste la lectura y no apareció ese error. Si no lo evaluaste, deja vacío. Anota la palabra o fragmento exacto y su ubicación en Observaciones (Datos generales), especialmente si ocurrió en varias posiciones.</p>
+        <PositionSelector label="Cambios de letras (ej: mesa → pesa)" helpKey="errorCambioLetras" value={state.errorCambioLetras} onChange={(v) => set("errorCambioLetras")(v)} />
+        <PositionSelector label="Cambios de sílabas" helpKey="errorCambioSilabas" value={state.errorCambioSilabas} onChange={(v) => set("errorCambioSilabas")(v)} />
+        <PositionSelector label="Cambios de palabras" helpKey="errorCambioPalabras" value={state.errorCambioPalabras} onChange={(v) => set("errorCambioPalabras")(v)} />
+        <PositionSelector label="Omisión de sonidos" helpKey="errorOmision" value={state.errorOmision} onChange={(v) => set("errorOmision")(v)} />
+        <PositionSelector label="Adición de sonidos" helpKey="errorAdicion" value={state.errorAdicion} onChange={(v) => set("errorAdicion")(v)} />
+        <PositionSelector label="Repeticiones" helpKey="errorRepeticion" value={state.errorRepeticion} onChange={(v) => set("errorRepeticion")(v)} />
+        <PositionSelector label="Rotaciones (b↔d, p↔q, u↔n)" helpKey="errorRotacion" value={state.errorRotacion} onChange={(v) => set("errorRotacion")(v)} />
+        <PositionSelector label="Inversiones (el↔le, sol↔los)" helpKey="errorInversion" value={state.errorInversion} onChange={(v) => set("errorInversion")(v)} />
       </div>
 
+      <p className="text-xs text-slate-600">Rotación: cambia la orientación reconocida de una letra. Inversión: cambia el orden de letras o sílabas. Los ejemplos describen conductas; no indican por sí solos una dificultad diagnóstica.</p>
       {/* Comprensión */}
       <div className="border border-slate-200 rounded-lg p-4 space-y-3">
         <h3 className="font-medium text-slate-700 text-sm uppercase tracking-wide">
           Comprensión lectora — 6 preguntas del texto
         </h3>
-        <ScaleSelector label="Memoriza aspectos significativos del texto" value={state.compMemoriza} onChange={(v) => set("compMemoriza")(v)} />
-        <ScaleSelector label="Establece ideas centrales y secundarias" value={state.compIdeas} onChange={(v) => set("compIdeas")(v)} />
-        <ScaleSelector label="Valora el contenido del texto" value={state.compValora} onChange={(v) => set("compValora")(v)} />
-        <ScaleSelector label="Interpreta el texto" value={state.compInterpreta} onChange={(v) => set("compInterpreta")(v)} />
-        <ScaleSelector label="Asocia con otros contextos y situaciones" value={state.compAsocia} onChange={(v) => set("compAsocia")(v)} />
+        <ScaleSelector label="Memoriza aspectos significativos del texto" helpKey="compMemoriza" value={state.compMemoriza} onChange={(v) => set("compMemoriza")(v)} />
+        <ScaleSelector label="Establece ideas centrales y secundarias" helpKey="compIdeas" value={state.compIdeas} onChange={(v) => set("compIdeas")(v)} />
+        <ScaleSelector label="Valora el contenido del texto" helpKey="compValora" value={state.compValora} onChange={(v) => set("compValora")(v)} />
+        <ScaleSelector label="Interpreta el texto" helpKey="compInterpreta" value={state.compInterpreta} onChange={(v) => set("compInterpreta")(v)} />
+        <ScaleSelector label="Asocia con otros contextos y situaciones" helpKey="compAsocia" value={state.compAsocia} onChange={(v) => set("compAsocia")(v)} />
       </div>
     </div>
   )

@@ -7,7 +7,7 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step06Orientacion({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle
+      <SectionTitle helpStep={6}
         title="Ejercicio 6: Orientación espacial con figuras geométricas"
         evalua="Las nociones espaciales (izquierda-derecha, encima-debajo) sobre figuras. Es la base de la direccionalidad que exige la lecto-escritura (dónde empieza la letra, hacia dónde avanza el renglón)."
       />

@@ -7,7 +7,7 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step10Inferencia({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle
+      <SectionTitle helpStep={10}
         title="Ejercicio 10: Inferencia"
         subtitle="El estudiante debe inferir la respuesta a partir de la situación"
         evalua="La comprensión inferencial: deducir información que no está dicha explícitamente a partir de la situación. Es el nivel de comprensión que va más allá de lo literal."

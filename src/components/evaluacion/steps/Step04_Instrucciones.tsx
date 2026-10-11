@@ -7,7 +7,7 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step04Instrucciones({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle
+      <SectionTitle helpStep={4}
         title="Ejercicio 4: Sigue instrucciones escritas"
         subtitle="Lee la oración y realiza la acción indicada"
         evalua="La comprensión de instrucciones escritas y el manejo de nociones de tamaño (mayor/menor) aplicadas a una consigna: leer para actuar, no solo para decodificar."

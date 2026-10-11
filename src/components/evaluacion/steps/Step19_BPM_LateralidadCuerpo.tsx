@@ -8,10 +8,10 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step19BpmLateralidadCuerpo({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle
+      <SectionTitle helpStep={18}
         title="BPM — 2ª Unidad: Lateralidad y Noción del Cuerpo"
         subtitle="Batería Psicomotora (Da Fonseca)"
-        evalua="La lateralidad (ojo, oído, mano, pie) y el esquema corporal (reconocer y representar el propio cuerpo). Es la base para orientar el cuerpo en el espacio y diferenciar izquierda-derecha al leer y escribir."
+        evalua="Registra el lado utilizado en las pruebas de ojo, oído, mano y pie, y las tareas de reconocimiento y representación del cuerpo."
       />
 
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600">
@@ -26,12 +26,12 @@ export function Step19BpmLateralidadCuerpo({ state, set }: Props) {
 
       <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
         <h3 className="text-sm font-semibold text-slate-600 mb-2">Lateralidad</h3>
-        <BpmLateralityInput label="Ocular" value={state.bpm_latOcular as string | null} onChange={set("bpm_latOcular")} />
-        <BpmLateralityInput label="Auditiva" value={state.bpm_latAuditiva as string | null} onChange={set("bpm_latAuditiva")} />
-        <BpmLateralityInput label="Manual" value={state.bpm_latManual as string | null} onChange={set("bpm_latManual")} />
-        <BpmLateralityInput label="Podal" value={state.bpm_latPodal as string | null} onChange={set("bpm_latPodal")} />
+        <BpmLateralityInput label="Ocular" helpKey="bpm_latOcular" value={state.bpm_latOcular as string | null} onChange={set("bpm_latOcular")} />
+        <BpmLateralityInput label="Auditiva" helpKey="bpm_latAuditiva" value={state.bpm_latAuditiva as string | null} onChange={set("bpm_latAuditiva")} />
+        <BpmLateralityInput label="Manual" helpKey="bpm_latManual" value={state.bpm_latManual as string | null} onChange={set("bpm_latManual")} />
+        <BpmLateralityInput label="Podal" helpKey="bpm_latPodal" value={state.bpm_latPodal as string | null} onChange={set("bpm_latPodal")} />
           <BpmScoreInput
-            label="Puntaje general de lateralidad"
+            label="Puntaje general de lateralidad" helpKey="bpm_latScore"
             value={state.bpm_latScore}
             onChange={(v) => set("bpm_latScore")(v)}
           />
@@ -39,9 +39,9 @@ export function Step19BpmLateralidadCuerpo({ state, set }: Props) {
 
       <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
         <h3 className="text-sm font-semibold text-slate-600 mb-2">Noción del Cuerpo</h3>
-        <BpmScoreInput label="Reconocimiento I/D" value={state.bpm_reconocimientoID as number | null} onChange={set("bpm_reconocimientoID")} />
-        <BpmScoreInput label="Imitación de gestos" value={state.bpm_imitacionGestos as number | null} onChange={set("bpm_imitacionGestos")} />
-        <BpmScoreInput label="Dibujo del cuerpo" value={state.bpm_dibujoCuerpo as number | null} onChange={set("bpm_dibujoCuerpo")} />
+        <BpmScoreInput label="Reconocimiento I/D" helpKey="bpm_reconocimientoID" value={state.bpm_reconocimientoID as number | null} onChange={set("bpm_reconocimientoID")} />
+        <BpmScoreInput label="Imitación de gestos" helpKey="bpm_imitacionGestos" value={state.bpm_imitacionGestos as number | null} onChange={set("bpm_imitacionGestos")} />
+        <BpmScoreInput label="Dibujo del cuerpo" helpKey="bpm_dibujoCuerpo" value={state.bpm_dibujoCuerpo as number | null} onChange={set("bpm_dibujoCuerpo")} />
       </div>
     </div>
   )

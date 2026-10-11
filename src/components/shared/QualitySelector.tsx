@@ -1,5 +1,7 @@
 "use client"
 import { QualityValue } from "@/types/evaluacion"
+import { CriterionHelp } from "@/components/evaluacion/help/EvaluatorHelp"
+import { HelpKey } from "@/components/evaluacion/help/content"
 import { cn } from "@/lib/utils"
 
 const OPTIONS: { value: QualityValue; label: string; color: string }[] = [
@@ -9,16 +11,18 @@ const OPTIONS: { value: QualityValue; label: string; color: string }[] = [
 ]
 
 interface Props {
+  helpKey?: HelpKey
   label: string
   value: QualityValue
   onChange: (v: QualityValue) => void
 }
 
-export function QualitySelector({ label, value, onChange }: Props) {
+export function QualitySelector({ label, value, onChange, helpKey }: Props) {
   return (
     <div className="space-y-1.5">
       <label className="text-sm font-semibold text-slate-800">{label}</label>
-      <div className="flex gap-1.5 flex-wrap">
+      {helpKey && <CriterionHelp helpKey={helpKey} label={label}/>}
+      <div role="group" aria-label={label} className="flex gap-1.5 flex-wrap">
         {OPTIONS.map((o) => (
           <button
             key={o.value}

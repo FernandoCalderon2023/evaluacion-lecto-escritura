@@ -8,10 +8,10 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step18BpmEquilibrio({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle
+      <SectionTitle helpStep={17}
         title="BPM — 1ª Unidad: Equilibrio"
         subtitle="Batería Psicomotora (Da Fonseca) — equilibrio dinámico (saltos)"
-        evalua="El equilibrio dinámico en los saltos: la seguridad gravitatoria que libera atención y energía para concentrarse en el aprendizaje."
+        evalua="Observa el control corporal durante las tareas de equilibrio dinámico indicadas por el protocolo profesional."
       />
 
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600">
@@ -26,11 +26,11 @@ export function Step18BpmEquilibrio({ state, set }: Props) {
 
       <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-1">
         <h3 className="text-sm font-semibold text-slate-600 mb-2">Equilibrio Dinámico — Saltos</h3>
-        <BpmScoreInput label="Pie cojo izquierdo" value={state.bpm_eqPieCojoIzq as number | null} onChange={set("bpm_eqPieCojoIzq")} />
-        <BpmScoreInput label="Pie cojo derecho" value={state.bpm_eqPieCojoDer as number | null} onChange={set("bpm_eqPieCojoDer")} />
-        <BpmScoreInput label="Pies juntos adelante" value={state.bpm_eqPiesJuntosAdel as number | null} onChange={set("bpm_eqPiesJuntosAdel")} />
-        <BpmScoreInput label="Pies juntos atrás" value={state.bpm_eqPiesJuntosAtras as number | null} onChange={set("bpm_eqPiesJuntosAtras")} />
-        <BpmScoreInput label="Pies juntos con ojos cerrados" value={state.bpm_eqPiesJuntosOjosCerr as number | null} onChange={set("bpm_eqPiesJuntosOjosCerr")} />
+        <BpmScoreInput label="Pie cojo izquierdo" helpKey="bpm_eqPieCojoIzq" value={state.bpm_eqPieCojoIzq as number | null} onChange={set("bpm_eqPieCojoIzq")} />
+        <BpmScoreInput label="Pie cojo derecho" helpKey="bpm_eqPieCojoDer" value={state.bpm_eqPieCojoDer as number | null} onChange={set("bpm_eqPieCojoDer")} />
+        <BpmScoreInput label="Pies juntos adelante" helpKey="bpm_eqPiesJuntosAdel" value={state.bpm_eqPiesJuntosAdel as number | null} onChange={set("bpm_eqPiesJuntosAdel")} />
+        <BpmScoreInput label="Pies juntos atrás" helpKey="bpm_eqPiesJuntosAtras" value={state.bpm_eqPiesJuntosAtras as number | null} onChange={set("bpm_eqPiesJuntosAtras")} />
+        <BpmScoreInput label="Pies juntos con ojos cerrados" helpKey="bpm_eqPiesJuntosOjosCerr" value={state.bpm_eqPiesJuntosOjosCerr as number | null} onChange={set("bpm_eqPiesJuntosOjosCerr")} />
       </div>
     </div>
   )

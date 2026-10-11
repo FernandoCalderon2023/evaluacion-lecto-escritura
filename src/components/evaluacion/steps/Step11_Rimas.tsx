@@ -7,9 +7,9 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step11Rimas({ state, set }: Props) {
   return (
     <div className="space-y-6">
-      <SectionTitle
+      <SectionTitle helpStep={11}
         title="Ejercicio 11: Procesos Léxicos — Rima"
-        evalua="La conciencia fonológica a nivel de rima: producir palabras que rimen y detectar la que no rima. Es uno de los predictores más fuertes del aprendizaje de la lectura."
+        evalua="Observa cómo reconoce y produce semejanzas de sonido al final de las palabras."
       />
       <div>
         <h3 className="text-sm font-semibold text-slate-700 mb-2">11A. Escribe una palabra que rime con:</h3>

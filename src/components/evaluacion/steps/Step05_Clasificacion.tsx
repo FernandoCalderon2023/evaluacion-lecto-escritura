@@ -7,7 +7,7 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step05Clasificacion({ state, set }: Props) {
   return (
     <div className="space-y-6">
-      <SectionTitle
+      <SectionTitle helpStep={5}
         title="Ejercicio 5: Clasificación y seguimiento de instrucciones"
         evalua="La categorización semántica (agrupar por clase: frutas, animales, útiles deportivos) y el seguimiento de instrucciones con una condición (día/noche): clasificar y aplicar una regla."
       />

@@ -1,6 +1,9 @@
 "use client"
+import { CriterionHelp } from "../help/EvaluatorHelp"
+import { HelpKey } from "../help/content"
 
 interface BpmScoreInputProps {
+  helpKey?: HelpKey
   label: string
   description?: string
   value: number | null | undefined
@@ -14,12 +17,13 @@ const SCORE_OPTIONS = [
   { value: 1, label: "1", color: "bg-red-100 border-red-300 text-red-700", desc: "Débil" },
 ]
 
-export function BpmScoreInput({ label, description, value, onChange }: BpmScoreInputProps) {
+export function BpmScoreInput({ label, description, value, onChange, helpKey }: BpmScoreInputProps) {
   return (
     <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between py-3 border-b border-slate-100 last:border-0">
       <div className="flex-1 min-w-0 pr-3">
         <p className="text-sm font-medium text-slate-700">{label}</p>
         {description && <p className="text-xs text-slate-400">{description}</p>}
+        {helpKey && <CriterionHelp helpKey={helpKey} label={label}/>}
       </div>
       <div className="flex gap-1 shrink-0">
         {SCORE_OPTIONS.map((opt) => (
@@ -45,15 +49,16 @@ export function BpmScoreInput({ label, description, value, onChange }: BpmScoreI
 }
 
 interface BpmLateralityInputProps {
+  helpKey?: HelpKey
   label: string
   value: string | null | undefined
   onChange: (v: string | null) => void
 }
 
-export function BpmLateralityInput({ label, value, onChange }: BpmLateralityInputProps) {
+export function BpmLateralityInput({ label, value, onChange, helpKey }: BpmLateralityInputProps) {
   return (
     <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between py-3 border-b border-slate-100 last:border-0">
-      <p className="text-sm font-medium text-slate-700 flex-1">{label}</p>
+      <div className="min-w-0 flex-1 space-y-2"><p className="text-sm font-medium text-slate-700">{label}</p>{helpKey && <CriterionHelp helpKey={helpKey} label={label}/>}</div>
       <div className="flex gap-2 shrink-0">
         {[
           { val: "I", label: "Izq", color: "bg-orange-100 border-orange-300 text-orange-700" },

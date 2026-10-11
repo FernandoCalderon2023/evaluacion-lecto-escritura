@@ -7,7 +7,7 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step08Asociacion({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle
+      <SectionTitle helpStep={8}
         title="Ejercicio 8: Asociación verbo-objeto/animal"
         subtitle="Palabras disponibles: Vuela, salta, canta, se arrastra, cortar papeles, dibujar, juega, pintar"
         evalua="La asociación semántica entre una acción y el objeto o animal que la realiza, y la evocación de vocabulario funcional: relacionar significados para dar sentido."

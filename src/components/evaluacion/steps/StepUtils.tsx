@@ -1,5 +1,6 @@
 // Utilidad compartida para pasos con ítems booleanos
 "use client"
+import { SectionHelp } from "../help/EvaluatorHelp"
 import { CheckItem } from "@/components/shared/CheckItem"
 import { EvaluacionFormData } from "@/types/evaluacion"
 
@@ -29,7 +30,9 @@ export function SectionTitle({
   title,
   subtitle,
   evalua,
+  helpStep,
 }: {
+  helpStep?: number
   title: string
   subtitle?: string
   /** Qué habilidad mide el ejercicio (propósito pedagógico, para el/la docente). */
@@ -41,6 +44,7 @@ export function SectionTitle({
         <h2 className="text-lg font-semibold text-slate-800">{title}</h2>
         {subtitle && <p className="text-sm text-slate-500 mt-1">{subtitle}</p>}
       </div>
+      {helpStep !== undefined && <SectionHelp step={helpStep}/>}
       {evalua && (
         <div className="flex gap-2 items-start bg-viria-50 border border-viria-100 rounded-lg px-3 py-2">
           <span className="text-sm shrink-0" aria-hidden>🎯</span>

@@ -7,7 +7,7 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step03Objetos({ state, set }: Props) {
   return (
     <div className="space-y-6">
-      <SectionTitle
+      <SectionTitle helpStep={3}
         title="Ejercicio 3: Objetos"
         evalua="El vocabulario por denominación (nombrar el objeto) y el conocimiento semántico-funcional (para qué sirve). Es la base del acceso léxico —recuperar la palabra y su significado."
       />

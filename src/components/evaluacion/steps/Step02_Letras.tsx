@@ -48,7 +48,7 @@ function LetterScore({ label, letters, max, field, value, onChange }: {
 export function Step02Letras({ state, set }: Props) {
   return (
     <div className="space-y-5">
-      <SectionTitle
+      <SectionTitle helpStep={2}
         title="Ejercicio 2: Completar Letras"
         subtitle="Calificar por cada letra correcta que completó el estudiante"
         evalua="El reconocimiento de la forma global de la palabra y la memoria visual ortográfica: recuperar las letras que faltan apoyándose en el contexto de la palabra."

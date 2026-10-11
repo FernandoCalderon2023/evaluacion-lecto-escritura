@@ -7,7 +7,7 @@ interface Props { state: Partial<EvaluacionFormData>; set: (f: keyof EvaluacionF
 export function Step13Omision({ state, set }: Props) {
   return (
     <div className="space-y-4">
-      <SectionTitle
+      <SectionTitle helpStep={13}
         title="Ejercicio 13: Omisión de fonemas"
         evalua="La conciencia fonémica de segmentación: aislar y quitar el fonema inicial de la palabra para descubrir la palabra que queda. Sostiene la decodificación al leer."
       />

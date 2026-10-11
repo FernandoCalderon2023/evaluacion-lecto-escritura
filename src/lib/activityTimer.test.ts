@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import { elapsedSeconds, readingExpired, timerDisplay } from "./activityTimer"
+import { elapsedSeconds, readingExpired, timerDisplay, stopActivity } from "./activityTimer"
 
 test("el tiempo usa marcas reales incluso sin actualizaciones de pantalla", () => {
   const timer = { startedAt: 1000 }
@@ -20,4 +20,13 @@ test("estado inicial y reloj adelantado no producen tiempos negativos", () => {
   assert.equal(timerDisplay(-10), "00:00")
   assert.equal(timerDisplay(240), "04:00")
   assert.equal(timerDisplay(3661), "61:01")
+})
+
+test("terminar el texto antes de cuatro minutos no equivale a interrupción", () => {
+  const timer = { startedAt: 1000 }
+  assert.equal(stopActivity(timer, 31_000, true, true).outcome, "finished")
+  assert.equal(stopActivity(timer, 31_000, true).outcome, "interrupted")
+  assert.equal(stopActivity(timer, 31_000, false).outcome, "completed")
+  assert.equal(stopActivity(timer, 301_000, true, true).outcome, "completed")
+  assert.equal(stopActivity(timer, 301_000, true).stoppedAt, 241_000)
 })

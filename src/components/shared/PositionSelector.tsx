@@ -1,5 +1,7 @@
 "use client"
 import { PositionValue } from "@/types/evaluacion"
+import { CriterionHelp } from "@/components/evaluacion/help/EvaluatorHelp"
+import { HelpKey } from "@/components/evaluacion/help/content"
 import { cn } from "@/lib/utils"
 
 const OPTIONS: { value: PositionValue; label: string }[] = [
@@ -10,16 +12,18 @@ const OPTIONS: { value: PositionValue; label: string }[] = [
 ]
 
 interface Props {
+  helpKey?: HelpKey
   label: string
   value: PositionValue | "" | null | undefined
   onChange: (v: PositionValue | "") => void
 }
 
-export function PositionSelector({ label, value, onChange }: Props) {
+export function PositionSelector({ label, value, onChange, helpKey }: Props) {
   return (
     <div className="space-y-1.5">
       <label className="text-sm font-semibold text-slate-800">{label}</label>
-      <div className="flex gap-1.5 flex-wrap">
+      {helpKey && <CriterionHelp helpKey={helpKey} label={label}/>}
+      <div role="group" aria-label={label} className="flex gap-1.5 flex-wrap">
         {OPTIONS.map((o) => (
           <button
             key={o.value}
