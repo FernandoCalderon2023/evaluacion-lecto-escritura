@@ -159,7 +159,7 @@ async function main() {
     check('Solicitud simultánea comparte trabajo activo',sharedJob.queued===true && typeof sharedJob.jobId==='string')
     await one('/api/evaluaciones/'+ev.id,json('PUT',{observaciones:'Edición durante generación'}))
     release()
-    check('Informe antiguo rechazado tras edición',(await racing).status===500)
+    check('Informe antiguo rechazado tras edición',(await racing).status===409)
     check('No se persiste informe obsoleto',(await (await one('/api/evaluaciones/'+ev.id)).json()).analisisIA===null)
     hold=false
     await one('/api/evaluaciones',json('POST',{estudianteId:student.id,evaluador:'QA',fecha:'2030-01-01'}))

@@ -5,28 +5,21 @@ import { guardReport, readGuardedReport, RECOMMENDATION_PROMPT, recommendationCo
 import { ANALYSIS_TOOL } from "@/lib/ai/analysisSchema"
 import { deepseekEnabled, generarInformeDeepseek } from "@/lib/ai/deepseek"
 import * as Sentry from "@sentry/nextjs"
+import { claimAnalysisJob, consumeAnalysisQuota, AnalysisBusyError, AnalysisAlreadyRunning, AnalysisError, publicAnalysisError } from "./capacity"
 import type { AnalisisIA } from "@/types/ai"
 
-/**
- * Genera el informe psicopedagógico con IA para una evaluación y lo persiste.
- * Marca el job como processing → done (o failed, con el motivo).
- *
- * Es la ÚNICA implementación de la generación: la usan
- *  - el worker de QStash (/api/jobs/process-analysis), camino normal, y
- *  - el endpoint de encolar, como RESPALDO inline cuando la cola no está
- *    disponible (p. ej. cuota diaria de QStash agotada).
- *
- * Devuelve el análisis. Si falla, deja el job en "failed" y relanza el error.
- */
+// Shared generator for inline requests and signed queue deliveries.
 export async function procesarAnalisis(jobId: string, evaluacionId: string): Promise<AnalisisIA> {
   // Claim once. Duplicate queue delivery must not regenerate or fail another worker's job.
-  const claimed = await prisma.analysisJob.updateMany({ where: { id: jobId, evaluacionId, status: "queued" }, data: { status: "processing", startedAt: new Date() } })
-  if (!claimed.count) {
-    const job = await prisma.analysisJob.findFirst({ where: { id: jobId, evaluacionId, status: "done" } })
-    const ev = job ? await prisma.evaluacion.findUnique({ where: { id: evaluacionId } }) : null
+  const claimed = await claimAnalysisJob(jobId, evaluacionId)
+  if (!claimed) {
+    const job = await prisma.analysisJob.findFirst({ where: { id: jobId, evaluacionId } })
+    if (job?.status === "queued") throw new AnalysisBusyError()
+    if (job?.status === "processing") throw new AnalysisAlreadyRunning()
+    const ev = job?.status === "done" ? await prisma.evaluacion.findUnique({ where: { id: evaluacionId } }) : null
     const existing = ev ? readGuardedReport(ev.analisisIA, calcularScores(ev as any)) : null
     if (existing) return existing
-    throw new Error("El trabajo ya está siendo procesado o no está disponible.")
+    throw new AnalysisError("AI_JOB_UNAVAILABLE", "Este trabajo ya no está disponible. Solicita un nuevo informe.", 409)
   }
   try {
     const ev = await prisma.evaluacion.findUnique({
@@ -35,6 +28,8 @@ export async function procesarAnalisis(jobId: string, evaluacionId: string): Pro
     })
     if (!ev) throw new Error("Evaluación no encontrada")
 
+    const job = await prisma.analysisJob.findUniqueOrThrow({ where: { id: jobId } })
+    await consumeAnalysisQuota(job.docenteId ?? ev.docenteId ?? "legacy")
     const scores = calcularScores(ev as any)
     const userMessage = recommendationContext(scores)
 
@@ -78,26 +73,20 @@ export async function procesarAnalisis(jobId: string, evaluacionId: string): Pro
 
     analisis = guardReport(analisis, scores)
 
-    const persisted = await prisma.evaluacion.updateMany({
-      where: { id: evaluacionId, updatedAt: ev.updatedAt },
-      data: {
-        analisisIA: JSON.stringify(analisis),
-        analisisGeneradoEn: new Date(),
-        // La IA interpreta; la clasificación sigue siendo la del instrumento.
-        estadoAprendizaje: scores.estadoGeneral,
-      },
-    })
-
-    if (persisted.count !== 1) throw new Error("La evaluación cambió durante el análisis. Genere un nuevo informe con los datos actualizados.")
-
-    await prisma.analysisJob.update({
-      where: { id: jobId },
-      data: { status: "done", activeKey: null, completedAt: new Date() },
+    await prisma.$transaction(async tx => {
+      // Fence expired/cancelled workers before saving. Report and completion commit together.
+      const completed = await tx.analysisJob.updateMany({ where: { id: jobId, status: "processing", activeKey: evaluacionId }, data: { status: "done", activeKey: null, completedAt: new Date() } })
+      if (completed.count !== 1) throw new AnalysisError("AI_JOB_EXPIRED", "El trabajo venció. Solicita un nuevo informe.", 409)
+      const persisted = await tx.evaluacion.updateMany({
+        where: { id: evaluacionId, updatedAt: ev.updatedAt },
+        data: { analisisIA: JSON.stringify(analisis), analisisGeneradoEn: new Date(), estadoAprendizaje: scores.estadoGeneral },
+      })
+      if (persisted.count !== 1) throw new AnalysisError("AI_EVALUATION_CHANGED", "La evaluación cambió durante el análisis. Genera un nuevo informe con los datos actualizados.", 409)
     })
 
     return analisis
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
+    const msg = publicAnalysisError(err).message
     console.error("[procesarAnalisis] Error:", msg)
 
     Sentry.captureException(err, {
@@ -106,8 +95,8 @@ export async function procesarAnalisis(jobId: string, evaluacionId: string): Pro
     })
 
     await prisma.analysisJob
-      .update({
-        where: { id: jobId },
+      .updateMany({
+        where: { id: jobId, status: "processing" },
         data: { status: "failed", activeKey: null, error: msg, completedAt: new Date() },
       })
       .catch(() => {})

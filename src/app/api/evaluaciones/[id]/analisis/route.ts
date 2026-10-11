@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { calcularScores } from "@/lib/scoring"
 import { readGuardedReport } from "@/lib/ai/reportGuard"
 import { isTrial, subscriptionRequired } from "@/lib/commercial"
@@ -5,23 +6,13 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { aiRateLimit, checkRateLimit } from "@/lib/ratelimit"
+import { aiCapacity, expireAnalysisJobs, AnalysisError, AnalysisBusyError, publicAnalysisError } from "@/lib/ai/capacity"
 import { getQStash, getAppUrl } from "@/lib/qstash"
 import { procesarAnalisis } from "@/lib/ai/procesarAnalisis"
 
-// Normalmente solo encolamos (rápido). Pero si la cola no está disponible,
-// procesamos inline (~40 s), por eso el tope alto.
+// Inline and queued workers share the same database admission control.
 export const maxDuration = 300
 
-/**
- * POST /api/evaluaciones/[id]/analisis
- *
- * Encola un trabajo de generación de IA. Devuelve un jobId que el cliente
- * usa para hacer polling a /api/evaluaciones/[id]/analisis/status?jobId=X
- *
- * Si QStash no está configurado, hace fallback al procesamiento sincrónico
- * (modo dev / sin cola).
- */
 export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   try {
@@ -33,18 +24,6 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
     const isAdmin = (session.user as any).role === "ADMIN"
     const docenteId = (session.user as any).id
     if (await isTrial(docenteId)) return subscriptionRequired()
-
-    // Rate limit: 20 IA por hora por usuario
-    const rl = await checkRateLimit(aiRateLimit, `user:${docenteId}`)
-    if (!rl.allowed) {
-      return NextResponse.json({
-        error: `Has alcanzado el límite de 20 análisis IA por hora. Intenta en ${Math.ceil(rl.retryAfterSeconds / 60)} minutos.`,
-        retryAfterSeconds: rl.retryAfterSeconds,
-      }, {
-        status: 429,
-        headers: { "Retry-After": rl.retryAfterSeconds.toString() },
-      })
-    }
 
     // Verificar acceso a la evaluación
     const ev = await prisma.evaluacion.findUnique({ where: { id: params.id } })
@@ -63,8 +42,7 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
       const cached = readGuardedReport(ev.analisisIA, calcularScores(ev as any))
       if (cached) return NextResponse.json({ status: "done", analisis: cached, cached: true, analisisGeneradoEn: ev.analisisGeneradoEn })
     }
-    // Release abandoned jobs after the maximum worker runtime plus a safety margin.
-    await prisma.analysisJob.updateMany({ where: { evaluacionId: params.id, status: { in: ["queued", "processing"] }, updatedAt: { lt: new Date(Date.now() - 6 * 60000) } }, data: { status: "failed", activeKey: null, error: "El trabajo venció. Puede generar uno nuevo.", completedAt: new Date() } })
+    await expireAnalysisJobs(params.id)
     // Si ya hay un job en cola/procesando para esta evaluación, devolverlo
     const existing = await prisma.analysisJob.findFirst({
       where: {
@@ -77,59 +55,53 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
       return NextResponse.json({ jobId: existing.id, status: existing.status, queued: true })
     }
 
-    // Crear el job
-    let job
-    try {
-      job = await prisma.analysisJob.create({ data: { evaluacionId: params.id, docenteId, status: "queued", activeKey: params.id } })
-    } catch (error) {
-      if ((error as { code?: string }).code !== "P2002") throw error
-      const shared = await prisma.analysisJob.findUnique({ where: { activeKey: params.id } })
-      if (!shared) throw error
+    // An atomic insert avoids a read/create race and exception-based contention.
+    const job = { id: randomUUID() }
+    const now = new Date()
+    const inserted = await prisma.$executeRaw`
+      INSERT INTO "AnalysisJob" ("id", "evaluacionId", "docenteId", "status", "activeKey", "createdAt", "updatedAt")
+      VALUES (${job.id}, ${params.id}, ${docenteId}, 'queued', ${params.id}, ${now}, ${now})
+      ON CONFLICT ("activeKey") DO NOTHING
+    `
+    if (!inserted) {
+      const shared = await prisma.analysisJob.findFirst({ where: { evaluacionId: params.id }, orderBy: { createdAt: "desc" } })
+      if (!shared) throw new AnalysisError("AI_JOB_UNAVAILABLE", "No se pudo iniciar el informe. Vuelve a intentar.")
       return NextResponse.json({ jobId: shared.id, status: shared.status, queued: true })
     }
 
-    // Modo de procesamiento del informe:
-    //  - "inline" (POR DEFECTO): el sistema lo procesa por sí mismo en este mismo pedido,
-    //    sin depender de servicios externos (QStash del plan gratuito permite ~1 msg/día).
-    //  - "qstash": solo si AI_QUEUE_MODE=qstash y hay token — encola en QStash (con
-    //    respaldo inline si el publish falla).
-    const queueMode = (process.env.AI_QUEUE_MODE?.trim() || "inline").toLowerCase()
-    const qstash = queueMode === "qstash" ? getQStash() : null
-    if (qstash) {
-      // Encolar con QStash (solo en modo qstash)
-      const targetUrl = `${getAppUrl()}/api/jobs/process-analysis`
+    if (aiCapacity().queueMode === "qstash") {
       try {
+        const qstash = getQStash()
+        if (!qstash || !process.env.QSTASH_CURRENT_SIGNING_KEY) throw new Error("Queue unavailable")
         await qstash.publishJSON({
-          url: targetUrl,
+          url: `${getAppUrl()}/api/jobs/process-analysis`,
           body: { jobId: job.id, evaluacionId: params.id },
-          retries: 2,
-          // FlowControl: máximo 5 jobs procesando en paralelo al proveedor de IA.
-          // Previene 429 (rate limit) y mantiene la cola ordenada.
-          flowControl: {
-            key: "ai-analysis",
-            parallelism: 5,
-          },
+          deduplicationId: job.id,
+          retries: 5,
+          retryDelay: "60000",
+          flowControl: { key: "ai-analysis", parallelism: aiCapacity().parallelism },
         })
         return NextResponse.json({ jobId: job.id, status: "queued", queued: true })
-      } catch (err) {
-        // RESPALDO: si la cola no está disponible (p. ej. cuota diaria de QStash
-        // agotada → "daily ratelimit exceeded"), NO abortamos: procesamos inline.
-        // Tarda ~40 s (maxDuration lo cubre) y la UI recibe el análisis directo
-        // en la respuesta, sin necesidad de polling.
-        console.error("[analisis] QStash no disponible, procesando inline:", err instanceof Error ? err.message : err)
-        const analisis = await procesarAnalisis(job.id, params.id)
-        return NextResponse.json({ jobId: job.id, status: "done", analisis, inline: true })
+      } catch {
+        // A timed-out publish can have been delivered. Only release an unclaimed job.
+        const cancelled = await prisma.analysisJob.updateMany({ where: { id: job.id, status: "queued" }, data: { status: "failed", activeKey: null, error: "La cola no está disponible. Intenta más tarde.", completedAt: new Date() } })
+        if (!cancelled.count) return NextResponse.json({ jobId: job.id, status: "processing", queued: true })
+        throw new AnalysisError("AI_QUEUE_UNAVAILABLE", "La cola no está disponible. Tus datos están guardados; intenta más tarde.")
       }
-    } else {
-      // Modo inline (por defecto) o QStash no configurado: el sistema procesa aquí mismo.
-      // Nunca deja un job "queued" para siempre; la UI recibe el análisis en la respuesta.
+    }
+    try {
       const analisis = await procesarAnalisis(job.id, params.id)
       return NextResponse.json({ jobId: job.id, status: "done", analisis, inline: true })
+    } catch (error) {
+      if (error instanceof AnalysisBusyError) {
+        await prisma.analysisJob.updateMany({ where: { id: job.id, status: "queued" }, data: { status: "failed", activeKey: null, error: error.message, completedAt: new Date() } })
+      }
+      throw error
     }
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error("[analisis/route] Error:", msg)
-    return NextResponse.json({ error: msg }, { status: 500 })
+    const error = publicAnalysisError(err)
+    console.error("[analisis/route]", error.code)
+    return NextResponse.json({ error: error.message, code: error.code, retryAfterSeconds: error.retryAfter }, { status: error.status, headers: { "Retry-After": String(error.retryAfter) } })
   }
 }
 

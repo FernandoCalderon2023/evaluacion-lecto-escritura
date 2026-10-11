@@ -1,3 +1,4 @@
+import { expireAnalysisJobs } from "@/lib/ai/capacity"
 import { calcularScores } from "@/lib/scoring"
 import { readGuardedReport } from "@/lib/ai/reportGuard"
 import { isTrial, subscriptionRequired } from "@/lib/commercial"
@@ -32,6 +33,7 @@ export async function GET(req: NextRequest, props: { params: Promise<{ id: strin
     return NextResponse.json({ error: "No autorizado" }, { status: 403 })
   }
 
+  await expireAnalysisJobs(params.id)
   const jobId = new URL(req.url).searchParams.get("jobId")
 
   // Si pasaron jobId específico
