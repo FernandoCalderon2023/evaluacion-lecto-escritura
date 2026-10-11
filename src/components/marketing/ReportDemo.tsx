@@ -29,6 +29,6 @@ export function ReportDemo() {
       </div>
       <footer className="border-t border-slate-100 px-6 py-4 text-xs leading-relaxed text-slate-500 sm:px-9">Ejemplo ficticio de presentación. No contiene datos personales ni puntajes de un estudiante real.</footer>
     </article>
-    <div className="mt-7 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-viria-900 p-6 text-white print:hidden"><div><p className="font-semibold">¿Ya tienes acceso a SIDEDA?</p><p className="mt-1 text-sm text-viria-100">Ingresa con la cuenta que te asignó tu administrador.</p></div><Link href="/login" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-viria-900">Entrar a mi cuenta <ArrowRight size={17}/></Link></div>
+    <div className="mt-7 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-viria-900 p-6 text-white print:hidden"><div><p className="font-semibold">Ahora prueba con tu propio caso.</p><p className="mt-1 text-sm text-viria-100">Crea tu cuenta gratuita o retoma tu recorrido si ya tienes acceso. Este ejemplo no consume tu cupo.</p></div><Link href="/prueba" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-viria-900">Abrir mi recorrido <ArrowRight size={17}/></Link><Link href="/registro" className="text-sm font-semibold underline">Crear cuenta gratuita</Link></div>
   </div>
 }

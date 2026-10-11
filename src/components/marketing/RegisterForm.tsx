@@ -13,7 +13,7 @@ export function RegisterForm({ family = false }: { family?: boolean }) {
       const result=await r.json()
       if(!r.ok) throw new Error(result.error || "No se pudo crear tu cuenta.")
       const session=await signIn("credentials",{email,password,redirect:false})
-      window.location.assign(session?.ok && !session.error ? (data.get("perfil")==="FAMILIA"?"/familia":"/dashboard") : "/login?registro=ok")
+      window.location.assign(session?.ok && !session.error ? "/prueba" : "/login?registro=ok")
     } catch(e) { setError(e instanceof Error ? e.message : "No pudimos conectar. Intenta nuevamente.") }
     finally { setBusy(false) }
   }

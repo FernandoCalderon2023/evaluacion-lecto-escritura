@@ -215,6 +215,7 @@ async function main() {
     check('Administrador reintenta aviso pendiente',retryMail.sent===1)
     check('Aviso solo al correo de Fernando',mails.length===1 && mails[0].payload.to[0]==='fcalderon@vir-ia.com' && !JSON.stringify(mails).includes(password))
 
+    check('Recorrido nuevo ofrece comenzar sin consumir cupo',(await (await trial('/prueba')).text()).includes('href="/estudiantes/nuevo"'))
     check('No expone instituciones de clientes',(await (await trial('/api/organizaciones/ue')).json()).length===0)
     check('No accede a datos de otro docente',(await trial('/api/evaluaciones/'+ev.id)).status===403)
     const trialStudentPayload={nombre:'Ficticio',apellido1:'Prueba',fechaNac:'2018-01-01',grado:'3º de Primaria',unidadEducativa:'QA prueba',gestion:2026,docente:'QA',sexo:'F'}
@@ -239,7 +240,12 @@ async function main() {
     }
     const familyResponse=await trial('/evaluaciones/'+te.id+'/padres')
     const familyHtml=await familyResponse.text()
-    check('Vista de familia exige suscripción',(familyResponse.status===307 || familyHtml.includes('NEXT_REDIRECT')) && !familyHtml.includes(hidden))
+    check('Prueba incluye resumen familiar sin revelar IA reservada',familyResponse.status===200 && familyHtml.includes('Resumen para conversar en familia') && !familyHtml.includes(hidden))
+    const trialHtml=await (await trial('/evaluaciones/'+te.id)).text()
+    check('Prueba muestra lectura y ambas áreas de escritura',trialHtml.includes('Lectura y comprensión')&&trialHtml.includes('Escritura: dictado')&&trialHtml.includes('Escritura: composición'))
+    check('Prueba parcial no muestra cero como resultado concluido',trialHtml.includes('Pendiente de completar')&&!trialHtml.includes('0 / 27 aciertos'))
+    check('Recorrido de prueba retoma evaluación existente',(await (await trial('/prueba')).text()).includes('/evaluaciones/'+te.id+'/editar'))
+    check('Resumen familiar ajeno sigue protegido',!(await (await two('/evaluaciones/'+te.id+'/padres')).text()).includes('Resumen para conversar en familia'))
     check('Usuario no se activa a sí mismo',(await trial('/api/admin/suscripciones/'+trialSession.user.id,{method:'POST'})).status===403)
     const requestPayload={telefono:'+591 70000000',organizacion:'Centro ficticio',mensaje:'Solicitud QA',aceptaContacto:true}
     check('Solicitud exige autorización de contacto',(await trial('/api/suscripcion',json('POST',{...requestPayload,aceptaContacto:false}))).status===400)
@@ -255,6 +261,7 @@ async function main() {
     check('Eliminar evaluación no renueva cupo',(await trial('/api/evaluaciones',json('POST',evalPayload))).status===403)
     await trial('/api/estudiantes/'+ts.id,{method:'DELETE'})
     check('Eliminar estudiante no renueva cupo',(await trial('/api/estudiantes',json('POST',trialStudentPayload))).status===403)
+    check('Recorrido sin registros y con cupo usado ofrece ampliar',(await (await trial('/prueba')).text()).includes('Consultar cómo ampliar mi acceso'))
     check('Administrador habilita acceso acordado',(await admin('/api/admin/suscripciones/'+trialSession.user.id,{method:'POST'})).status===200)
     const activeStudentResponse=await trial('/api/estudiantes',json('POST',trialStudentPayload))
     check('Activación amplía acceso sin cerrar sesión',activeStudentResponse.status===201)
@@ -343,6 +350,7 @@ async function main() {
     check('Familia puede editar sin consumir otro cupo',(await family1('/api/familia',json('POST',saved))).status===200)
     const parentSpaceHtml=await (await family1('/familia/'+saved.id)).text()
     check('Resumen familiar sin diagnóstico y con áreas no observadas',parentSpaceHtml.includes('no un diagnóstico')&&parentSpaceHtml.includes('Sin observación suficiente')&&parentSpaceHtml.includes('FAMILIA-PRIVADA-QA'))
+    check('Recorrido gratuito familiar vuelve a su orientación',(await (await family1('/prueba')).text()).includes('/familia/'+saved.id))
     check('Familia vuelve a su registro antes de ampliar acceso', (await (await family1('/familia')).text()).includes('Revisar mi registro'))
     check('Otra familia no lee el registro',!(await (await family2('/familia/'+saved.id)).text()).includes('FAMILIA-PRIVADA-QA'))
     check('Otra familia no edita el registro',(await family2('/api/familia',json('POST',saved))).status===403)

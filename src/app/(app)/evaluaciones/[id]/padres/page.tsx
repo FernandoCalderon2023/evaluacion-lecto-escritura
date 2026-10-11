@@ -1,10 +1,11 @@
+import { TrialResult } from "@/components/resultados/TrialResult"
 import { calcularScores } from "@/lib/scoring"
 import { readGuardedReport } from "@/lib/ai/reportGuard"
 import { isTrial } from "@/lib/commercial"
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
-import { getAuthContext, canViewInScope } from "@/lib/apiAuth"
+import { getAuthContext, canViewInScope, canAccessResource } from "@/lib/apiAuth"
 import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
@@ -24,7 +25,7 @@ export default async function InformePadresPage(props: { params: Promise<{ id: s
     notFound()
   }
 
-  if (await isTrial(auth.userId)) redirect("/suscripcion")
+  if (await isTrial(auth.userId)) return <TrialResult id={ev.id} codigo={ev.estudiante.codigo} scores={calcularScores(ev as any)} canEdit={canAccessResource(auth, ev.docenteId)} familyView/>
   const analisis = readGuardedReport(ev.analisisIA, calcularScores(ev as any))
 
   return (
