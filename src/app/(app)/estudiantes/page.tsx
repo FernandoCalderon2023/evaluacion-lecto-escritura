@@ -1,3 +1,5 @@
+import { getWorkspaceProfile } from "@/lib/getWorkspaceProfile"
+import { canAccessResource } from "@/lib/apiAuth"
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
@@ -17,6 +19,7 @@ export default async function EstudiantesPage(
   const q = searchParams.q ?? ""
   const auth = await getAuthContext()
   if (!auth) redirect("/login")
+  const profile = await getWorkspaceProfile(auth.userId, auth.role)
   const scope = await resolveScope(auth, "individual")
   const search = q ? { OR: [{ codigo: { contains: q } }, { nombre: { contains: q } }, { apellido1: { contains: q } }] } : null
   const where: any = search ? { AND: [scope, search] } : scope
@@ -28,7 +31,7 @@ export default async function EstudiantesPage(
   const page = Math.min(totalPages,Number.isSafeInteger(requested) && requested>0 ? requested : 1)
   const estudiantes = await prisma.estudiante.findMany({
     where, orderBy: [{createdAt:"desc"},{id:"desc"}], skip:(page-1)*pageSize,take:pageSize,
-    select:{id:true,codigo:true,grado:true,unidadEducativa:true,sexo:true,_count:{select:{evaluaciones:true}}},
+    select:{id:true,nombre:true,apellido1:true,docenteId:true,codigo:true,grado:true,unidadEducativa:true,sexo:true,_count:{select:{evaluaciones:true}}},
   })
   const pageHref = (n:number) => `/estudiantes?${new URLSearchParams({q,pagina:String(n)})}`
 
@@ -37,8 +40,8 @@ export default async function EstudiantesPage(
     <div className="p-4 lg:p-8 space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Estudiantes</h1>
-          <p className="text-slate-500 text-sm mt-1">{total} registrado(s)</p>
+          <h1 className="text-2xl font-bold text-slate-900">{profile.kind === "teacher" ? "Mis alumnos" : "Estudiantes"}</h1>
+          <p className="text-slate-500 text-sm mt-1">{total} registrado(s) · {profile.institutional ? "Consulta según tus asignaciones. Solo puedes evaluar tus propios registros." : "Abre su historial o empieza una evaluación desde su tarjeta."}</p>
         </div>
         <Link
           href="/estudiantes/nuevo"
@@ -74,7 +77,7 @@ export default async function EstudiantesPage(
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {estudiantes.map((est) => (
-            <Link key={est.id} href={`/estudiantes/${est.id}`}>
+            <div key={est.id}>
               <Card className="hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-3">
@@ -83,9 +86,9 @@ export default async function EstudiantesPage(
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-slate-900 truncate font-mono text-base">
-                        {est.codigo ?? "—"}
+                        <Link href={`/estudiantes/${est.id}`}>{est.nombre} {est.apellido1}</Link>
                       </p>
-                      <p className="text-xs text-slate-500">{est.grado} · {est.unidadEducativa}</p>
+                      <p className="text-xs text-slate-500">{est.codigo ?? "—"} · {est.grado} · {est.unidadEducativa}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <Badge variant="secondary" className="text-xs">
                           {est._count.evaluaciones} evaluación(es)
@@ -94,9 +97,10 @@ export default async function EstudiantesPage(
                       </div>
                     </div>
                   </div>
+                  <div className="mt-4 flex flex-wrap gap-3 border-t pt-3 text-sm"><Link className="inline-flex min-h-11 items-center font-semibold text-viria-700" href={`/estudiantes/${est.id}`}>Ver historial</Link>{canAccessResource(auth, est.docenteId) && <Link className="inline-flex min-h-11 items-center rounded-lg bg-viria-600 px-3 font-semibold text-white" href={`/evaluaciones/nueva?estudianteId=${est.id}`}>Evaluar alumno</Link>}</div>
                 </CardContent>
               </Card>
-            </Link>
+            </div>
           ))}
         </div>
       )}

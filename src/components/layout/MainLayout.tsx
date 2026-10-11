@@ -1,10 +1,11 @@
+import { workspaceProfile } from "@/lib/workspaceProfile"
 import { Sidebar } from "./Sidebar"
 import { Toaster } from "@/components/ui/toaster"
 
-export function MainLayout({ children }: { children: React.ReactNode }) {
+export function MainLayout({ children, profile }: { children: React.ReactNode; profile: ReturnType<typeof workspaceProfile> }) {
   return (
     <div className="flex min-h-screen bg-slate-50 print:bg-white">
-      <Sidebar />
+      <Sidebar profile={profile} />
       <main className="flex-1 min-w-0 overflow-x-hidden pt-16 pb-20 lg:pt-0 lg:pb-0 print:pt-0 print:pb-0">
         <div className="max-w-7xl mx-auto">
           {children}

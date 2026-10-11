@@ -1,3 +1,4 @@
+import { getWorkspaceProfile } from "@/lib/getWorkspaceProfile"
 import { classificationSelect } from "@/lib/classificationSelect"
 export const dynamic = "force-dynamic"
 
@@ -36,6 +37,9 @@ const ESTADO_CONFIG = {
 export default async function DashboardPage() {
   const auth = await getAuthContext()
   if (!auth) redirect("/login")
+  if (auth.role === "FAMILIA") redirect("/familia")
+  const profile = await getWorkspaceProfile(auth.userId, auth.role)
+  const person = await prisma.usuario.findUnique({ where: { id: auth.userId }, select: { nombre: true } })
   const scope = await resolveScope(auth, "aggregate")
 
   const individual = await resolveScope(auth, "individual")
@@ -51,7 +55,8 @@ export default async function DashboardPage() {
     <div className="p-4 lg:p-8 space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-5">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-viria-700">SIDEDA / Tu espacio de trabajo</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-viria-700">SIDEDA / {profile.label}</p>
+          <p className="mt-3 text-sm text-slate-600">Hola, {person?.nombre || "bienvenido"}.</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">{institutional ? "Resumen institucional" : totalEst === 0 ? "Empecemos con el primer estudiante." : "Tu resumen de evaluaciones"}</h1>
           <p className="mt-3 text-sm text-slate-500">{institutional ? "Consulta el avance de las organizaciones asignadas y de tus propios registros." : "Revisa lo pendiente y consulta los resultados más recientes."}</p>
           {institutional && <p className="mt-2 text-sm font-medium text-viria-700">{assignments.map(m => m.organizacion.nombre).join(" · ")}</p>}
@@ -59,7 +64,19 @@ export default async function DashboardPage() {
         <Link href={nextHref} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-viria-900 px-5 py-3 text-sm font-semibold text-white hover:bg-viria-800"><ArrowRight size={17}/>{nextLabel}</Link>
       </div>
 
-      {!institutional && totalEv === 0 && <section aria-label="Primeros pasos" className="rounded-2xl border border-slate-200 bg-white p-5"><h2 className="font-semibold">Cómo empezar</h2><p className="mt-2 text-sm text-slate-600">Registra al estudiante, aplica los ejercicios y guarda lo observado. Después podrás revisar los resultados.</p><Link href="/guia" className="mt-3 inline-block text-sm font-semibold text-viria-700">Consultar la guía de uso →</Link></section>}
+      <section aria-label="Tu recorrido" className="rounded-2xl border border-slate-200 bg-white p-5">
+        <h2 className="font-semibold">{institutional ? "Tu recorrido de consulta" : "De tu alumno a su evaluación"}</h2>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">{(institutional ? [
+          { title: "1. Revisa el panorama", text: "Los indicadores de esta pantalla corresponden a tus asignaciones institucionales.", href: "/dashboard", action: "Ver resumen" },
+          { title: "2. Consulta lo permitido", text: aggregateOnly ? "El detalle individual incluye tus propios registros y, si además eres director, los de esa unidad educativa." : "Abre los estudiantes de tu unidad educativa. Sus responsables mantienen la edición.", href: "/estudiantes", action: "Consultar estudiantes" },
+          { title: "3. Coordina el seguimiento", text: "Revisa con el docente los registros pendientes. Los resultados incompletos requieren completar la aplicación.", href: "/guia", action: "Ver guía de mi perfil" },
+        ] : [
+          { title: "1. Elige a tu alumno", text: "Busca por nombre o código. Si todavía no está registrado, añade sus datos una sola vez.", href: totalEst ? "/estudiantes" : "/estudiantes/nuevo", action: totalEst ? "Ver mis alumnos" : "Registrar primer estudiante" },
+          { title: "2. Prepara y empieza", text: "Confirma el alumno, revisa los materiales y usa Iniciar actividad. También puedes transcribir una aplicación en papel.", href: "/evaluaciones/nueva", action: "Elegir alumno para evaluar" },
+          { title: "3. Retoma y acompaña", text: "Continúa los registros guardados, revisa los resultados y prepara el resumen para la familia.", href: "/evaluaciones", action: "Ver evaluaciones guardadas" },
+        ]).map(item => <div key={item.title} className="flex flex-col rounded-xl bg-slate-50 p-4"><h3 className="text-sm font-semibold">{item.title}</h3><p className="mt-2 flex-1 text-sm text-slate-600">{item.text}</p><Link className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-viria-700" href={item.href}>{item.action} →</Link></div>)}</div>
+        {auth.isAdmin && <Link href="/admin" className="mt-4 inline-block font-semibold text-viria-700">Abrir el centro de control administrativo →</Link>}
+      </section>
       {institutional && <p className="rounded-xl border border-viria-200 bg-viria-50 p-4 text-sm text-viria-900">Los indicadores respetan tus asignaciones institucionales. {aggregateOnly ? "Los totales pueden incluir organizaciones cuyos expedientes individuales no están disponibles para tu cuenta." : "Puedes consultar los expedientes de tus unidades educativas; editar y eliminar corresponde a su responsable o al administrador."}</p>}
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4">

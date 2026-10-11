@@ -1,4 +1,5 @@
 "use client"
+import { workspaceProfile } from "@/lib/workspaceProfile"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -26,7 +27,7 @@ const isActive = (path: string, href: string) => path === href || (href !== "/ad
 
 const LS_KEY = "sideda-sidebar-collapsed"
 
-export function Sidebar() {
+export function Sidebar({ profile }: { profile: ReturnType<typeof workspaceProfile> }) {
   const path = usePathname()
   const [open, setOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
@@ -36,7 +37,7 @@ export function Sidebar() {
   const isFamily = (session?.user as any)?.role === "FAMILIA"
   const administration = isAdmin && (path === "/admin" || path.startsWith("/admin/"))
   const home = isFamily ? "/familia" : administration ? "/admin" : "/dashboard"
-  const fullNav = isFamily ? [{ href: "/familia", label: "Mi familia", icon: Users }, { href: "/suscripcion", label: "Mi acceso", icon: BookOpen }, { href: "/cuenta", label: "Cuenta", icon: Settings }] : administration ? adminNav : nav
+  const fullNav = isFamily ? [{ href: "/familia", label: "Mi familia", icon: Users }, { href: "/suscripcion", label: "Mi acceso", icon: BookOpen }, { href: "/cuenta", label: "Cuenta", icon: Settings }] : administration ? adminNav : nav.map(item => ({ ...item, label: item.href === "/estudiantes" ? profile.kind === "teacher" ? "Mis alumnos" : "Estudiantes" : item.href === "/dashboard" && profile.institutional ? "Resumen" : item.label }))
 
   // Cerrar sidebar al navegar (móvil)
   useEffect(() => { setOpen(false) }, [path])
@@ -105,6 +106,7 @@ export function Sidebar() {
             <span className={collapsed ? "lg:sr-only" : ""}>{administration ? "Ir a evaluaciones" : "Ir a administración"}</span>
           </Link>
         </div>}
+        {!collapsed && !administration && <p className="px-5 pt-3 text-xs font-semibold text-viria-100">{profile.label}</p>}
         {/* Nav */}
         <nav className={cn("flex-1 space-y-1 overflow-y-auto", collapsed ? "p-2" : "p-3")}>
           {fullNav.map(({ href, label, icon: Icon }) => {
@@ -186,7 +188,7 @@ export function Sidebar() {
             >
               <Icon className={cn("h-5 w-5", active && "scale-110")} />
               <span className={cn("text-[10px] leading-none", active && "font-semibold")}>
-                {href === "/familia" ? "Familia" : href === "/suscripcion" ? "Acceso" : label.split(" ")[0]}
+                {href === "/familia" ? "Familia" : href === "/suscripcion" ? "Acceso" : href === "/estudiantes" && profile.kind === "teacher" ? "Alumnos" : label.split(" ")[0]}
               </span>
             </Link>
           )

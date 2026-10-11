@@ -64,6 +64,7 @@ function reducer(state: Partial<EvaluacionFormData>, action: Action): Partial<Ev
 }
 
 interface Props {
+  evaluatorName?: string
   draftOwner: string
   sourceRevision?: string
   estudianteId?: string
@@ -72,7 +73,7 @@ interface Props {
   initialData?: Partial<EvaluacionFormData>
 }
 
-export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, estudiantes, editMode, initialData }: Props) {
+export function EvaluacionWizard({ evaluatorName, draftOwner, sourceRevision, estudianteId, estudiantes, editMode, initialData }: Props) {
   const router = useRouter()
   const { toast } = useToast()
   const [step, setStep] = useState(0)
@@ -88,7 +89,7 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
   const [state, dispatch] = useReducer(reducer, initialData ?? {
     ...EVALUACION_DEFAULTS,
     estudianteId: estudianteId ?? "",
-    evaluador: "",
+    evaluador: evaluatorName ?? "",
     fecha: new Date().toISOString().split("T")[0],
   })
 
