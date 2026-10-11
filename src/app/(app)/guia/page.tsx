@@ -16,7 +16,8 @@ export default function GuidePage() {
       ["¿Debo marcar como incorrecto lo que no apliqué?", "No. En lectura y escritura deja pendientes los criterios no observados. Al terminar los ejercicios 10 y 14, confirma que aplicaste todos los ejercicios del bloque. Solo entonces las casillas desmarcadas se interpretan como incorrectas. Si falta alguno, no confirmes el bloque."],
       ["¿Por qué mi resultado dice «Evaluación incompleta»?", "Faltan criterios de lectura o escritura, o la confirmación de aplicación cognitiva/léxica. Los registros anteriores conservan sus respuestas y requieren confirmar esos bloques en los pasos 10 y 14."],
       ["¿Qué ocurre si edito una evaluación con informe?", "El informe anterior deja de estar vigente. Genera uno nuevo después de guardar los cambios. Si editas mientras se genera un informe, se descarta ese resultado para evitar conclusiones con datos anteriores."],
-      ["¿Cómo guardo un PDF?", "Abre el resultado y elige Imprimir / PDF. En la ventana del navegador, selecciona Guardar como PDF. Para la familia, abre primero Ver para padres."],
+      ["¿Cómo imprimo las actividades?", "En Evaluaciones, abre el cuadernillo SIDEDA. Puedes consultar cada actividad adaptada a pantalla e imprimir por separado el cuadernillo del estudiante y las hojas del evaluador. El PDF original ya no se distribuye desde la plataforma."],
+      ["¿Cómo guardo un PDF?", "Abre el resultado y elige Imprimir / PDF. En la ventana del navegador, selecciona Guardar como PDF. Para la familia, abre primero Resumen para la familia."],
     ].map(([q,a])=><details key={q} className="rounded-xl border border-slate-200 bg-white p-5"><summary className="cursor-pointer text-sm font-semibold text-slate-800">{q}</summary><p className="mt-3 text-sm leading-relaxed text-slate-600">{a}</p></details>)}</div></section>
   </div>
 }

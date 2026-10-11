@@ -200,3 +200,89 @@ body {
   background-repeat: no-repeat;
   background-position: right .75rem center;
 }
+
+/* SIDEDA authored booklet: live text and vectors, independent of source PDF. */
+.instrument-activity { color: #172a35; font-size: 1rem; line-height: 1.65; overflow-wrap: anywhere; }
+.instrument-activity h3 { margin: 1.4rem 0 .8rem; font-weight: 700; font-size: 1.15rem; }
+.instrument-activity p { margin: .75rem 0; }
+.instrument-activity h2 { font-size: 1.8rem; font-weight: 700; line-height: 1.25; margin: 1rem 0; }
+.instrument-eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; font-weight: 700; color: #175d65; }
+.instrument-source { font-size: .8rem; color: #526575; border-top: 1px solid #cbd5e1; padding-top: 1rem; }
+.instrument-participants { list-style: disc; padding-left: 1.25rem; }
+.instrument-participants li { margin: .75rem 0; }
+.instrument-fields { margin: 2rem 0; display: grid; gap: 1rem; }
+.instrument-reading p { margin: 1rem 0; line-height: 1.8; }
+.instrument-reading h3 { text-align: center; margin: 2rem 0; font-size: 1.4rem; }
+.answer-lines { width: 100%; margin: .5rem 0 1rem; }
+.answer-lines > div { height: 2.1rem; border-bottom: 1px solid #94a3b8; }
+.instrument-picture-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+.instrument-picture { min-width: 0; }
+.instrument-illustration { width: 110px; height: 105px; max-width: 100%; flex-shrink: 0; }
+.instrument-picture .instrument-illustration { display: block; margin: 0 auto; width: 145px; height: 139px; }
+.instrument-picture p { text-align: center; }
+.instrument-classify { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 1rem; padding: 1rem 0; }
+.instrument-classify .instrument-illustration { width: 88px; height: 86px; }
+.instrument-sentence { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 1rem 0; }
+.instrument-sentence .instrument-illustration { width: 76px; height: 73px; }
+.instrument-squares { max-width: 360px; margin: 0 auto; }
+.instrument-spatial { display: block; width: 100%; max-width: 410px; height: auto; margin: 1.5rem auto; border: 1px solid #cbd5e1; padding: 1rem; }
+.instrument-directions { list-style: lower-alpha; padding-left: 1.5rem; }
+.instrument-directions li { margin: .75rem 0; }
+.instrument-questions { list-style: none; padding: 0; margin: 1rem 0; }
+.instrument-questions li { margin-bottom: 1rem; }
+.instrument-choices li { padding: .65rem 0; word-spacing: .75rem; }
+.instrument-wordbank { padding: 1rem; border: 1px solid #cbd5e1; }
+.instrument-register { width: 100%; border-collapse: collapse; margin: .75rem 0; font-size: .8rem; }
+.instrument-register th, .instrument-register td { border: 1px solid #94a3b8; padding: .3rem .4rem; }
+.instrument-register th { font-weight: 400; text-align: left; }
+.instrument-register thead th { background: #edf4f4; font-weight: 700; }
+.instrument-register td { text-align: center; min-width: 2rem; }
+.instrument-booklet { max-width: 210mm; margin: 0 auto; padding: 1rem; }
+.instrument-sheet { background: white; border: 1px solid #dce3e9; padding: 1.5rem; margin: 1.5rem 0; }
+.instrument-sheet-brand, .instrument-sheet-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+.instrument-sheet-brand { color: #145a64; border-bottom: 2px solid #145a64; padding-bottom: .75rem; font-size: .8rem; }
+.instrument-brand { display: flex; gap: .5rem; align-items: center; font-size: 1.15rem; letter-spacing: .05em; }
+.instrument-sheet > h2 { margin: 1rem 0; font-size: 1.5rem; font-weight: 700; }
+.instrument-sheet-id { font-size: .75rem; margin-bottom: 1.5rem; }
+.instrument-sheet-footer { border-top: 1px solid #cbd5e1; padding-top: .6rem; margin-top: 1.5rem; font-size: .65rem; color: #526575; }
+@media (min-width: 640px) { .instrument-picture-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+@media print {
+ .instrument-print-route, .instrument-booklet { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+ .instrument-sheet { border: 0; padding: 0; margin: 0; break-after: page; page-break-after: always; }
+ .instrument-sheet:last-child { break-after: auto; page-break-after: auto; }
+ .instrument-sheet-brand { font-size: 9pt; padding-bottom: 3mm; }
+ .instrument-sheet > h2 { font-size: 18pt !important; margin: 5mm 0 4mm !important; }
+ .instrument-sheet-id { font-size: 9pt; margin: 0 0 4mm !important; }
+ .instrument-sheet .instrument-activity { font-size: 11pt !important; line-height: 1.5 !important; }
+ .instrument-sheet .instrument-activity p { margin: 2mm 0 !important; }
+ .instrument-sheet .instrument-activity h2 { font-size: 21pt !important; margin: 5mm 0 !important; }
+ .instrument-sheet .instrument-activity h3 { font-size: 13pt !important; margin: 4mm 0 3mm !important; }
+ .instrument-sheet .instrument-reading p { font-size: 12pt !important; line-height: 1.7 !important; margin: 5mm 0 !important; }
+ .instrument-sheet .instrument-reading h3 { font-size: 17pt !important; margin: 7mm 0 !important; }
+ .instrument-sheet .instrument-source { font-size: 8pt !important; padding-top: 3mm; }
+ .instrument-sheet .instrument-fields { grid-template-columns: 1fr 1fr; margin: 5mm 0; gap: 3mm 8mm; }
+ .instrument-sheet .instrument-participants li { margin: 3mm 0 !important; }
+ .instrument-sheet .answer-lines { margin: 2mm 0 3mm; }
+ .instrument-sheet .answer-lines > div { height: 8mm; }
+ .instrument-sheet .instrument-picture-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8mm; margin: 4mm 0; }
+ .instrument-sheet .instrument-picture .instrument-illustration { width: 30mm; height: 29mm; }
+ .instrument-sheet .instrument-sentence { margin: 2mm 0; }
+ .instrument-sheet .instrument-sentence .instrument-illustration { width: 20mm; height: 19mm; }
+ .instrument-sheet .instrument-classify { flex-wrap: nowrap; padding: 2mm 0; gap: 4mm; }
+ .instrument-sheet .instrument-classify .instrument-illustration { width: 24mm; height: 24mm; }
+ .instrument-sheet .instrument-squares { width: 80mm; }
+ .instrument-sheet .instrument-spatial { max-width: 115mm; margin: 5mm auto; }
+ .instrument-sheet .instrument-questions { margin: 2mm 0 !important; }
+ .instrument-sheet .instrument-questions li { margin: 1mm 0 !important; }
+ .instrument-sheet .instrument-choices li { padding: 2mm 0; }
+ .instrument-sheet .instrument-wordbank { padding: 2mm; }
+ .instrument-sheet .instrument-print-activity { break-inside: avoid; }
+ .instrument-sheet .instrument-register { font-size: 8pt; line-height: 1.3; }
+ .instrument-sheet .instrument-register th, .instrument-sheet .instrument-register td { padding: 1.4mm 2mm; }
+ .instrument-sheet-footer { margin-top: 5mm; padding-top: 2mm; font-size: 7pt; }
+}
+
+@media print {
+ .instrument-sheet-footer { margin-top: 5mm; padding-top: 2mm; }
+ .instrument-print-route, .instrument-booklet { background: white !important; }
+}
