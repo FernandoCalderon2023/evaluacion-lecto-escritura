@@ -16,7 +16,7 @@ const nav = [
 ]
 
 const adminNav = [
-  { href: "/admin", label: "Resumen", icon: LayoutDashboard },
+  { href: "/admin", label: "Control", icon: LayoutDashboard },
   { href: "/admin/usuarios", label: "Usuarios", icon: Users },
   { href: "/admin/solicitudes", label: "Solicitudes", icon: ClipboardList },
   { href: "/admin/organizaciones", label: "Organizaciones", icon: BookOpen },

@@ -8,8 +8,11 @@ datasource db {
 }
 
 model Usuario {
+  lastSeenAt DateTime?
+  lastLoginAt DateTime?
   accesoComercial AccesoComercial?
   sessionVersion Int @default(0)
+  @@index([lastSeenAt])
   recuperaciones RecuperacionPassword[]
   observacionesFamiliares ObservacionFamiliar[]
   id           String   @id @default(cuid())
@@ -479,4 +482,15 @@ model ObservacionFamiliar {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([usuarioId, createdAt])
+}
+
+model SystemControl {
+  id String @id
+  paused Boolean @default(false)
+  parallelism Int @default(3)
+  perUser Int @default(1)
+  hourlyPerUser Int @default(20)
+  revision Int @default(0)
+  updatedBy String?
+  updatedAt DateTime @updatedAt
 }

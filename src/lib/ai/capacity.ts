@@ -13,11 +13,16 @@ export function aiCapacity() {
     queueMode: process.env.AI_QUEUE_MODE?.trim().toLowerCase() === "qstash" ? "qstash" : "inline",
   }
 }
+export async function getAIControl() {
+  const defaults = aiCapacity()
+  const saved = await prisma.systemControl.findUnique({ where: { id: "ai" } })
+  return { ...defaults, paused: saved?.paused ?? false, parallelism: saved?.parallelism ?? defaults.parallelism, perUser: saved?.perUser ?? defaults.perUser, hourlyPerUser: saved?.hourlyPerUser ?? defaults.hourlyPerUser, revision: saved?.revision ?? 0 }
+}
 export class AnalysisError extends Error {
   constructor(public code: string, message: string, public status = 503, public retryAfter = 15) { super(message) }
 }
 export class AnalysisBusyError extends AnalysisError {
-  constructor() { super("AI_BUSY", "Hay otros informes en proceso. Espera unos segundos y vuelve a intentar.", 429) }
+  constructor(paused = false) { super(paused ? "AI_PAUSED" : "AI_BUSY", paused ? "La generación de informes está pausada temporalmente por administración. Tus evaluaciones siguen disponibles." : "Hay otros informes en proceso. Espera unos segundos y vuelve a intentar.", 429) }
 }
 export class AnalysisAlreadyRunning extends AnalysisError {
   constructor() { super("AI_RUNNING", "Este informe ya está en proceso.", 202) }
@@ -42,16 +47,18 @@ export async function expireAnalysisJobs(evaluacionId?: string) {
 // separate update (or an in-memory semaphore) would allow concurrent oversubscription.
 export async function claimAnalysisJob(jobId: string, evaluacionId: string) {
   await expireAnalysisJobs()
-  const limits = aiCapacity()
+  const limits = await getAIControl()
+  if (limits.paused) return 0
   const now = new Date()
   return prisma.$executeRaw`
     UPDATE "AnalysisJob" SET "status" = 'processing', "startedAt" = ${now}, "updatedAt" = ${now}
     WHERE "id" = ${jobId} AND "evaluacionId" = ${evaluacionId} AND "status" = 'queued'
       AND "activeKey" = ${evaluacionId}
-      AND (SELECT COUNT(*) FROM "AnalysisJob" WHERE "status" = 'processing') < ${limits.parallelism}
+      AND COALESCE((SELECT "paused" FROM "SystemControl" WHERE "id" = 'ai'), 0) = 0
+      AND (SELECT COUNT(*) FROM "AnalysisJob" WHERE "status" = 'processing') < COALESCE((SELECT "parallelism" FROM "SystemControl" WHERE "id" = 'ai'), ${limits.parallelism})
       AND (SELECT COUNT(*) FROM "AnalysisJob" AS running
            WHERE running."status" = 'processing'
-           AND COALESCE(running."docenteId", '') = COALESCE((SELECT "docenteId" FROM "AnalysisJob" WHERE "id" = ${jobId}), '')) < ${limits.perUser}
+           AND COALESCE(running."docenteId", '') = COALESCE((SELECT "docenteId" FROM "AnalysisJob" WHERE "id" = ${jobId}), '')) < COALESCE((SELECT "perUser" FROM "SystemControl" WHERE "id" = 'ai'), ${limits.perUser})
   `
 }
 
@@ -61,7 +68,7 @@ export async function consumeAnalysisQuota(userId: string) {
   const hour = Math.floor(Date.now() / 3600000)
   const id = createHmac("sha256", process.env.NEXTAUTH_SECRET!).update(`ai-generation:${userId}:${hour}`).digest("hex")
   const row = await prisma.registroVentana.upsert({ where: { id }, create: { id }, update: { intentos: { increment: 1 } } })
-  if (row.intentos > aiCapacity().hourlyPerUser) {
+  if (row.intentos > (await getAIControl()).hourlyPerUser) {
     throw new AnalysisError("AI_USER_LIMIT", "Alcanzaste el límite de informes de esta hora. Puedes continuar con tus evaluaciones y solicitar el informe más tarde.", 429, Math.max(1, Math.ceil(((hour + 1) * 3600000 - Date.now()) / 1000)))
   }
 }

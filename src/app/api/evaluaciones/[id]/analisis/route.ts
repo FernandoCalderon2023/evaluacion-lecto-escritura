@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { aiCapacity, expireAnalysisJobs, AnalysisError, AnalysisBusyError, publicAnalysisError } from "@/lib/ai/capacity"
+import { getAIControl, expireAnalysisJobs, AnalysisError, AnalysisBusyError, publicAnalysisError } from "@/lib/ai/capacity"
 import { getQStash, getAppUrl } from "@/lib/qstash"
 import { procesarAnalisis } from "@/lib/ai/procesarAnalisis"
 
@@ -55,6 +55,8 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
       return NextResponse.json({ jobId: existing.id, status: existing.status, queued: true })
     }
 
+    const control = await getAIControl()
+    if (control.paused) throw new AnalysisBusyError(true)
     // An atomic insert avoids a read/create race and exception-based contention.
     const job = { id: randomUUID() }
     const now = new Date()
@@ -69,7 +71,7 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
       return NextResponse.json({ jobId: shared.id, status: shared.status, queued: true })
     }
 
-    if (aiCapacity().queueMode === "qstash") {
+    if (control.queueMode === "qstash") {
       try {
         const qstash = getQStash()
         if (!qstash || !process.env.QSTASH_CURRENT_SIGNING_KEY) throw new Error("Queue unavailable")
@@ -79,7 +81,7 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
           deduplicationId: job.id,
           retries: 5,
           retryDelay: "60000",
-          flowControl: { key: "ai-analysis", parallelism: aiCapacity().parallelism },
+          flowControl: { key: "ai-analysis", parallelism: control.parallelism },
         })
         return NextResponse.json({ jobId: job.id, status: "queued", queued: true })
       } catch {

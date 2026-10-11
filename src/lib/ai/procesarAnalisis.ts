@@ -5,7 +5,7 @@ import { guardReport, readGuardedReport, RECOMMENDATION_PROMPT, recommendationCo
 import { ANALYSIS_TOOL } from "@/lib/ai/analysisSchema"
 import { deepseekEnabled, generarInformeDeepseek } from "@/lib/ai/deepseek"
 import * as Sentry from "@sentry/nextjs"
-import { claimAnalysisJob, consumeAnalysisQuota, AnalysisBusyError, AnalysisAlreadyRunning, AnalysisError, publicAnalysisError } from "./capacity"
+import { getAIControl, claimAnalysisJob, consumeAnalysisQuota, AnalysisBusyError, AnalysisAlreadyRunning, AnalysisError, publicAnalysisError } from "./capacity"
 import type { AnalisisIA } from "@/types/ai"
 
 // Shared generator for inline requests and signed queue deliveries.
@@ -14,7 +14,7 @@ export async function procesarAnalisis(jobId: string, evaluacionId: string): Pro
   const claimed = await claimAnalysisJob(jobId, evaluacionId)
   if (!claimed) {
     const job = await prisma.analysisJob.findFirst({ where: { id: jobId, evaluacionId } })
-    if (job?.status === "queued") throw new AnalysisBusyError()
+    if (job?.status === "queued") throw new AnalysisBusyError((await getAIControl()).paused)
     if (job?.status === "processing") throw new AnalysisAlreadyRunning()
     const ev = job?.status === "done" ? await prisma.evaluacion.findUnique({ where: { id: evaluacionId } }) : null
     const existing = ev ? readGuardedReport(ev.analisisIA, calcularScores(ev as any)) : null

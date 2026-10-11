@@ -72,12 +72,10 @@ export const authOptions: NextAuthOptions = {
 
         // Login exitoso — limpia el contador de intentos fallidos
         await clearFailedLogins(rlKey)
-        logAudit({
-          actorId: user.id,
-          actorEmail: email,
-          action: "login_success",
-          metadata: { ip },
-        })
+        await prisma.$transaction([
+          prisma.usuario.update({ where: { id: user.id }, data: { lastLoginAt: new Date(), lastSeenAt: new Date() } }),
+          prisma.auditLog.create({ data: { actorId: user.id, actorEmail: email, action: "login_success" } }),
+        ])
 
         return {
           id: user.id,

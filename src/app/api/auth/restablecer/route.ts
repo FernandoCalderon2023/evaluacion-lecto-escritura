@@ -20,6 +20,7 @@ export async function POST(req:NextRequest){
     const used=await tx.recuperacionPassword.updateMany({where:{tokenHash,usadoEn:null,venceEn:{gt:new Date()},usuario:{activo:true}},data:{usadoEn:new Date()}})
     if(!used.count)throw new Error("INVALID_TOKEN")
     await tx.usuario.update({where:{id:record.usuarioId},data:{passwordHash,sessionVersion:{increment:1}}})
+    await tx.auditLog.create({data:{actorId:record.usuarioId,action:"password_reset_completed"}})
     await passwordChangedNotices(tx,record.usuarioId,eventId)
   })
   waitUntil(Promise.all([sendNotice(`seguridad-usuario-${eventId}`),sendNotice(`seguridad-admin-${eventId}`)]))

@@ -20,6 +20,7 @@ export async function POST(req:NextRequest){
   await prisma.$transaction(async tx=>{
     const changed=await tx.usuario.updateMany({where:{id:user.id,activo:true,sessionVersion:user.sessionVersion},data:{passwordHash,sessionVersion:{increment:1}}})
     if(!changed.count)throw new Error("STALE_SESSION")
+    await tx.auditLog.create({data:{actorId:user.id,action:"password_changed"}})
     await passwordChangedNotices(tx,user.id,eventId)
   })
   waitUntil(Promise.all([sendNotice(`seguridad-usuario-${eventId}`),sendNotice(`seguridad-admin-${eventId}`)]))

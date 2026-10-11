@@ -1,3 +1,4 @@
+import { waitUntil } from "@vercel/functions"
 import { prisma } from "@/lib/prisma"
 
 interface AuditEntry {
@@ -34,12 +35,10 @@ async function persist(entry: AuditEntry): Promise<void> {
 /**
  * Registra una acción sensible en el audit log de forma NO BLOQUEANTE.
  *
- * Fire-and-forget: no esperamos la escritura para no bloquear la respuesta
- * al usuario. En Vercel Functions, la promesa sigue corriendo hasta que termine.
+ * waitUntil mantiene activa la función hasta terminar la escritura.
  */
 export function logAudit(entry: AuditEntry): void {
-  // No await — la promesa se resuelve en background
-  persist(entry).catch(() => {})
+  waitUntil(persist(entry))
 }
 
 /**

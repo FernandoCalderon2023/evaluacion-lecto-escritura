@@ -18,6 +18,7 @@ async function main() {
   const schema = execFileSync(path.join(cwd, 'node_modules/.bin/prisma'), ['migrate', 'diff', '--from-empty', '--to-schema', 'prisma/schema.prisma', '--script'], { cwd, encoding: 'utf8' })
   await db.executeMultiple(schema)
   await db.execute("PRAGMA journal_mode=WAL")
+  await db.execute({sql:"INSERT INTO SystemControl (id,parallelism,updatedAt) VALUES ('ai',2,?)",args:[new Date().toISOString()]})
   const password = randomBytes(18).toString('hex')
   for (const name of Array.from({length:20},(_,i)=>'user'+i)) {
     await db.execute({ sql: 'INSERT INTO Usuario (id,email,passwordHash,nombre,rol,activo,createdAt,updatedAt) VALUES (?,?,?,?,?,1,?,?)', args: [randomUUID(), name+'@qa.invalid', await bcrypt.hash(password,10), name, name==='admin'?'ADMIN':'DOCENTE', Date.now(), Date.now()] })
@@ -102,9 +103,10 @@ async function main() {
     const generate=(i,regenerate=false)=>users[i].request('/api/evaluaciones/'+users[i].evaluation.id+'/analisis',{method:'POST',instance:i%2,...(regenerate?json('POST',{regenerar:true}):{})})
     const first=await Promise.all(users.map((_,i)=>generate(i)))
     const statuses=first.map(r=>r.status)
-    check('Ráfaga de 20 usuarios entre dos instancias admite 3',statuses.filter(s=>s===200).length===3)
-    check('Exceso de carga devuelve 429 con Retry-After',first.filter(r=>r.status===429).length===17 && first.filter(r=>r.status===429).every(r=>Number(r.headers.get('Retry-After'))>0))
-    check('Límite global nunca excedido',peak===3)
+    check('Ráfaga de 20 usuarios entre dos instancias admite 2 según configuración guardada',statuses.filter(s=>s===200).length===2)
+    check('Exceso de carga devuelve 429 con Retry-After',first.filter(r=>r.status===429).length===18 && first.filter(r=>r.status===429).every(r=>Number(r.headers.get('Retry-After'))>0))
+    check('Límite guardado prevalece sobre entorno',peak===2)
+    await db.execute("UPDATE SystemControl SET parallelism=3 WHERE id='ai'")
     for(let i=0;i<20;i++) if(statuses[i]===429) check('Reintento completa usuario '+i,(await generate(i)).status===200)
     check('20 informes guardados sin mezcla',(await db.execute('SELECT COUNT(*) n FROM Evaluacion WHERE analisisIA IS NOT NULL')).rows[0].n===20)
     const beforeCache=calls
