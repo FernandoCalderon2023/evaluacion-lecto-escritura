@@ -191,15 +191,6 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
 
   const isLast = step === STEPS.length - 1
   const progress = ((step + 1) / STEPS.length) * 100
-  const pct = (step + 1) / STEPS.length
-  const animo = isLast
-    ? "Último paso. Guarda y revisa los resultados antes de generar el informe."
-    : step === 0
-      ? "¡Empecemos! 🌟 Cada respuesta ayuda a conocer mejor al/la estudiante."
-      : pct < 0.25 ? "¡Vamos muy bien! 💪"
-        : pct < 0.5 ? "¡Buen ritmo! 🚀"
-          : pct < 0.75 ? "¡Ya pasamos la mitad! 🎯"
-            : "¡Ya casi terminamos! 🌈"
 
   return (
     <div className="evaluation-form min-w-0 space-y-5">
@@ -256,11 +247,6 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
         </div>
       </div>
 
-      {/* Ánimo dinámico — solo mejora la experiencia, no cambia el instrumento */}
-      <div className="flex items-center justify-center text-center text-sm font-medium text-viria-700 bg-viria-50 border border-viria-100 rounded-lg py-2 px-3 transition-all">
-        {animo}
-      </div>
-
       <details className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm">
         <summary className="cursor-pointer py-1 font-semibold">¿Quién completa cada parte?</summary>
         <ul className="mt-3 space-y-2 pl-5 list-disc text-slate-600">
@@ -283,7 +269,6 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
           <InstrumentViewer key={step} step={step} expanded fixedOpen active={view !== "registro"} />
         </div>
         <section aria-label="Registro del evaluador" className={view === "preguntas" ? "hidden" : view === "ambas" ? "min-w-0 space-y-4 xl:max-h-[75vh] xl:overflow-y-auto xl:pr-3" : "min-w-0 space-y-4 sm:min-h-[400px]"}>
-          <p className="rounded-lg bg-slate-100 p-3 text-sm text-slate-600"><strong>Completa el evaluador.</strong> Registra lo observado, no respuestas supuestas. La escritura requiere revisión del psicopedagogo.</p>
           {stepComponents[step]}
         </section>
       </div>

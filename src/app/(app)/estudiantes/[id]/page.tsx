@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic"
 
 import { calcularScores } from "@/lib/scoring"
 import { prisma } from "@/lib/prisma"
-import { getAuthContext, canViewInScope } from "@/lib/apiAuth"
+import { getAuthContext, canViewInScope, canAccessResource } from "@/lib/apiAuth"
 import { redirect, notFound } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -38,6 +38,7 @@ export default async function PortafolioEstudiantePage(props: { params: Promise<
   // Acceso: dueño, admin, o director de la U.E. del estudiante
   if (!(await canViewInScope(auth, est))) notFound()
 
+  const canEdit = canAccessResource(auth, est.docenteId)
   const edad = Math.floor((Date.now() - new Date(est.fechaNac).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
   if (await isTrial(auth.userId)) est.evaluaciones = est.evaluaciones.map(withoutReport)
   const evals = est.evaluaciones.map(ev => ({ ...ev, estadoAprendizaje: calcularScores(ev as any).estadoGeneral }))
@@ -68,7 +69,7 @@ export default async function PortafolioEstudiantePage(props: { params: Promise<
   return (
     <div className="p-4 lg:p-8 space-y-6 max-w-5xl">
       {/* Cabecera */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link href="/estudiantes" className="text-slate-500 hover:text-slate-700 mt-1">
             <ArrowLeft className="h-5 w-5" />
@@ -80,7 +81,7 @@ export default async function PortafolioEstudiantePage(props: { params: Promise<
             <p className="text-slate-500 text-sm mt-1">{est.grado} · {est.unidadEducativa} · {edad} años</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        {canEdit && <div className="flex flex-wrap items-center gap-2">
           <Link
             href={`/evaluaciones/nueva?estudianteId=${est.id}`}
             className="flex items-center gap-1 bg-viria-600 text-white px-3 py-2 rounded-lg text-xs font-medium hover:bg-viria-700"
@@ -93,8 +94,9 @@ export default async function PortafolioEstudiantePage(props: { params: Promise<
             label="Eliminar"
             confirmMessage={`¿Eliminar al estudiante ${est.codigo} y todas sus evaluaciones?`}
           />
-        </div>
+        </div>}
       </div>
+      {!canEdit && <p className="text-sm text-slate-600">Consulta institucional · Este expediente lo gestiona su docente responsable.</p>}
 
       {/* Estado actual */}
       <Card>

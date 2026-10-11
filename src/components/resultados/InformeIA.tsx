@@ -6,6 +6,7 @@ import { Sparkles, CheckCircle, AlertTriangle, Users, BookOpen, Calendar, Brain,
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface Props {
+  canGenerate?: boolean
   evaluacionId: string
   analisisInicial: AnalisisIA | null
   analisisGeneradoEn: Date | null
@@ -55,7 +56,7 @@ const INTEGRADO_LABELS: Record<string, string> = {
   atencionMemoria: "Atención y memoria procedimental",
 }
 
-export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }: Props) {
+export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn, canGenerate = true }: Props) {
   const { toast } = useToast()
   const [analisis, setAnalisis] = useState<AnalisisIA | null>(analisisInicial)
   const [generadoEn, setGeneradoEn] = useState<Date | null>(analisisGeneradoEn)
@@ -98,6 +99,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
   }
 
   async function generarAnalisis() {
+    if (!canGenerate) return
     setLoading(true)
     setProgress(5)
     setStepMsg("Generando el informe con IA… suele tardar 30–60 s")
@@ -141,6 +143,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
     }
   }
 
+  if (!analisis && !canGenerate) return <p className="py-4 text-sm text-slate-500">Todavía no hay un informe generado. El responsable de la evaluación puede prepararlo después de revisar el registro.</p>
   if (!analisis) {
     return (
       <div className="text-center py-10 space-y-4 border-2 border-dashed border-slate-200 rounded-xl">
@@ -202,13 +205,13 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn }:
             <span className="text-xs">· {new Date(generadoEn).toLocaleDateString("es-BO")}</span>
           )}
         </div>
-        <button
+        {canGenerate && <button
           onClick={generarAnalisis}
           disabled={loading}
           className="text-xs text-viria-600 hover:underline disabled:opacity-50"
         >
           {loading ? "Regenerando..." : "Regenerar"}
-        </button>
+        </button>}
       </div>
 
       <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950" role="note">

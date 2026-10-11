@@ -8,7 +8,7 @@ import { useState, useEffect } from "react"
 import { useSession, signOut } from "next-auth/react"
 
 const nav = [
-  { href: "/dashboard", label: "Panel Principal", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
   { href: "/estudiantes", label: "Estudiantes", icon: Users },
   { href: "/evaluaciones", label: "Evaluaciones", icon: ClipboardList },
   { href: "/cuenta", label: "Cuenta", icon: Settings },

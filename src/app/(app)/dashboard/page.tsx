@@ -7,11 +7,11 @@ import { redirect } from "next/navigation"
 import { calcularScores } from "@/lib/scoring"
 import { summarizeStudents } from "@/lib/dashboardSummary"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, ClipboardList, AlertTriangle, CheckCircle, ArrowRight, BookOpen, FileText, Plus } from "lucide-react"
+import { Users, ClipboardList, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 async function getDashboardData(filtro: any, individual: any) {
-  const [students, totalEv, recientes, reports] = await Promise.all([
+  const [students, totalEv, recientes] = await Promise.all([
     prisma.estudiante.findMany({
       where: filtro,
       select: { evaluaciones: { select: classificationSelect, where: filtro, orderBy: [{ fecha: "desc" }, { createdAt: "desc" }, { id: "desc" }], take: 1 } },
@@ -21,9 +21,8 @@ async function getDashboardData(filtro: any, individual: any) {
       where: { AND: [individual, { estudiante: individual }] }, take: 6, orderBy: { fecha: "desc" },
       select: { ...classificationSelect, id: true, fecha: true, estudiante: { select: { codigo: true, grado: true } } },
     }),
-    prisma.evaluacion.count({ where: { AND: [filtro, { estudiante: filtro }, { analisisIA: { not: null } }] } }),
   ])
-  return { totalEst: students.length, totalEv, estadoMap: summarizeStudents(students as any), recientes, reports }
+  return { totalEst: students.length, totalEv, estadoMap: summarizeStudents(students as any), recientes }
 }
 
 const ESTADO_CONFIG = {
@@ -40,31 +39,30 @@ export default async function DashboardPage() {
   const scope = await resolveScope(auth, "aggregate")
 
   const individual = await resolveScope(auth, "individual")
-  const { totalEst, totalEv, estadoMap, recientes, reports } = await getDashboardData(scope, individual)
+  const { totalEst, totalEv, estadoMap, recientes } = await getDashboardData(scope, individual)
+  const assignments = auth.isAdmin ? [] : await prisma.membership.findMany({ where: { usuarioId: auth.userId, rol: { in: ["DIRECTOR", "DISTRITAL", "DEPARTAMENTAL"] } }, select: { rol: true, organizacion: { select: { nombre: true } } } })
+  const institutional = assignments.length > 0
+  const aggregateOnly = assignments.some(m => m.rol === "DISTRITAL" || m.rol === "DEPARTAMENTAL")
+  const pending = estadoMap["evaluacion-incompleta"] ?? 0
+  const nextHref = institutional ? "/estudiantes" : totalEst === 0 ? "/estudiantes/nuevo" : pending ? "/evaluaciones?estado=evaluacion-incompleta" : "/evaluaciones/nueva"
+  const nextLabel = institutional ? "Consultar estudiantes" : totalEst === 0 ? "Registrar estudiante" : pending ? "Continuar evaluaciones pendientes" : "Nueva evaluación"
 
   return (
     <div className="p-4 lg:p-8 space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-5">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-viria-700">SIDEDA / Tu espacio de trabajo</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">{totalEst === 0 ? "Empecemos con el primer estudiante." : "Cada avance, en un mismo lugar."}</h1>
-          <p className="mt-3 text-sm text-slate-500">Organiza las evaluaciones y encuentra el siguiente paso para acompañar el aprendizaje.</p>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">{institutional ? "Resumen institucional" : totalEst === 0 ? "Empecemos con el primer estudiante." : "Tu resumen de evaluaciones"}</h1>
+          <p className="mt-3 text-sm text-slate-500">{institutional ? "Consulta el avance de las organizaciones asignadas y de tus propios registros." : "Revisa lo pendiente y consulta los resultados más recientes."}</p>
+          {institutional && <p className="mt-2 text-sm font-medium text-viria-700">{assignments.map(m => m.organizacion.nombre).join(" · ")}</p>}
         </div>
-        <Link href={totalEst === 0 ? "/estudiantes/nuevo" : "/evaluaciones/nueva"} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-viria-900 px-5 py-3 text-sm font-semibold text-white hover:bg-viria-800"><Plus size={17}/>{totalEst === 0 ? "Registrar estudiante" : "Nueva evaluación"}</Link>
+        <Link href={nextHref} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-viria-900 px-5 py-3 text-sm font-semibold text-white hover:bg-viria-800"><ArrowRight size={17}/>{nextLabel}</Link>
       </div>
 
-      <section aria-label="Primeros pasos" className="rounded-2xl border border-slate-200 bg-white p-5 lg:p-6">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><h2 className="text-sm font-semibold text-slate-800">Tu recorrido en SIDEDA</h2><Link href="/guia" className="inline-flex items-center gap-2 text-xs font-semibold text-viria-700"><BookOpen size={15}/>Guía de uso</Link></div>
-        <div className="grid gap-3 md:grid-cols-3">{[
-          { icon: Users, title: "1. Registrar", text: "Crea el portafolio del estudiante.", done: totalEst > 0, href: "/estudiantes/nuevo" },
-          { icon: ClipboardList, title: "2. Evaluar", text: "Registra las observaciones aplicadas.", done: totalEv > 0, href: "/evaluaciones/nueva" },
-          { icon: FileText, title: "3. Revisar el informe", text: "Genera y revisa la orientación con IA.", done: reports > 0, href: "/evaluaciones" },
-        ].map(({icon: Icon,title,text,done,href})=><Link key={title} href={href} className="flex items-start gap-3 rounded-xl border border-slate-200 p-4 transition hover:border-viria-300 hover:bg-viria-50/40"><div className={`rounded-lg p-2 ${done ? "bg-viria-50 text-viria-700" : "bg-slate-100 text-slate-500"}`}>{done ? <CheckCircle size={19}/> : <Icon size={19}/>}</div><div className="flex-1"><p className="text-sm font-semibold text-slate-800">{title}</p><p className="mt-1 text-xs leading-relaxed text-slate-500">{text}</p><span className="mt-2 inline-block text-[11px] font-medium text-viria-700">{done ? "Ya comenzaste" : "Empezar"}</span></div><ArrowRight size={15} className="mt-2 text-slate-400"/></Link>)}</div>
-      </section>
-      {(estadoMap["evaluacion-incompleta"] ?? 0) > 0 && <Link href="/evaluaciones?estado=evaluacion-incompleta" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900"><span><strong>{estadoMap["evaluacion-incompleta"]}</strong> estudiante(s) con su última evaluación incompleta. Revisa los criterios pendientes.</span><span className="inline-flex items-center gap-2 font-semibold">Ver pendientes<ArrowRight size={16}/></span></Link>}
-
+      {!institutional && totalEv === 0 && <section aria-label="Primeros pasos" className="rounded-2xl border border-slate-200 bg-white p-5"><h2 className="font-semibold">Cómo empezar</h2><p className="mt-2 text-sm text-slate-600">Registra al estudiante, aplica los ejercicios y guarda lo observado. Después podrás revisar los resultados.</p><Link href="/guia" className="mt-3 inline-block text-sm font-semibold text-viria-700">Consultar la guía de uso →</Link></section>}
+      {institutional && <p className="rounded-xl border border-viria-200 bg-viria-50 p-4 text-sm text-viria-900">Los indicadores respetan tus asignaciones institucionales. {aggregateOnly ? "Los totales pueden incluir organizaciones cuyos expedientes individuales no están disponibles para tu cuenta." : "Puedes consultar los expedientes de tus unidades educativas; editar y eliminar corresponde a su responsable o al administrador."}</p>}
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-medium text-slate-500 flex items-center gap-2">
@@ -83,32 +81,6 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-slate-900">{totalEv}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-slate-500 flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-600" /> Sin Dificultades
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-green-700">
-              {estadoMap["sin-dificultades"] ?? 0}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-slate-500 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-500" /> Estudiantes con dificultad
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-red-600">
-              {(estadoMap["dificultad-leve"] ?? 0) +
-               (estadoMap["dificultad-moderada"] ?? 0) +
-               (estadoMap["dificultad-severa"] ?? 0)}
-            </p>
           </CardContent>
         </Card>
       </div>
@@ -134,18 +106,15 @@ export default async function DashboardPage() {
       {/* Evaluaciones recientes */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">Evaluaciones Recientes</CardTitle>
-          <Link href="/evaluaciones/nueva" className="text-sm text-viria-600 hover:underline">
-            + Nueva evaluación
+          <CardTitle className="text-base">{aggregateOnly ? "Tus evaluaciones recientes" : "Evaluaciones recientes"}</CardTitle>
+          <Link href="/evaluaciones" className="text-sm text-viria-600 hover:underline">
+            Ver todas
           </Link>
         </CardHeader>
         <CardContent>
           {recientes.length === 0 ? (
             <p className="text-slate-400 text-sm text-center py-8">
-              No hay evaluaciones aún.{" "}
-              <Link href="/evaluaciones/nueva" className="text-viria-600 hover:underline">
-                Crear la primera
-              </Link>
+              {institutional ? "No hay evaluaciones disponibles para consulta en este ámbito." : "Aquí aparecerán las evaluaciones que guardes."}
             </p>
           ) : (
             <div className="space-y-2">

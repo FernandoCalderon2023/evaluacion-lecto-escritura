@@ -4,7 +4,7 @@ import { TrialResult } from "@/components/resultados/TrialResult"
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
-import { getAuthContext, canViewInScope } from "@/lib/apiAuth"
+import { getAuthContext, canViewInScope, canAccessResource } from "@/lib/apiAuth"
 import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Printer } from "lucide-react"
@@ -39,8 +39,10 @@ export default async function EvaluacionResultadoPage(props: { params: Promise<{
   if (!(await canViewInScope(auth, { docenteId: ev.docenteId, unidadEducativaId: ev.estudiante?.unidadEducativaId ?? null }))) notFound()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const canEdit = canAccessResource(auth, ev.docenteId)
+  const canCreate = canAccessResource(auth, ev.estudiante.docenteId)
   const scores = calcularScores(ev as any)
-  if (await isTrial(auth.userId)) return <TrialResult id={ev.id} codigo={ev.estudiante.codigo} scores={scores}/>
+  if (await isTrial(auth.userId)) return <TrialResult id={ev.id} codigo={ev.estudiante.codigo} scores={scores} canEdit={canEdit}/>
   const analisis = readGuardedReport(ev.analisisIA, calcularScores(ev as any))
   const est = ev.estudiante
 
@@ -49,6 +51,7 @@ export default async function EvaluacionResultadoPage(props: { params: Promise<{
   return (
     <div className="p-4 lg:p-6 space-y-6 w-full">
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"><strong>Interpretación provisional.</strong> Los puntajes reflejan respuestas registradas, no un diagnóstico. Los bloques cognitivo y léxico solo se interpretan cuando el evaluador confirma que aplicó todos sus ejercicios. Los registros anteriores requieren esa confirmación.</div>
+      {!canEdit && <p className="text-sm text-slate-600 print:hidden">Consulta institucional · La edición corresponde al responsable de esta evaluación.</p>}
       {/* Header (oculto al imprimir) */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
         <div className="flex items-center gap-3 min-w-0">
@@ -63,31 +66,31 @@ export default async function EvaluacionResultadoPage(props: { params: Promise<{
           </div>
         </div>
         <div className="flex flex-wrap gap-2 shrink-0">
-          <DeleteButton
+          {canEdit && <DeleteButton
             endpoint={`/api/evaluaciones/${ev.id}`}
             redirectTo={`/estudiantes/${est.id}`}
             label="Eliminar"
             confirmMessage="¿Eliminar esta evaluación? No se puede deshacer."
-          />
-          <Link
+          />}
+          {canEdit && <Link
             href={`/evaluaciones/${ev.id}/editar`}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50"
           >
             Editar
-          </Link>
+          </Link>}
           <PrintButton />
           <Link
             href={`/evaluaciones/${ev.id}/padres`}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-viria-700 border border-viria-200 rounded-lg hover:bg-viria-50"
           >
-            Ver para padres
+            Resumen para la familia
           </Link>
-          <Link
+          {canCreate && <Link
             href={`/evaluaciones/nueva?estudianteId=${est.id}`}
             className="text-sm bg-viria-600 text-white px-3 py-2 rounded-lg hover:bg-viria-700"
           >
-            Nueva
-          </Link>
+            Nueva evaluación
+          </Link>}
         </div>
       </div>
 
@@ -297,6 +300,7 @@ export default async function EvaluacionResultadoPage(props: { params: Promise<{
         <CardContent>
           <InformeIA
             evaluacionId={ev.id}
+            canGenerate={canEdit}
             analisisInicial={analisis}
             analisisGeneradoEn={ev.analisisGeneradoEn}
           />

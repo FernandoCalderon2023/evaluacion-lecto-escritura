@@ -320,6 +320,7 @@ async function main() {
     check('Familia puede editar sin consumir otro cupo',(await family1('/api/familia',json('POST',saved))).status===200)
     const parentSpaceHtml=await (await family1('/familia/'+saved.id)).text()
     check('Resumen familiar sin diagnóstico y con áreas no observadas',parentSpaceHtml.includes('no un diagnóstico')&&parentSpaceHtml.includes('Sin observación suficiente')&&parentSpaceHtml.includes('FAMILIA-PRIVADA-QA'))
+    check('Familia vuelve a su registro antes de ampliar acceso', (await (await family1('/familia')).text()).includes('Revisar mi registro'))
     check('Otra familia no lee el registro',!(await (await family2('/familia/'+saved.id)).text()).includes('FAMILIA-PRIVADA-QA'))
     check('Otra familia no edita el registro',(await family2('/api/familia',json('POST',saved))).status===403)
     check('Otra familia no elimina el registro',(await family2('/api/familia?id='+saved.id,{method:'DELETE'})).status===404)
@@ -333,10 +334,42 @@ async function main() {
     saved={...saved,id:randomUUID()}
     check('Acceso familiar ampliado permite otro registro',(await family1('/api/familia',json('POST',saved))).status===200)
     check('Activar familia no habilita área docente',(await family1('/api/evaluaciones')).status===403)
+    // Persona review: real authorization scopes in a disposable institution.
+    const personaIds={}
+    for(const name of ['profesor','director']) {
+      const id=randomUUID();personaIds[name]=id
+      await db.execute({sql:'INSERT INTO Usuario (id,email,passwordHash,nombre,rol,activo,createdAt,updatedAt) VALUES (?,?,?,?,?,1,?,?)',args:[id,name+'@qa.invalid',await bcrypt.hash(password,10),name,'DOCENTE',Date.now(),Date.now()]})
+    }
+    const schoolId=randomUUID()
+    await db.execute({sql:'INSERT INTO Organizacion (id,nombre,tipo,path,createdAt,updatedAt) VALUES (?,?,?,?,?,?)',args:[schoolId,'Unidad QA revisión','UNIDAD_EDUCATIVA',schoolId,Date.now(),Date.now()]})
+    await db.execute({sql:'INSERT INTO Membership (id,usuarioId,organizacionId,rol,createdAt) VALUES (?,?,?,?,?)',args:[randomUUID(),personaIds.director,schoolId,'DIRECTOR',Date.now()]})
+    const personaStudent=await (await admin('/api/estudiantes',json('POST',{nombre:'Revision',apellido1:'Sintetica',fechaNac:'2018-01-01',grado:'3º de Primaria',unidadEducativa:'Unidad QA revisión',gestion:2026,docente:'Profesor QA',sexo:'F'}))).json()
+    const personaEval=await (await admin('/api/evaluaciones',json('POST',{estudianteId:personaStudent.id,evaluador:'Profesor QA'}))).json()
+    await db.execute({sql:'UPDATE Estudiante SET docenteId=?,unidadEducativaId=? WHERE id=?',args:[personaIds.profesor,schoolId,personaStudent.id]})
+    await db.execute({sql:'UPDATE Evaluacion SET docenteId=?,unidadEducativaId=? WHERE id=?',args:[personaIds.profesor,schoolId,personaEval.id]})
+    const director=await login('director@qa.invalid'),profesor=await login('profesor@qa.invalid')
+    const directorHome=await (await director('/dashboard')).text()
+    check('Director ve resumen institucional y su unidad',directorHome.includes('Resumen institucional')&&directorHome.includes('Unidad QA revisión'))
+    check('Director no recibe introducción de docente',!directorHome.includes('Cómo empezar'))
+    const directorResult=await (await director('/evaluaciones/'+personaEval.id)).text()
+    check('Director consulta sin controles de modificación',directorResult.includes('Consulta institucional')&&!directorResult.includes('href="/evaluaciones/'+personaEval.id+'/editar"')&&!directorResult.includes('Generar Informe IA')&&!directorResult.includes('>Eliminar<'))
+    const directorPortfolio=await (await director('/estudiantes/'+personaStudent.id)).text()
+    check('Director no crea evaluación ajena desde portafolio',directorPortfolio.includes('Consulta institucional')&&!directorPortfolio.includes('href="/evaluaciones/nueva?estudianteId='+personaStudent.id+'"'))
+    check('Director no modifica evaluación ajena por API',(await director('/api/evaluaciones/'+personaEval.id,json('PUT',{observaciones:'No permitido'}))).status===403)
+    check('Director no elimina evaluación ajena por API',(await director('/api/evaluaciones/'+personaEval.id,{method:'DELETE'})).status===403)
+    check('Director no genera IA ajena por API',(await director('/api/evaluaciones/'+personaEval.id+'/analisis',{method:'POST'})).status===403)
+    const otherStudent=await (await admin('/api/estudiantes',json('POST',{nombre:'Fuera',apellido1:'DelAmbito',fechaNac:'2018-01-01',grado:'3º de Primaria',unidadEducativa:'Otra unidad',gestion:2026,docente:'QA',sexo:'F'}))).json()
+    check('Director no consulta estudiantes fuera de su unidad',(await director('/api/estudiantes/'+otherStudent.id)).status===403)
+    const professorResult=await (await profesor('/evaluaciones/'+personaEval.id)).text()
+    check('Profesor conserva edición y generación propias',professorResult.includes('href="/evaluaciones/'+personaEval.id+'/editar"')&&professorResult.includes('Generar Informe IA'))
+    const professorHome=await (await profesor('/dashboard')).text()
+    check('Profesor prioriza evaluaciones pendientes',professorHome.includes('Continuar evaluaciones pendientes')&&!professorHome.includes('Cómo empezar'))
+    const visitorLogin=await (await fetch(base+'/login')).text()
+    check('Visitante encuentra un solo acceso al ejemplo en login',(visitorLogin.match(/href="\/demo"/g)||[]).length===1&&visitorLogin.includes('Ingresa a SIDEDA.'))
     writeFileSync(path.join(dir,'resultados.json'),JSON.stringify({passed,productionAccess:false,ai:'local fake'},null,2))
     console.log(`${passed.length} comprobaciones correctas. Evidencia: ${dir}`)
     if(process.env.QA_KEEP_SERVER==='1') {
-      writeFileSync(path.join(dir,'browser-qa.json'),JSON.stringify({base,email:'family1@qa.invalid',password,href:'/familia/'+saved.id}),{mode:0o600})
+      writeFileSync(path.join(dir,'browser-qa.json'),JSON.stringify({base,email:'family1@qa.invalid',password,href:'/familia/'+saved.id,profesorEmail:'profesor@qa.invalid',directorEmail:'director@qa.invalid',evaluationHref:'/evaluaciones/'+personaEval.id}),{mode:0o600})
       console.log('Servidor de inspección visual disponible; solo datos sintéticos: '+dir)
       await new Promise(resolve=>process.once('SIGINT',resolve))
     }
