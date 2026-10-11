@@ -18,6 +18,7 @@ export function Step15Escritura({ state, set }: Props) {
         evalua="La producción escrita por dos rutas: al dictado (correspondencia sonido-grafía, ortografía y caligrafía) y en composición libre (planificar, organizar ideas, coherencia y cohesión). Es la contraparte productiva de la lectura."
       />
 
+      <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><strong>Revisión del psicopedagogo.</strong> El estudiante realiza el dictado y la composición. Mamá, papá o el responsable pueden acompañarlo según las indicaciones de aplicación, sin escribir ni corregir por él. Completa la rúbrica después de revisar su trabajo; los criterios sin valorar deben quedar en blanco.</p>
       <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
         <button
           type="button"

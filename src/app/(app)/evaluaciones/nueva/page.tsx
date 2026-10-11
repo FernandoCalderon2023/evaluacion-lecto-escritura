@@ -51,7 +51,7 @@ export default async function NuevaEvaluacionPage(
   }
 
   return (
-    <div className="p-4 lg:p-8 max-w-3xl">
+    <div className="p-4 lg:p-8 max-w-7xl">
       <div className="flex items-center gap-4 mb-6">
         <Link href="/evaluaciones" className="text-slate-500 hover:text-slate-700">
           <ArrowLeft className="h-5 w-5" />

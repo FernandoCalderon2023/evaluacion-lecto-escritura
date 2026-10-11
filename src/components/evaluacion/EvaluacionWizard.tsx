@@ -76,6 +76,13 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
   const { toast } = useToast()
   const [step, setStep] = useState(0)
   const [saving, setSaving] = useState(false)
+  const [view, setView] = useState<"registro" | "preguntas" | "ambas">("registro")
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 1280px)")
+    const adapt = () => { if (!wide.matches) setView(current => current === "ambas" ? "registro" : current) }
+    wide.addEventListener("change", adapt)
+    return () => wide.removeEventListener("change", adapt)
+  }, [])
   const [state, dispatch] = useReducer(reducer, initialData ?? {
     ...EVALUACION_DEFAULTS,
     estudianteId: estudianteId ?? "",
@@ -254,9 +261,32 @@ export function EvaluacionWizard({ draftOwner, sourceRevision, estudianteId, est
         {animo}
       </div>
 
-      <InstrumentViewer key={step} step={step} />
-      {/* Step content */}
-      <div className="min-w-0 sm:min-h-[400px]">{stepComponents[step]}</div>
+      <details className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm">
+        <summary className="cursor-pointer py-1 font-semibold">¿Quién completa cada parte?</summary>
+        <ul className="mt-3 space-y-2 pl-5 list-disc text-slate-600">
+          <li><strong>Estudiante:</strong> responde las consignas y realiza su propio trabajo. El adulto no resuelve los ejercicios por él.</li>
+          <li><strong>Mamá, papá o responsable:</strong> aporta lo que observa en casa desde el espacio familiar. Si acompaña la aplicación, sigue las indicaciones del profesional y comunica las ayudas o interrupciones.</li>
+          <li><strong>Docente o profesional:</strong> completa este registro con lo observado durante la aplicación, señala los apartados no aplicados y revisa los resultados.</li>
+          <li><strong>Psicopedagogo:</strong> revisa las muestras de escritura y su valoración. Si todavía no fueron revisadas, deja los criterios de escritura pendientes.</li>
+        </ul>
+      </details>
+      <div className="space-y-2">
+        <div role="group" aria-label="Vista de la evaluación" className="flex flex-wrap gap-2">
+          <button type="button" aria-pressed={view === "preguntas"} onClick={() => setView("preguntas")} className={`min-h-12 flex-1 rounded-lg border px-3 py-2 text-sm font-semibold ${view === "preguntas" ? "border-viria-600 bg-viria-600 text-white" : "bg-white text-slate-700"}`}>Ver preguntas</button>
+          <button type="button" aria-pressed={view === "registro"} onClick={() => setView("registro")} className={`min-h-12 flex-1 rounded-lg border px-3 py-2 text-sm font-semibold ${view === "registro" ? "border-viria-600 bg-viria-600 text-white" : "bg-white text-slate-700"}`}>Registrar evaluación</button>
+          <button type="button" aria-pressed={view === "ambas"} onClick={() => setView("ambas")} className={`hidden min-h-12 flex-1 rounded-lg border px-3 py-2 text-sm font-semibold xl:block ${view === "ambas" ? "border-viria-600 bg-viria-600 text-white" : "bg-white text-slate-700"}`}>Ver ambas juntas</button>
+        </div>
+        <p className="text-xs text-slate-500">Puedes alternar sin perder las respuestas registradas. Guarda la evaluación para conservarlas al cerrar.</p>
+      </div>
+      <div className={view === "ambas" ? "grid min-w-0 gap-5 xl:grid-cols-2" : "min-w-0"}>
+        <div className={view === "registro" ? "hidden" : view === "ambas" ? "min-w-0 xl:max-h-[75vh] xl:overflow-y-auto" : "min-w-0"}>
+          <InstrumentViewer key={step} step={step} expanded fixedOpen active={view !== "registro"} />
+        </div>
+        <section aria-label="Registro del evaluador" className={view === "preguntas" ? "hidden" : view === "ambas" ? "min-w-0 space-y-4 xl:max-h-[75vh] xl:overflow-y-auto xl:pr-3" : "min-w-0 space-y-4 sm:min-h-[400px]"}>
+          <p className="rounded-lg bg-slate-100 p-3 text-sm text-slate-600"><strong>Completa el evaluador.</strong> Registra lo observado, no respuestas supuestas. La escritura requiere revisión del psicopedagogo.</p>
+          {stepComponents[step]}
+        </section>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 border-t pt-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
         <button type="button" onClick={() => goToStep(Math.max(0, step - 1))} disabled={step === 0} className="flex min-h-12 items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 py-3 text-sm disabled:opacity-40">
