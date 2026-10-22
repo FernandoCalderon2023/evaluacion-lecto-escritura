@@ -1,0 +1,14 @@
+import { reportEvidence, REPORT_RULES_VERSION } from "@/lib/reportEvidence"
+import { reportFingerprint } from "@/lib/reportFingerprint"
+import type { AllScores } from "@/types/scoring"
+
+export function ReportTrace({ record, scores, compact = false }: { record: Record<string, any>; scores: AllScores; compact?: boolean }) {
+ const date = (value: Date | string) => new Date(value).toLocaleString("es-BO", { timeZone: "America/La_Paz" })
+ return <section className="rounded-xl border bg-white p-4 text-sm break-words space-y-3">
+  <h2 className="text-lg font-semibold">Referencia y trazabilidad del resultado</h2>
+  <dl className="grid gap-3 sm:grid-cols-2"><div><dt className="text-slate-500">Evaluación</dt><dd className="break-all font-mono">{record.id}</dd></div><div><dt className="text-slate-500">Fecha de evaluación · Bolivia</dt><dd>{date(record.fecha)}</dd></div><div><dt className="text-slate-500">Evaluador declarado en el formulario</dt><dd>{record.evaluador || "No registrado"}</dd></div><div><dt className="text-slate-500">Último guardado · Bolivia</dt><dd>{date(record.updatedAt)}</dd></div></dl>
+  <p><strong>Origen:</strong> respuestas guardadas por el evaluador y reglas de cálculo de SIDEDA. Las sugerencias de IA son propuestas pendientes de revisión; no son observaciones verificadas.</p>
+  <p className="text-xs text-slate-600">Versión de reglas: {REPORT_RULES_VERSION}. La huella identifica los datos usados y estas reglas; no es firma profesional ni prueba de autenticidad.</p><p className="break-all font-mono text-xs">SHA-256: {reportFingerprint(record)}</p>
+  {!compact && <><h3 className="font-semibold">Cómo comprobar cada resultado</h3><div className="grid gap-3 md:grid-cols-2">{reportEvidence(scores).map(e => <article key={e.area} className="break-inside-avoid rounded-lg border p-3"><h4 className="font-semibold">{e.area}</h4><p className="mt-1">{e.dato}</p><p className="mt-2 text-slate-600">{e.regla}</p><p className="mt-2 font-medium">{e.registro !== "completo" ? "Conclusión: pendiente." : e.alerta ? "Conclusión: señal para revisión; no diagnóstico." : "Conclusión: sin alerta de esta regla; no descarta otras necesidades."}</p></article>)}</div><p className="text-xs text-slate-600">La clasificación general resume cuántas áreas activan alertas: 0, 1, 2–3 o 4–5. Si falta un área, permanece incompleta. Estas categorías no miden gravedad clínica ni equivalen a percentiles o baremos por edad. BPM se presenta por separado.</p><h3 className="font-semibold">Antes de compartir</h3><ol className="list-decimal space-y-1 pl-5"><li>Contrasta los registros con las respuestas y las muestras originales.</li><li>Revisa las áreas pendientes y la confirmación de aplicación.</li><li>Elige con el profesional una actividad y acuerda qué observar y cuándo revisarla.</li><li>Conserva el PDF con su referencia y huella si necesitas comparar versiones. El sistema no conserva aquí las respuestas anteriores.</li></ol></>}
+ </section>
+}

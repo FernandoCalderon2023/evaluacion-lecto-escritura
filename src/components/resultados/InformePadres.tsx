@@ -41,8 +41,7 @@ export function InformePadres({
       <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4">
         <p className="text-sm text-amber-900">
           <strong>Importante:</strong> este informe es una <strong>orientación</strong> para acompañar a {suHija} en casa,
-          <strong> no es un diagnóstico</strong>. Solo un profesional (docente especialista o psicopedagogo/a) puede
-          hacer un diagnóstico. Ante cualquier duda, conversalo con la maestra o un profesional.
+          <strong> no es un diagnóstico</strong>. Las dudas sobre una posible dificultad requieren una valoración profesional. Conversen con el docente sobre lo observado.
         </p>
       </div>
 
@@ -50,7 +49,7 @@ export function InformePadres({
       {/* Fortalezas primero */}
       {fortalezas.length > 0 && (
         <Card>
-          <CardHeader><CardTitle className="text-base text-green-700">Lo que {suHija} hace bien 🌟</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base text-green-700">Áreas registradas sin alerta</CardTitle></CardHeader>
           <CardContent>
             <ul className="list-disc pl-5 space-y-1.5 text-sm text-slate-700">
               {fortalezas.map((f, i) => <li key={i}>{f}</li>)}
@@ -59,10 +58,10 @@ export function InformePadres({
         </Card>
       )}
 
-      {/* Qué observamos (resumen empático, sin jerga) */}
+      {/* Qué permite decir este registro (resumen empático, sin jerga) */}
       {resumen && (
         <Card>
-          <CardHeader><CardTitle className="text-base">Qué observamos</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">Qué permite decir este registro</CardTitle></CardHeader>
           <CardContent><p className="text-sm text-slate-700 leading-relaxed">{resumen}</p></CardContent>
         </Card>
       )}
@@ -70,7 +69,7 @@ export function InformePadres({
       {/* Acciones en casa — el corazón de esta versión */}
       {familia.length > 0 && (
         <Card>
-          <CardHeader><CardTitle className="text-base text-viria-700">Qué pueden hacer en casa</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base text-viria-700">Propuestas para revisar antes de aplicarlas en casa</CardTitle></CardHeader>
           <CardContent>
             <div className="space-y-3">
               {familia.map((r, i) => (
@@ -84,6 +83,7 @@ export function InformePadres({
         </Card>
       )}
 
+      {familia.length === 0 && <p className="rounded-lg border p-4 text-sm">No hay propuestas de IA disponibles para compartir. Revisen con el docente una muestra de trabajo, elijan una actividad y acuerden qué observar en el próximo encuentro.</p>}
       {/* Cuándo buscar apoyo (sin alarmar) */}
       {derivacion?.necesaria && (
         <Card>

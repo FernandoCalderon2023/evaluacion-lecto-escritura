@@ -85,7 +85,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn, c
         }
         if (data.status === "processing") {
           setProgress((p) => Math.max(p, 75))
-          setStepMsg("Generando el informe psicopedagógico...")
+          setStepMsg("Generando propuestas de apoyo educativo...")
         } else if (data.status === "queued") {
           if (data.posicion && data.posicion !== lastPos) {
             lastPos = data.posicion
@@ -149,7 +149,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn, c
       <div className="text-center py-10 space-y-4 border-2 border-dashed border-slate-200 rounded-xl">
         <Sparkles className="h-10 w-10 text-viria-400 mx-auto" />
         <div>
-          <p className="font-semibold text-slate-700">Informe Psicopedagógico con IA</p>
+          <p className="font-semibold text-slate-700">Propuestas de apoyo educativo con IA</p>
           <p className="text-sm text-slate-500 mt-1">
             Resultados verificables del registro y sugerencias educativas para revisión docente.
           </p>
@@ -200,7 +200,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn, c
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500">
           <Sparkles className="h-4 w-4 text-viria-500" />
-          <span>Informe psicopedagógico generado</span>
+          <span>Propuestas de apoyo educativo generadas con IA</span>
           {generadoEn && (
             <span className="text-xs">· {new Date(generadoEn).toLocaleDateString("es-BO")}</span>
           )}
@@ -218,6 +218,7 @@ export function InformeIA({ evaluacionId, analisisInicial, analisisGeneradoEn, c
         <strong>Informe provisional · revisión profesional requerida</strong>
         <ul className="mt-2 list-disc pl-5 space-y-1">{analisis.controlCalidad?.advertencias.map((warning, i) => <li key={i}>{warning}</li>)}</ul>
       </div>
+      <p className="text-sm text-slate-600">Los hallazgos se calculan con las respuestas registradas. La IA propone actividades; su pertinencia para este caso y su relación con cada evidencia todavía requieren revisión humana. La plataforma no registra una aprobación profesional.</p>
       {/* SÍNTESIS EJECUTIVA */}
       {analisis.sintesisEjecutiva && (
         <Card className="border-viria-300 bg-viria-50/50">

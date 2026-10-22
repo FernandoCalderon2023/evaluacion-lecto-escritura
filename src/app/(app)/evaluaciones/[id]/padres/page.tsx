@@ -1,6 +1,8 @@
+import { ReportTrace } from "@/components/resultados/ReportTrace"
+import { PrintButton } from "@/components/resultados/PrintButton"
 import { TrialResult } from "@/components/resultados/TrialResult"
 import { calcularScores } from "@/lib/scoring"
-import { readGuardedReport } from "@/lib/ai/reportGuard"
+import { readGuardedReport, guardReport } from "@/lib/ai/reportGuard"
 import { isTrial } from "@/lib/commercial"
 export const dynamic = "force-dynamic"
 
@@ -26,7 +28,8 @@ export default async function InformePadresPage(props: { params: Promise<{ id: s
   }
 
   if (await isTrial(auth.userId)) return <TrialResult id={ev.id} codigo={ev.estudiante.codigo} scores={calcularScores(ev as any)} canEdit={canAccessResource(auth, ev.docenteId)} familyView/>
-  const analisis = readGuardedReport(ev.analisisIA, calcularScores(ev as any))
+  const scores = calcularScores(ev as any)
+  const analisis = readGuardedReport(ev.analisisIA, scores) ?? guardReport({ recomendaciones: { paraElAula: [], paraLaFamilia: [] } }, scores)
 
   return (
     <div className="p-4 lg:p-8 space-y-6 max-w-3xl">
@@ -43,6 +46,8 @@ export default async function InformePadresPage(props: { params: Promise<{ id: s
         </div>
       </div>
 
+      <div className="print:hidden"><PrintButton/></div>
+      <ReportTrace record={ev} scores={scores} compact/>
       <InformePadres analisis={analisis} sexo={ev.estudiante.sexo} />
     </div>
   )

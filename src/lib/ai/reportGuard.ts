@@ -1,3 +1,4 @@
+import { reportEvidence } from "@/lib/reportEvidence"
 import { z } from "zod"
 import type { AnalisisIA } from "@/types/ai"
 import { calcularScores } from "@/lib/scoring"
@@ -16,13 +17,7 @@ export function guardReport(raw: unknown, scores: AllScores): AnalisisIA {
   const parsed = z.object({ recomendaciones: recommendations }).safeParse(raw)
   if (!parsed.success) throw new Error("La IA devolvió recomendaciones con formato inválido. Intente generar el informe nuevamente.")
   const pending = scores.estadoGeneral === "evaluacion-incompleta"
-  const evidence = [
-    { area: "Lectura y comprensión", registro: scores.lectura.registro, dato: `${scores.lectura.comprensionTotal}/15 puntos de comprensión`, alerta: scores.lectura.hasDifficulty },
-    { area: "Escritura (dictado)", registro: scores.dictado.registro, dato: `${scores.dictado.itemsRespondidos}/${scores.dictado.itemsEsperados} criterios registrados; ${scores.dictado.positiveTotal}/34 puntos positivos`, alerta: scores.dictado.hasDifficulty },
-    { area: "Escritura (composición)", registro: scores.composicion.registro, dato: `${scores.composicion.itemsRespondidos}/${scores.composicion.itemsEsperados} criterios registrados; ${scores.composicion.positiveTotal}/34 puntos positivos`, alerta: scores.composicion.hasDifficulty },
-    { area: "Procesos cognitivos", registro: scores.cognitivo.registro, dato: `${scores.cognitivo.totalCorrect}/${scores.cognitivo.totalItems} respuestas marcadas correctas`, alerta: scores.cognitivo.hasDifficulty },
-    { area: "Procesos léxicos", registro: scores.lexical.registro, dato: `${scores.lexical.totalCorrect}/${scores.lexical.totalItems} respuestas marcadas correctas`, alerta: scores.lexical.hasDifficulty },
-  ]
+  const evidence = reportEvidence(scores)
   const warnings = [
     "Orientación educativa provisional. Los puntajes no confirman un diagnóstico ni la causa de una dificultad.",
     "Una casilla desmarcada solo se interpreta como respuesta incorrecta cuando el evaluador confirmó la aplicación completa del bloque cognitivo o léxico.",

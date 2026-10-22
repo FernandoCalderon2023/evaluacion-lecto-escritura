@@ -1,0 +1,7 @@
+import { prisma } from "@/lib/prisma"
+// Render only after the parent page has authorized access to this evaluation.
+export async function ReportHistory({ id }: { id: string }) {
+ const events = await prisma.auditLog.findMany({ where: { target: id, action: { in: ["evaluation_created", "evaluation_updated", "evaluation_ai_generated"] } }, orderBy: { createdAt: "desc" }, take: 10, select: { id: true, action: true, actorId: true, createdAt: true } })
+ const labels: Record<string,string> = { evaluation_created: "Evaluación creada", evaluation_updated: "Evaluación guardada; sugerencias requieren nueva generación", evaluation_ai_generated: "Sugerencias de IA generadas; revisión pendiente" }
+ return <section className="rounded-xl border p-4 text-sm space-y-3"><h2 className="font-semibold">Historial de trazabilidad</h2><p className="text-xs text-slate-600">Últimos 10 eventos registrados desde la incorporación de esta función. No es un historial completo de respuestas ni una aprobación profesional. Los registros anteriores pueden no tener eventos.</p>{events.length ? <ol className="space-y-3">{events.map(e => <li key={e.id} className="break-inside-avoid"><p className="font-medium">{labels[e.action]}</p><p>{e.createdAt.toLocaleString("es-BO", {timeZone:"America/La_Paz"})} · Bolivia</p><p className="break-all text-xs text-slate-500">Evento: {e.id} · Cuenta: {e.actorId || "Sistema"}</p></li>)}</ol> : <p>No hay eventos de trazabilidad registrados para esta evaluación.</p>}</section>
+}

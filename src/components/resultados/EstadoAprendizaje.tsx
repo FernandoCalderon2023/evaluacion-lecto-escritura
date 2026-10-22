@@ -3,10 +3,10 @@ import { CheckCircle, AlertCircle, AlertTriangle, XCircle } from "lucide-react"
 
 const CONFIG: Record<EstadoAprendizaje, { label: string; color: string; bg: string; icon: React.ElementType }> = {
   "evaluacion-incompleta": { label: "Evaluación incompleta", color: "text-slate-700", bg: "bg-slate-100 border-slate-300", icon: AlertCircle },
-  "sin-dificultades":    { label: "Sin Dificultades",    color: "text-green-700",  bg: "bg-green-100 border-green-300",  icon: CheckCircle },
-  "dificultad-leve":     { label: "Dificultad Leve",     color: "text-yellow-700", bg: "bg-yellow-100 border-yellow-300", icon: AlertCircle },
-  "dificultad-moderada": { label: "Dificultad Moderada", color: "text-orange-700", bg: "bg-orange-100 border-orange-300", icon: AlertTriangle },
-  "dificultad-severa":   { label: "Dificultad Severa",   color: "text-red-700",    bg: "bg-red-100 border-red-300",      icon: XCircle },
+  "sin-dificultades":    { label: "Sin alertas en las áreas registradas",    color: "text-green-700",  bg: "bg-green-100 border-green-300",  icon: CheckCircle },
+  "dificultad-leve":     { label: "Señal en 1 área",     color: "text-yellow-700", bg: "bg-yellow-100 border-yellow-300", icon: AlertCircle },
+  "dificultad-moderada": { label: "Señales en 2–3 áreas", color: "text-orange-700", bg: "bg-orange-100 border-orange-300", icon: AlertTriangle },
+  "dificultad-severa":   { label: "Señales en 4–5 áreas",   color: "text-red-700",    bg: "bg-red-100 border-red-300",      icon: XCircle },
 }
 
 interface Props { estado: EstadoAprendizaje; size?: "sm" | "lg" }
@@ -20,7 +20,7 @@ export function EstadoBadge({ estado, size = "sm" }: Props) {
         <Icon className={`h-6 w-6 ${cfg.color}`} />
         <div>
           <p className={`font-bold text-lg ${cfg.color}`}>{cfg.label}</p>
-          <p className="text-xs text-slate-500">Estado general de aprendizaje</p>
+          <p className="text-xs text-slate-500">Resumen de reglas · no diagnóstico</p>
         </div>
       </div>
     )

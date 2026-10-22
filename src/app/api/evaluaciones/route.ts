@@ -1,3 +1,5 @@
+import { reportFingerprint } from "@/lib/reportFingerprint"
+import { REPORT_RULES_VERSION } from "@/lib/reportEvidence"
 import { InstitutionLimitError } from "@/lib/institution"
 import { guardedRecord } from "@/lib/ai/reportGuard"
 import { consumeTrial, TrialLimitError, subscriptionRequired, isTrial, withoutReport } from "@/lib/commercial"
@@ -79,7 +81,7 @@ export async function POST(req: NextRequest) {
 
     const evaluacion = await prisma.$transaction(async tx => {
       await consumeTrial(tx, auth.userId, "evaluacionesUsadas")
-      return tx.evaluacion.create({
+      const created = await tx.evaluacion.create({
       data: {
         ...clean,
         fecha,
@@ -93,6 +95,8 @@ export async function POST(req: NextRequest) {
         ...bpmScores,
       },
     })
+      await tx.auditLog.create({ data: { actorId: auth.userId, action: "evaluation_created", target: created.id, metadata: JSON.stringify({ rules: REPORT_RULES_VERSION, fingerprint: reportFingerprint(created) }) } })
+      return created
     })
     return NextResponse.json(evaluacion, { status: 201 })
   } catch (err: unknown) {

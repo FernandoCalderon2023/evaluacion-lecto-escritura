@@ -1,3 +1,5 @@
+import { reportFingerprint } from "@/lib/reportFingerprint"
+import { REPORT_RULES_VERSION } from "@/lib/reportEvidence"
 import { prisma } from "@/lib/prisma"
 import { anthropic } from "@/lib/anthropic"
 import { calcularScores } from "@/lib/scoring"
@@ -82,6 +84,7 @@ export async function procesarAnalisis(jobId: string, evaluacionId: string): Pro
         data: { analisisIA: JSON.stringify(analisis), analisisGeneradoEn: new Date(), estadoAprendizaje: scores.estadoGeneral },
       })
       if (persisted.count !== 1) throw new AnalysisError("AI_EVALUATION_CHANGED", "La evaluación cambió durante el análisis. Genera un nuevo informe con los datos actualizados.", 409)
+      await tx.auditLog.create({ data: { actorId: job.docenteId, action: "evaluation_ai_generated", target: evaluacionId, metadata: JSON.stringify({ jobId, rules: REPORT_RULES_VERSION, fingerprint: reportFingerprint(ev), provider: process.env.DEEPSEEK_API_KEY ? "DeepSeek" : "Anthropic", reviewed: false }) } })
     })
 
     return analisis

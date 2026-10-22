@@ -1,3 +1,5 @@
+import { ReportHistory } from "@/components/resultados/ReportHistory"
+import { ReportTrace } from "@/components/resultados/ReportTrace"
 import { readGuardedReport } from "@/lib/ai/reportGuard"
 import { isTrial } from "@/lib/commercial"
 import { TrialResult } from "@/components/resultados/TrialResult"
@@ -42,7 +44,7 @@ export default async function EvaluacionResultadoPage(props: { params: Promise<{
   const canEdit = canAccessResource(auth, ev.docenteId)
   const canCreate = canAccessResource(auth, ev.estudiante.docenteId)
   const scores = calcularScores(ev as any)
-  if (await isTrial(auth.userId)) return <TrialResult id={ev.id} codigo={ev.estudiante.codigo} scores={scores} canEdit={canEdit}/>
+  if (await isTrial(auth.userId)) return <><ReportTrace record={ev} scores={scores}/><ReportHistory id={ev.id}/><TrialResult id={ev.id} codigo={ev.estudiante.codigo} scores={scores} canEdit={canEdit}/></>
   const analisis = readGuardedReport(ev.analisisIA, calcularScores(ev as any))
   const est = ev.estudiante
 
@@ -100,8 +102,8 @@ export default async function EvaluacionResultadoPage(props: { params: Promise<{
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[8pt] uppercase tracking-widest text-slate-500 mb-1">SIDEDA · Sistema de Evaluación de Dificultades de Aprendizaje</p>
-              <h1 className="text-[20pt] font-bold text-slate-900 leading-tight m-0">Informe Psicopedagógico</h1>
-              <p className="text-[10pt] text-slate-600 mt-1">Instrumento MINEDU 2012{scores.bpm.applied ? " + Batería Psicomotora Da Fonseca" : ""} · R.M. 1040/2022</p>
+              <h1 className="text-[20pt] font-bold text-slate-900 leading-tight m-0">Resumen de evaluación educativa</h1>
+              <p className="text-[10pt] text-slate-600 mt-1">Registro adaptado de actividades educativas{scores.bpm.applied ? " · Incluye registros BPM" : ""}</p>
             </div>
             <div className="text-right text-[8pt] text-slate-500">
               <p>Bolivia · {new Date().getFullYear()}</p>
@@ -123,12 +125,13 @@ export default async function EvaluacionResultadoPage(props: { params: Promise<{
         </div>
       </div>
 
+      <ReportTrace record={ev} scores={scores}/><ReportHistory id={ev.id}/>
       {/* Estado general */}
       <div className="flex items-center gap-4">
         <EstadoBadge estado={scores.estadoGeneral as EstadoAprendizaje} size="lg" />
         {scores.areasDificultad.length > 0 && (
           <div className="text-sm text-slate-600">
-            <span className="font-medium">Áreas con dificultad: </span>
+            <span className="font-medium">Áreas con señales para revisar: </span>
             {scores.areasDificultad.join(", ")}
           </div>
         )}
@@ -145,7 +148,7 @@ export default async function EvaluacionResultadoPage(props: { params: Promise<{
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Perfil de desempeño (% de logro)</CardTitle>
+            <CardTitle className="text-sm">Puntajes relativos al máximo de cada área</CardTitle>
           </CardHeader>
           <CardContent>
             <GraficoRadar scores={scores} />

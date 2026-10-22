@@ -1,3 +1,5 @@
+import { reportFingerprint } from "@/lib/reportFingerprint"
+import { REPORT_RULES_VERSION } from "@/lib/reportEvidence"
 import { guardedRecord } from "@/lib/ai/reportGuard"
 import { isTrial, withoutReport } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
@@ -65,7 +67,10 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
       bpmScorePraxiaGlobal: null, bpmScorePraxiaFina: null, bpmPerfilGeneral: null,
     }
 
-    const ev = await prisma.evaluacion.update({
+    const ev = await prisma.$transaction(async tx => {
+    const current = await tx.evaluacion.findUniqueOrThrow({ where: { id: params.id } })
+    if (current.updatedAt.getTime() !== existing.updatedAt.getTime()) throw new Error("La evaluación cambió mientras editabas. Recarga antes de guardar.")
+    const updated = await tx.evaluacion.update({
       where: { id: params.id },
       data: {
         ...clean,
@@ -79,11 +84,14 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
         analisisGeneradoEn: null,
       },
     })
+    await tx.auditLog.create({ data: { actorId: auth.userId, action: "evaluation_updated", target: updated.id, metadata: JSON.stringify({ rules: REPORT_RULES_VERSION, before: reportFingerprint(current), after: reportFingerprint(updated), changedFields: changed.filter(k => k !== "observaciones" && k !== "evaluador"), changedCount: changed.length, aiInvalidated: !!current.analisisIA }) } })
+    return updated
+    })
     return NextResponse.json((await isTrial(auth.userId)) ? withoutReport(ev) : guardedRecord(ev));
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error("[evaluaciones/[id]/PUT]", msg)
-    return NextResponse.json({ error: msg }, { status: 500 })
+    return NextResponse.json({ error: msg }, { status: msg.startsWith("La evaluación cambió") ? 409 : 500 })
   }
 }
 
@@ -98,11 +106,14 @@ export async function DELETE(_: NextRequest, props: { params: Promise<{ id: stri
   if (!canAccessResource(auth, existing.docenteId)) return forbiddenResponse()
 
   try {
-    await prisma.evaluacion.delete({ where: { id: params.id } })
+    await prisma.$transaction(async tx => {
+      await tx.evaluacion.delete({ where: { id: params.id } })
+      await tx.auditLog.create({ data: { actorId: auth.userId, action: "evaluation_deleted", target: params.id } })
+    })
     return NextResponse.json({ ok: true })
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error("[evaluaciones/[id]/DELETE]", msg)
-    return NextResponse.json({ error: msg }, { status: 500 })
+    return NextResponse.json({ error: msg }, { status: msg.startsWith("La evaluación cambió") ? 409 : 500 })
   }
 }

@@ -1,5 +1,5 @@
 "use client"
-import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, Legend } from "recharts"
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Legend } from "recharts"
 import { AllScores } from "@/types/scoring"
 
 interface Props { scores: AllScores }
@@ -41,9 +41,10 @@ export function GraficoRadar({ scores }: Props) {
     <ResponsiveContainer width="100%" height={260}>
       <RadarChart data={data}>
         <PolarGrid />
+        <PolarRadiusAxis domain={[0, 100]} />
         <PolarAngleAxis dataKey="area" tick={{ fontSize: 12 }} />
         <Radar
-          name="Desempeño (%)"
+          name="Puntos / máximo del área (%)"
           dataKey="valor"
           stroke="#2563eb"
           fill="#2563eb"
@@ -52,6 +53,7 @@ export function GraficoRadar({ scores }: Props) {
         <Legend />
       </RadarChart>
     </ResponsiveContainer>
+    <p className="text-xs text-slate-500">Escala fija de 0 a 100. No son percentiles ni una comparación con otros estudiantes; las áreas usan criterios distintos.</p>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 # Paquete institucional: 10 cuentas y 15 evaluaciones compartidas
 
-Preparado el 22 de octubre de 2026. Implementado y verificado localmente; pendiente de publicación y alta de la institución real. Falta su nombre y el nombre/correo del responsable.
+Publicado el 22 de octubre de 2026 en https://sideda.com, versión `57d91a9`, despliegue `dpl_DDvbCoW2DiwL5SmB2Whe9uZFM21f` Ready. Migración aplicada; salud y base de datos correctas. Pendiente del nombre y responsable para dar de alta la institución cliente.
 
 ## Condiciones
 
@@ -29,7 +29,7 @@ Los expedientes institucionales no se vinculan automáticamente con una unidad e
 
 Alta de usuarios y consumo de evaluaciones usan actualización condicional y creación en la misma transacción. Si falla el guardado, se revierte la reserva. Se auditan el alta del paquete, cuentas y cambios de estado. No se registran contraseñas en auditoría.
 
-## Publicación pendiente
+## Procedimiento de publicación y alta
 
 1. Con entorno de destino cargado de forma segura, ejecutar `node scripts/migrate-institutions.cjs`.
 2. Publicar la aplicación. La migración debe preceder al despliegue: el layout consulta las tablas nuevas.
@@ -44,3 +44,7 @@ Migración aditiva e idempotente: `prisma/institutions.sql`. No modifica suscrip
 Compilación de producción correcta, 50 pruebas unitarias y 244 comprobaciones funcionales correctas con base temporal y proveedores simulados. Incluye carreras por la última evaluación y la décima cuenta, aislamiento de expedientes, bloqueo de administración ajena, cierre de sesiones al desactivar, cupo sin devolución por borrado y edición al agotarlo.
 
 No se crearon cuentas reales, no se enviaron correos ni se ejecutó IA pagada. No se ha verificado visualmente esta nueva pantalla en dispositivo físico.
+
+## Demostración habilitada
+
+Institución de demostración SIDEDA: una cuenta responsable y dos cuentas docentes. Capacidad de 10 cuentas, quedan 7 plazas para demostrar el alta. Tiene su propio paquete de 15 evaluaciones, separado del cliente. El responsable administra cuentas y consumo; los usuarios conservan espacios privados. Los identificadores de acceso usan `demo.institucion.*@sideda.com`; no se configuraron buzones para ellos. No se enviaron correos. Las contraseñas se entregan al solicitante y no se guardan en esta documentación.
