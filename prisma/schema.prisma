@@ -494,3 +494,25 @@ model SystemControl {
   updatedBy String?
   updatedAt DateTime @updatedAt
 }
+
+// Paid institutional package. Administrative access does not grant access to pupil records.
+model InstitucionPlan {
+  id String @id @default(cuid())
+  nombre String
+  limiteUsuarios Int @default(10)
+  usuariosUsados Int @default(0)
+  limiteEvaluaciones Int @default(15)
+  evaluacionesUsadas Int @default(0)
+  createdAt DateTime @default(now())
+  miembros InstitucionMiembro[]
+}
+
+model InstitucionMiembro {
+  usuarioId String @id
+  institucionId String
+  institucion InstitucionPlan @relation(fields: [institucionId], references: [id])
+  gestor Boolean @default(false)
+  evaluacionesUsadas Int @default(0)
+  createdAt DateTime @default(now())
+  @@index([institucionId])
+}

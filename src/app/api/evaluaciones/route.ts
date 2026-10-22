@@ -1,3 +1,4 @@
+import { InstitutionLimitError } from "@/lib/institution"
 import { guardedRecord } from "@/lib/ai/reportGuard"
 import { consumeTrial, TrialLimitError, subscriptionRequired, isTrial, withoutReport } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
@@ -95,6 +96,7 @@ export async function POST(req: NextRequest) {
     })
     return NextResponse.json(evaluacion, { status: 201 })
   } catch (err: unknown) {
+    if (err instanceof InstitutionLimitError) return NextResponse.json({ error: err.message, code: "INSTITUTION_LIMIT" }, { status: 403 })
     if (err instanceof TrialLimitError) return subscriptionRequired()
     if (err instanceof ZodError) {
       return NextResponse.json(validationError(err), { status: 400 })

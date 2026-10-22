@@ -1,3 +1,4 @@
+import { institutionFor } from "@/lib/institution"
 import { consumeTrial, TrialLimitError, subscriptionRequired, isTrial, withoutReport } from "@/lib/commercial"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest) {
     // Enlazar a su Unidad Educativa (find-or-create normalizado, sin duplicados).
     // Best-effort: nunca rompe la creación del estudiante si esto falla.
     let unidadEducativaId: string | null = null
-    try { if (!(await isTrial(docenteId))) unidadEducativaId = await findOrCreateUE(data.unidadEducativa) }
+    try { if (!(await institutionFor(docenteId)) && !(await isTrial(docenteId))) unidadEducativaId = await findOrCreateUE(data.unidadEducativa) }
     catch (e) { console.error("[estudiantes/POST] resolver U.E.:", e) }
 
     const estudiante = await prisma.$transaction(async tx => {

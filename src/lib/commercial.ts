@@ -1,3 +1,4 @@
+import { consumeInstitution } from "@/lib/institution"
 import { calcularScores } from "@/lib/scoring"
 import { cache } from "react"
 import { prisma } from "@/lib/prisma"
@@ -12,6 +13,7 @@ export const subscriptionRequired = () => NextResponse.json({ error: "Tu prueba 
 
 // Increment and creation share a write transaction. Deletion never replenishes trial quotas.
 export async function consumeTrial(tx: Prisma.TransactionClient, userId: string, kind: "estudiantesUsados" | "evaluacionesUsadas") {
+  if (await consumeInstitution(tx, userId, kind === "evaluacionesUsadas")) return
   const access = await tx.accesoComercial.findUnique({ where: { usuarioId: userId } })
   if (!access || access.estado === "ACTIVO") return
   const changed = await tx.accesoComercial.updateMany({ where: { usuarioId: userId, estado: "PRUEBA", [kind]: { lt: TRIAL_LIMIT } }, data: { [kind]: { increment: 1 } } })
